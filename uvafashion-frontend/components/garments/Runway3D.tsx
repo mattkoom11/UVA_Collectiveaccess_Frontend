@@ -22,7 +22,7 @@ function WalkingModel({
   position: [number, number, number]; 
   garment: Garment;
   index: number;
-  onGarmentClick: (slug: string) => void;
+  onGarmentClick: (id: string) => void;
   onHover: (garment: Garment | null) => void;
 }) {
   const groupRef = useRef<Group>(null);
@@ -63,7 +63,7 @@ function WalkingModel({
   });
   
   const handleClick = () => {
-    onGarmentClick(garment.slug);
+    onGarmentClick(garment.id);
   };
 
   return (
@@ -198,8 +198,9 @@ export default function Runway3D({ garments }: Props) {
     return [offsetX, -0.5, startZ + i * spacing];
   });
 
-  const handleGarmentClick = (slug: string) => {
-    router.push(`/garments/${slug}`);
+  const handleGarmentClick = (id: string) => {
+    // Navigate to backstage detail view
+    router.push(`/backstage/${id}`);
   };
 
   return (

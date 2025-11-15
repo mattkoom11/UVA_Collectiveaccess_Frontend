@@ -1,0 +1,71 @@
+"use client";
+
+import { useState } from "react";
+import Runway3D from "@/components/garments/Runway3D";
+import Backstage3D from "@/components/backstage/Backstage3D";
+import { getAllGarments } from "@/lib/garments";
+import PageLayout from "@/components/layout/PageLayout";
+import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+
+type TabType = "runway" | "backstage";
+
+export default function HomePage() {
+  const [activeTab, setActiveTab] = useState<TabType>("runway");
+  const router = useRouter();
+  const garments = useMemo(() => getAllGarments(), []);
+
+  const handleGarmentSelected = (garmentId: string) => {
+    router.push(`/backstage/${garmentId}`);
+  };
+
+  return (
+    <PageLayout>
+      {/* Tab Navigation */}
+      <div className="border-b border-zinc-800 sticky top-[73px] md:top-[81px] bg-zinc-950/95 backdrop-blur-sm z-[9]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex gap-8">
+            <button
+              onClick={() => setActiveTab("runway")}
+              className={`py-4 text-sm uppercase tracking-[0.2em] font-light transition-colors border-b-2 ${
+                activeTab === "runway"
+                  ? "text-zinc-50 border-zinc-50"
+                  : "text-zinc-500 border-transparent hover:text-zinc-300"
+              }`}
+            >
+              3D Runway
+            </button>
+            <button
+              onClick={() => setActiveTab("backstage")}
+              className={`py-4 text-sm uppercase tracking-[0.2em] font-light transition-colors border-b-2 ${
+                activeTab === "backstage"
+                  ? "text-zinc-50 border-zinc-50"
+                  : "text-zinc-500 border-transparent hover:text-zinc-300"
+              }`}
+            >
+              3D Backstage
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === "runway" ? (
+        <section className="py-8 md:py-12">
+          <div className="max-w-7xl mx-auto px-4">
+            <Runway3D garments={garments} />
+          </div>
+        </section>
+      ) : (
+        <section className="w-full h-[calc(100vh-200px)] min-h-[600px]">
+          <Backstage3D
+            onGarmentSelected={handleGarmentSelected}
+            garmentId="uva-dress-001"
+            garmentPositions={[[0, 0.45, -8]]}
+          />
+        </section>
+      )}
+    </PageLayout>
+  );
+}
+
