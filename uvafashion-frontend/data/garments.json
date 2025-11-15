@@ -1,0 +1,21 @@
+[
+  {
+    "id": "G-0001",
+    "slug": "uva-letterman-jacket-1964",
+    "label": "UVA Letterman Jacket, 1964",
+    "decade": "1960s",
+    "date": "1964",
+    "work_type": "jacket",
+    "colors": ["navy", "orange"],
+    "materials": ["wool", "leather"],
+    "function": ["sporting", "school"],
+    "gender": "male",
+    "age": "adult",
+    "condition": "good",
+    "description": "Varsity jacket worn by a UVA student in the mid-1960s.",
+    "images": [
+      "/sample/jackets/jacket1964-front.jpg",
+      "/sample/jackets/jacket1964-back.jpg"
+    ]
+  }
+]
