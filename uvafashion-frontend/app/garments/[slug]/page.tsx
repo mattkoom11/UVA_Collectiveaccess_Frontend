@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { getAllGarments, getGarmentBySlug } from "@/lib/garments";
-import { Garment } from "@/types/garment";
+import { getAllGarments, getGarmentBySlug, getGarmentById } from "@/lib/garments";
+import { Garment, getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/garment";
 import Link from "next/link";
 import Garment3DViewer from "@/components/garments/Garment3DViewer";
 
@@ -22,10 +22,21 @@ export default function GarmentDetailPage({ params }: Props) {
 
   const editorialTitle = garment.editorial_title || garment.label;
   const editorialSubtitle = garment.editorial_subtitle || `${garment.work_type || "Garment"} · ${garment.decade || garment.date || ""}`;
+  const tagline = garment.tagline || garment.editorial_subtitle;
   const aestheticDescription = garment.aesthetic_description || garment.description || "No description yet.";
   const story = garment.story;
   const inspiration = garment.inspiration;
   const context = garment.context;
+  const curatorNote = garment.curatorNote;
+  const era = garment.era || getEraFromDecade(garment.decade, garment.yearApprox, garment.date);
+  const garmentType = garment.type || getGarmentTypeFromWorkType(garment.work_type);
+  
+  // Get related garments
+  const relatedGarments: Garment[] = garment.relatedIds
+    ? garment.relatedIds
+        .map(id => getGarmentById(id))
+        .filter((g): g is Garment => g !== undefined)
+    : [];
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50">
@@ -53,9 +64,16 @@ export default function GarmentDetailPage({ params }: Props) {
           </h1>
           
           {/* Editorial subtitle - elegant tagline */}
-          <p className="text-lg md:text-xl text-zinc-300 font-light tracking-wide mb-12 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-zinc-300 font-light tracking-wide mb-6 max-w-2xl mx-auto">
             {editorialSubtitle}
           </p>
+          
+          {/* Tagline - 1-2 sentence editorial hook */}
+          {tagline && (
+            <p className="text-base md:text-lg text-zinc-400 font-light italic tracking-wide mb-12 max-w-xl mx-auto">
+              {tagline}
+            </p>
+          )}
           
           {/* Decorative divider */}
           <div className="flex items-center justify-center gap-4 mb-12">
@@ -163,13 +181,77 @@ export default function GarmentDetailPage({ params }: Props) {
           </section>
         )}
 
+        {/* Timeline/Context block */}
+        {era && (
+          <section className="mb-20 bg-zinc-900/50 border border-zinc-800 p-8 md:p-12">
+            <div className="max-w-4xl mx-auto">
+              <h2 className="text-xs uppercase tracking-[0.3em] text-zinc-400 mb-6 text-center">
+                Timeline & Context
+              </h2>
+              <div className="grid md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-sm uppercase tracking-[0.2em] text-zinc-400 mb-3 font-light">
+                    Decade
+                  </h3>
+                  <p className="text-lg text-zinc-200 font-light">
+                    {garment.decade || garment.date || era.replace('-', '–')}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-sm uppercase tracking-[0.2em] text-zinc-400 mb-3 font-light">
+                    Fashion Trends
+                  </h3>
+                  {context ? (
+                    <p className="text-base leading-relaxed text-zinc-300 font-light">
+                      {context}
+                    </p>
+                  ) : (
+                    <p className="text-base leading-relaxed text-zinc-400 font-light italic">
+                      {era === 'pre-1920' && 'Early 20th century fashion emphasized structured silhouettes and traditional craftsmanship.'}
+                      {era === '1920-1950' && 'This era saw dramatic shifts from the liberated flapper style to wartime utility, then post-war elegance.'}
+                      {era === '1950-1980' && 'Mid-century fashion balanced sophisticated elegance with emerging youth culture and ready-to-wear innovation.'}
+                      {era === '1980+' && 'Late 20th century fashion embraced bold expressions, designer labels, and diverse stylistic movements.'}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Curator's Note */}
+        {curatorNote && (
+          <section className="mb-20 border-t border-zinc-800 pt-12">
+            <div className="max-w-3xl mx-auto">
+              <h2 className="text-xs uppercase tracking-[0.3em] text-zinc-400 mb-6 text-center">
+                Curator's Note
+              </h2>
+              <p className="text-base md:text-lg leading-relaxed text-zinc-300 font-light italic text-center">
+                {curatorNote}
+              </p>
+            </div>
+          </section>
+        )}
+
         {/* Technical details - elegant presentation */}
         <section className="mb-20 border-t border-zinc-800 pt-12">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-xs uppercase tracking-[0.3em] text-zinc-400 mb-8 text-center">
-              Details
+              Metadata
             </h2>
             <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 text-sm">
+              {garment.accessionNumber && (
+                <>
+                  <dt className="text-zinc-400 font-light">Accession Number</dt>
+                  <dd className="text-zinc-200 font-mono">{garment.accessionNumber}</dd>
+                </>
+              )}
+              {garmentType && (
+                <>
+                  <dt className="text-zinc-400 font-light">Garment Type</dt>
+                  <dd className="text-zinc-200 capitalize">{garmentType}</dd>
+                </>
+              )}
               {garment.date && (
                 <>
                   <dt className="text-zinc-400 font-light">Date</dt>
@@ -182,16 +264,32 @@ export default function GarmentDetailPage({ params }: Props) {
                   <dd className="text-zinc-200">{garment.decade}</dd>
                 </>
               )}
+              {garment.yearApprox && (
+                <>
+                  <dt className="text-zinc-400 font-light">Year (approx.)</dt>
+                  <dd className="text-zinc-200">{garment.yearApprox}</dd>
+                </>
+              )}
               {garment.colors && garment.colors.length > 0 && (
                 <>
                   <dt className="text-zinc-400 font-light">Colors</dt>
                   <dd className="text-zinc-200">{garment.colors.join(", ")}</dd>
                 </>
               )}
-              {garment.materials && garment.materials.length > 0 && (
+              {garment.materials && (
                 <>
                   <dt className="text-zinc-400 font-light">Materials</dt>
-                  <dd className="text-zinc-200">{garment.materials.join(", ")}</dd>
+                  <dd className="text-zinc-200">
+                    {Array.isArray(garment.materials) 
+                      ? garment.materials.join(", ")
+                      : garment.materials}
+                  </dd>
+                </>
+              )}
+              {garment.dimensions && (
+                <>
+                  <dt className="text-zinc-400 font-light">Dimensions</dt>
+                  <dd className="text-zinc-200">{garment.dimensions}</dd>
                 </>
               )}
               {garment.function && garment.function.length > 0 && (
@@ -212,6 +310,18 @@ export default function GarmentDetailPage({ params }: Props) {
                   <dd className="text-zinc-200">{garment.age}</dd>
                 </>
               )}
+              {garment.collection && (
+                <>
+                  <dt className="text-zinc-400 font-light">Collection</dt>
+                  <dd className="text-zinc-200">{garment.collection}</dd>
+                </>
+              )}
+              {garment.provenance && (
+                <>
+                  <dt className="text-zinc-400 font-light">Provenance</dt>
+                  <dd className="text-zinc-200">{garment.provenance}</dd>
+                </>
+              )}
               {garment.condition && (
                 <>
                   <dt className="text-zinc-400 font-light">Condition</dt>
@@ -221,6 +331,47 @@ export default function GarmentDetailPage({ params }: Props) {
             </dl>
           </div>
         </section>
+
+        {/* Related garments */}
+        {relatedGarments.length > 0 && (
+          <section className="mb-20 border-t border-zinc-800 pt-12">
+            <div className="max-w-7xl mx-auto px-4">
+              <h2 className="text-xs uppercase tracking-[0.3em] text-zinc-400 mb-8 text-center">
+                Related Garments
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {relatedGarments.map((related) => (
+                  <Link
+                    key={related.id}
+                    href={`/garments/${related.slug}`}
+                    className="group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300"
+                  >
+                    <div className="relative w-full aspect-[3/4] bg-zinc-900 overflow-hidden">
+                      {related.thumbnailUrl || (related.images && related.images[0]) ? (
+                        <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-xs">
+                          <p>Thumbnail</p>
+                        </div>
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-xs">
+                          <p>Image</p>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-zinc-950/0 group-hover:bg-zinc-950/20 transition-colors duration-300" />
+                    </div>
+                    <div className="p-4 space-y-1">
+                      <h3 className="text-sm font-light tracking-tight group-hover:text-zinc-200 transition-colors line-clamp-2">
+                        {related.name || related.label || related.editorial_title}
+                      </h3>
+                      <p className="text-xs text-zinc-400 font-light">
+                        {related.decade || related.date || ''}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Navigation */}
         <section className="text-center pt-8 border-t border-zinc-800">

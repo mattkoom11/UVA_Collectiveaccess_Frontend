@@ -2,10 +2,11 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { PerspectiveCamera, Environment, OrbitControls } from "@react-three/drei";
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { Group } from "three";
-import { Garment } from "@/types/garment";
+import { Garment, Era, GarmentType, getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/garment";
 import { useRouter } from "next/navigation";
+import { filterGarments } from "@/lib/garments";
 
 interface Props {
   garments: Garment[];
@@ -186,9 +187,20 @@ function RunwayLighting() {
 export default function Runway3D({ garments }: Props) {
   const router = useRouter();
   const [hoveredGarment, setHoveredGarment] = useState<Garment | null>(null);
+  const [selectedEra, setSelectedEra] = useState<Era | "all">("all");
+  const [selectedType, setSelectedType] = useState<GarmentType | "all">("all");
   
-  // Select a handful of best garments for the runway
-  const featuredGarments = garments.slice(0, 6);
+  // Filter garments based on selected filters
+  const filteredGarments = useMemo(() => {
+    const filters: { era?: Era; type?: GarmentType } = {};
+    if (selectedEra !== "all") filters.era = selectedEra;
+    if (selectedType !== "all") filters.type = selectedType;
+    
+    return filters.era || filters.type ? filterGarments(garments, filters) : garments;
+  }, [garments, selectedEra, selectedType]);
+  
+  // Select a handful of best garments for the runway (max 6)
+  const featuredGarments = filteredGarments.slice(0, 6);
   
   // Position models along the runway
   const modelPositions: [number, number, number][] = featuredGarments.map((_, i) => {
@@ -199,12 +211,56 @@ export default function Runway3D({ garments }: Props) {
   });
 
   const handleGarmentClick = (id: string) => {
-    // Navigate to backstage detail view
-    router.push(`/backstage/${id}`);
+    // Navigate to garment detail view
+    const garment = garments.find(g => g.id === id);
+    if (garment) {
+      router.push(`/garments/${garment.slug}`);
+    }
   };
 
   return (
     <div className="w-full h-[600px] md:h-[800px] bg-black relative">
+      {/* Filter bar */}
+      <div className="absolute top-4 left-4 right-4 z-10 flex flex-wrap gap-3">
+        <div className="bg-black/80 backdrop-blur-sm border border-zinc-700 px-4 py-2 rounded">
+          <select
+            value={selectedEra}
+            onChange={(e) => setSelectedEra(e.target.value as Era | "all")}
+            className="bg-transparent text-xs text-zinc-200 uppercase tracking-[0.1em] font-light focus:outline-none cursor-pointer"
+          >
+            <option value="all">All Eras</option>
+            <option value="pre-1920">Pre-1920</option>
+            <option value="1920-1950">1920–1950</option>
+            <option value="1950-1980">1950–1980</option>
+            <option value="1980+">1980+</option>
+          </select>
+        </div>
+        
+        <div className="bg-black/80 backdrop-blur-sm border border-zinc-700 px-4 py-2 rounded">
+          <select
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value as GarmentType | "all")}
+            className="bg-transparent text-xs text-zinc-200 uppercase tracking-[0.1em] font-light focus:outline-none cursor-pointer"
+          >
+            <option value="all">All Types</option>
+            <option value="dress">Dress</option>
+            <option value="coat">Coat</option>
+            <option value="jacket">Jacket</option>
+            <option value="suit">Suit</option>
+            <option value="accessory">Accessory</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        
+        {filteredGarments.length !== garments.length && (
+          <div className="bg-black/80 backdrop-blur-sm border border-zinc-600 px-4 py-2 rounded flex items-center">
+            <span className="text-xs text-zinc-200 uppercase tracking-[0.1em] font-light">
+              {filteredGarments.length} {filteredGarments.length === 1 ? 'garment' : 'garments'}
+            </span>
+          </div>
+        )}
+      </div>
+      
       <Canvas shadows>
         <PerspectiveCamera makeDefault position={[0, 3, 12]} fov={50} />
         <OrbitControls 
