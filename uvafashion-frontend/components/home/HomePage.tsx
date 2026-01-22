@@ -62,8 +62,15 @@ export default function HomePage() {
           <ErrorBoundary>
             <Backstage3D
               onGarmentSelected={handleGarmentSelected}
-              garmentId={garments.length > 0 ? garments[0].id : "G-0001"}
-              garmentPositions={[[0, 0.45, -8]]}
+              garmentIds={garments.slice(0, 6).map(g => g.id)}
+              garmentPositions={[
+                [-3, 0.45, -8],   // Left front
+                [0, 0.45, -8],    // Center front
+                [3, 0.45, -8],    // Right front
+                [-3, 0.45, -12],  // Left back
+                [0, 0.45, -12],   // Center back
+                [3, 0.45, -12],   // Right back
+              ]}
             />
           </ErrorBoundary>
         </section>

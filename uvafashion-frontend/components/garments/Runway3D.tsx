@@ -40,28 +40,65 @@ function WalkingModel({
     onHover(null);
   };
   
-  // Animation: walk forward and back along the runway
+  // Animation: walk in an oval path like a real fashion show
   useFrame((state) => {
     if (!groupRef.current) return;
     
-    // Walk back and forth along the runway (z-axis)
     const time = state.clock.elapsedTime;
-    const walkSpeed = 0.5;
-    const walkDistance = 8;
-    const z = position[2] + Math.sin(time * walkSpeed + index) * walkDistance;
+    const walkSpeed = 0.08; // Speed of walking (lower = slower) - very slow, elegant fashion show pace
+    const spacing = 10; // Time spacing between models (seconds) - increased to match slower speed
+    const pathLength = 16; // Total time to complete one full oval loop - very slow, deliberate pace
     
+    // Stagger each model so they follow one after another
+    const offsetTime = time - (index * spacing);
+    const normalizedTime = ((offsetTime % pathLength) + pathLength) % pathLength;
+    
+    // Oval path parameters
+    const runwayLength = 20; // Length of runway (z: -10 to 10)
+    const sideOffset = 4; // How far to the side they go (x: 0 to -4)
+    const startZ = -10; // Back of runway
+    const endZ = 10; // Front of runway
+    
+    let x = 0;
+    let z = 0;
+    let rotationY = 0;
+    
+    // Define the oval path in 4 segments (adjusted for very slow, elegant pace)
+    if (normalizedTime < 4) {
+      // Segment 1: Walk forward down center runway (z: -10 to 10)
+      const t = normalizedTime / 4;
+      z = startZ + (endZ - startZ) * t;
+      x = 0;
+      rotationY = 0; // Face forward (positive z)
+    } else if (normalizedTime < 6) {
+      // Segment 2: Turn and walk to the left side (x: 0 to -4)
+      const t = (normalizedTime - 4) / 2;
+      z = endZ;
+      x = -sideOffset * t;
+      rotationY = -Math.PI / 2; // Face left
+    } else if (normalizedTime < 10) {
+      // Segment 3: Walk back along the side (z: 10 to -10)
+      const t = (normalizedTime - 6) / 4;
+      z = endZ - (endZ - startZ) * t;
+      x = -sideOffset;
+      rotationY = Math.PI; // Face backward (negative z)
+    } else {
+      // Segment 4: Turn and walk back to center (x: -4 to 0)
+      const t = (normalizedTime - 10) / 6;
+      z = startZ;
+      x = -sideOffset * (1 - t);
+      rotationY = Math.PI / 2; // Face right
+    }
+    
+    // Apply position
+    groupRef.current.position.x = x;
     groupRef.current.position.z = z;
     
     // Slight bobbing motion for walking
-    groupRef.current.position.y = position[1] + Math.sin(time * 2 + index) * 0.1;
+    groupRef.current.position.y = position[1] + Math.sin(time * 4 + index) * 0.08;
     
-    // Rotate to face direction of movement
-    const direction = Math.cos(time * walkSpeed + index);
-    if (direction > 0) {
-      groupRef.current.rotation.y = Math.PI; // Face forward
-    } else {
-      groupRef.current.rotation.y = 0; // Face backward
-    }
+    // Smooth rotation to face direction
+    groupRef.current.rotation.y = rotationY;
   });
   
   const handleClick = () => {
@@ -133,9 +170,9 @@ function WalkingModel({
 function Catwalk() {
   return (
     <group>
-      {/* Main runway platform */}
+      {/* Main runway platform - extended to cover the oval path */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.9, 0]}>
-        <planeGeometry args={[20, 40]} />
+        <planeGeometry args={[12, 24]} />
         <meshStandardMaterial 
           color="#1a1a1a" 
           metalness={0.8}
@@ -143,13 +180,23 @@ function Catwalk() {
         />
       </mesh>
       
+      {/* Side path for the oval (left side) */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-2, -0.9, 0]}>
+        <planeGeometry args={[4, 24]} />
+        <meshStandardMaterial 
+          color="#0f0f0f" 
+          metalness={0.6}
+          roughness={0.3}
+        />
+      </mesh>
+      
       {/* Runway border/edge lighting */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-5, -0.89, 0]}>
-        <planeGeometry args={[0.2, 40]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-6, -0.89, 0]}>
+        <planeGeometry args={[0.2, 24]} />
         <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.5} />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[5, -0.89, 0]}>
-        <planeGeometry args={[0.2, 40]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[6, -0.89, 0]}>
+        <planeGeometry args={[0.2, 24]} />
         <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.5} />
       </mesh>
       
@@ -203,12 +250,10 @@ export default function Runway3D({ garments }: Props) {
   // Select a handful of best garments for the runway (max 6)
   const featuredGarments = filteredGarments.slice(0, 6);
   
-  // Position models along the runway
+  // Initial positions - all start at the back of the runway
+  // They'll follow the oval path from here
   const modelPositions: [number, number, number][] = featuredGarments.map((_, i) => {
-    const spacing = 6;
-    const startZ = -8;
-    const offsetX = (i % 2 === 0 ? -2 : 2); // Alternate sides of runway
-    return [offsetX, -0.5, startZ + i * spacing];
+    return [0, -0.5, -10]; // All start at the back center
   });
 
   const handleGarmentClick = (id: string) => {

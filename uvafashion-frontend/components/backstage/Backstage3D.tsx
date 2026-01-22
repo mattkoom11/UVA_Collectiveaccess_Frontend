@@ -11,7 +11,8 @@ import { getGarmentById } from "@/lib/garments";
 interface Backstage3DProps {
   onGarmentSelected?: (garmentId: string) => void;
   modelUrl?: string;
-  garmentId?: string;
+  garmentId?: string; // Single garment ID (legacy support)
+  garmentIds?: string[]; // Array of garment IDs for multiple garments
   garmentPositions?: Array<[number, number, number]>;
   backgroundImageUrl?: string; // Optional custom background image
   backgroundModelUrl?: string; // Optional 3D photogrammetry room model (GLTF/GLB)
@@ -499,10 +500,12 @@ function GarmentModel({
   modelUrl,
   onGarmentClick,
   position,
+  garmentId,
 }: {
   modelUrl: string;
-  onGarmentClick: () => void;
+  onGarmentClick: (garmentId?: string) => void;
   position: [number, number, number];
+  garmentId?: string;
 }) {
   const groupRef = useRef<Group>(null);
   
@@ -529,7 +532,7 @@ function GarmentModel({
       }
       // Small delay to ensure pointer lock is released
       setTimeout(() => {
-        onGarmentClick();
+        onGarmentClick(garmentId);
       }, 100);
     } catch (error) {
       console.error("Error in garment model click:", error);
@@ -546,11 +549,16 @@ function GarmentModel({
 // Placeholder garment when no model is available - uses enhanced demo garment
 function PlaceholderGarment({ 
   onGarmentClick, 
-  position 
+  position,
+  garmentId
 }: { 
-  onGarmentClick: () => void;
+  onGarmentClick: (garmentId?: string) => void;
   position: [number, number, number];
+  garmentId?: string;
 }) {
+  const garment = garmentId ? getGarmentById(garmentId) : undefined;
+  const garmentColor = garment?.colors?.[0] || "#6b7280";
+  
   const handleClick = useCallback((e: any) => {
     // Three.js event - only has stopPropagation, not preventDefault
     if (e.stopPropagation) {
@@ -563,16 +571,16 @@ function PlaceholderGarment({
       }
       // Small delay to ensure pointer lock is released
       setTimeout(() => {
-        onGarmentClick();
+        onGarmentClick(garmentId);
       }, 100);
     } catch (error) {
       console.error("Error in placeholder garment click:", error);
     }
-  }, [onGarmentClick]);
+  }, [onGarmentClick, garmentId]);
 
   return (
     <group position={position} onClick={handleClick}>
-      <DemoGarment position={[0, 0, 0]} rotation={true} color="#6b7280" scale={0.8} />
+      <DemoGarment position={[0, 0, 0]} rotation={true} color={garmentColor} scale={0.8} />
     </group>
   );
 }
@@ -633,7 +641,8 @@ function BackstageLighting({ garmentPositions }: { garmentPositions: Array<[numb
 export default function Backstage3D({
   onGarmentSelected,
   modelUrl,
-  garmentId = "G-0001",
+  garmentId,
+  garmentIds,
   garmentPositions = [[0, 0.45, -8]], // Default: one garment at center, on pedestal
   backgroundImageUrl, // Optional: URL to background image
   backgroundModelUrl, // Optional: URL to 3D photogrammetry room model (GLTF/GLB)
@@ -644,15 +653,44 @@ export default function Backstage3D({
   const [contextLost, setContextLost] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  // Get model URL from garment data if not provided
-  const actualModelUrl = useMemo(() => {
-    if (modelUrl) return modelUrl;
-    if (garmentId) {
-      const garment = getGarmentById(garmentId);
-      return garment?.model3d_url || garment?.modelUrl || undefined;
+  // Determine which garment IDs to use
+  const actualGarmentIds = useMemo(() => {
+    if (garmentIds && garmentIds.length > 0) {
+      return garmentIds;
     }
-    return undefined;
-  }, [modelUrl, garmentId]);
+    if (garmentId) {
+      return [garmentId];
+    }
+    return ["G-0001"]; // Default fallback
+  }, [garmentIds, garmentId]);
+
+  // Ensure positions match garment IDs
+  const finalPositions = useMemo(() => {
+    if (garmentPositions.length >= actualGarmentIds.length) {
+      return garmentPositions.slice(0, actualGarmentIds.length);
+    }
+    // If not enough positions, generate them
+    const positions: Array<[number, number, number]> = [];
+    for (let i = 0; i < actualGarmentIds.length; i++) {
+      if (i < garmentPositions.length) {
+        positions.push(garmentPositions[i]);
+      } else {
+        // Generate positions in a grid
+        const row = Math.floor(i / 3);
+        const col = i % 3;
+        positions.push([(col - 1) * 3, 0.45, -8 - row * 4]);
+      }
+    }
+    return positions;
+  }, [garmentPositions, actualGarmentIds]);
+
+  // Get model URLs for each garment
+  const garmentModelUrls = useMemo(() => {
+    return actualGarmentIds.map(id => {
+      const garment = getGarmentById(id);
+      return garment?.model3d_url || garment?.modelUrl || undefined;
+    });
+  }, [actualGarmentIds]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -828,32 +866,38 @@ export default function Backstage3D({
           />
         )}
 
-        <BackstageLighting garmentPositions={garmentPositions} />
+        <BackstageLighting garmentPositions={finalPositions} />
         <Environment preset="warehouse" />
 
         <BackstageRoom 
-          garmentPositions={garmentPositions}
+          garmentPositions={finalPositions}
           backgroundImageUrl={backgroundImageUrl}
           backgroundModelUrl={backgroundModelUrl}
         />
 
         {/* Render garments at specified positions */}
-        {isMounted && garmentPositions.map((position, index) => (
-          <Suspense key={`garment-${index}`} fallback={<GarmentLoading position={position} />}>
-            {actualModelUrl ? (
-              <GarmentModel 
-                modelUrl={actualModelUrl} 
-                onGarmentClick={handleGarmentClick} 
-                position={position}
-              />
-            ) : (
-              <PlaceholderGarment 
-                onGarmentClick={handleGarmentClick} 
-                position={position}
-              />
-            )}
-          </Suspense>
-        ))}
+        {isMounted && finalPositions.map((position, index) => {
+          const garmentId = actualGarmentIds[index];
+          const modelUrl = garmentModelUrls[index];
+          return (
+            <Suspense key={`garment-${garmentId}-${index}`} fallback={<GarmentLoading position={position} />}>
+              {modelUrl ? (
+                <GarmentModel 
+                  modelUrl={modelUrl} 
+                  onGarmentClick={handleGarmentClick} 
+                  position={position}
+                  garmentId={garmentId}
+                />
+              ) : (
+                <PlaceholderGarment 
+                  onGarmentClick={handleGarmentClick} 
+                  position={position}
+                  garmentId={garmentId}
+                />
+              )}
+            </Suspense>
+          );
+        })}
       </Canvas>
 
       {/* UI Overlay */}
