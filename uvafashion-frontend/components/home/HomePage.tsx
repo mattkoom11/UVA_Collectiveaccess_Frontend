@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Runway3D from "@/components/garments/Runway3D";
 import Backstage3D from "@/components/backstage/Backstage3D";
+import { ErrorBoundary } from "@/components/backstage/ErrorBoundary";
 import { getAllGarments } from "@/lib/garments";
 import PageLayout from "@/components/layout/PageLayout";
 import { useRouter } from "next/navigation";
@@ -58,11 +59,13 @@ export default function HomePage() {
         </section>
       ) : (
         <section className="w-full h-[calc(100vh-200px)] min-h-[600px]">
-          <Backstage3D
-            onGarmentSelected={handleGarmentSelected}
-            garmentId="uva-dress-001"
-            garmentPositions={[[0, 0.45, -8]]}
-          />
+          <ErrorBoundary>
+            <Backstage3D
+              onGarmentSelected={handleGarmentSelected}
+              garmentId={garments.length > 0 ? garments[0].id : "G-0001"}
+              garmentPositions={[[0, 0.45, -8]]}
+            />
+          </ErrorBoundary>
         </section>
       )}
     </PageLayout>

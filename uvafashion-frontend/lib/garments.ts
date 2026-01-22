@@ -20,6 +20,7 @@ export function filterGarments(
     decade?: string; 
     work_type?: string; 
     color?: string;
+    material?: string; // New: material filter
     era?: Era; // New: era filter
     type?: GarmentType; // New: garment type filter
   }
@@ -34,6 +35,14 @@ export function filterGarments(
     )
       return false;
     
+    // Material filter
+    if (filters.material) {
+      const garmentMaterials = Array.isArray(g.materials) 
+        ? g.materials.map(m => m.toLowerCase())
+        : g.materials ? [g.materials.toLowerCase()] : [];
+      if (!garmentMaterials.includes(filters.material.toLowerCase())) return false;
+    }
+    
     // New era filter
     if (filters.era) {
       const garmentEra = g.era || getEraFromDecade(g.decade, g.yearApprox, g.date);
@@ -47,5 +56,55 @@ export function filterGarments(
     }
     
     return true;
+  });
+}
+
+// Search function - searches across multiple fields
+export function searchGarments(
+  items: Garment[],
+  query: string
+): Garment[] {
+  if (!query || query.trim().length === 0) {
+    return items;
+  }
+
+  const searchTerms = query.toLowerCase().trim().split(/\s+/);
+  
+  return items.filter((g) => {
+    // Collect all searchable text fields
+    const searchableText = [
+      g.name,
+      g.label,
+      g.editorial_title,
+      g.editorial_subtitle,
+      g.tagline,
+      g.description,
+      g.aesthetic_description,
+      g.story,
+      g.inspiration,
+      g.context,
+      g.curatorNote,
+      g.decade,
+      g.date,
+      g.yearApprox?.toString(),
+      g.work_type,
+      g.accessionNumber,
+      g.collection,
+      g.provenance,
+      g.function?.join(" "),
+      g.gender,
+      g.age,
+      g.condition,
+      // Materials (handle both string and array)
+      Array.isArray(g.materials) ? g.materials.join(" ") : g.materials,
+      // Colors
+      g.colors?.join(" "),
+    ]
+      .filter(Boolean)
+      .map((text) => text?.toLowerCase() || "")
+      .join(" ");
+
+    // Check if all search terms appear in the searchable text
+    return searchTerms.every((term) => searchableText.includes(term));
   });
 }

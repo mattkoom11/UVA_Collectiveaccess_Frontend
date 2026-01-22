@@ -1,19 +1,11 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import BackstagePage from "@/components/backstage/BackstagePage";
-import { sampleGarments } from "@/data/sampleGarments";
-import { getAllGarments } from "@/lib/garments";
+import { getAllGarments, getGarmentById } from "@/lib/garments";
 
 export async function generateStaticParams() {
-  const sampleIds = sampleGarments.map((g) => ({ id: g.id }));
   const allGarments = getAllGarments();
-  const allIds = allGarments.map((g) => ({ id: g.id }));
-  // Combine and deduplicate
-  const allParams = [...sampleIds, ...allIds];
-  const uniqueParams = Array.from(
-    new Map(allParams.map((p) => [p.id, p])).values()
-  );
-  return uniqueParams;
+  return allGarments.map((g) => ({ id: g.id }));
 }
 
 interface Props {
@@ -30,12 +22,7 @@ function BackstagePageFallback() {
 
 export default async function BackstageRoute({ params }: Props) {
   const { id } = await params;
-  // Check both sampleGarments and getAllGarments
-  let garment = sampleGarments.find((g) => g.id === id);
-  if (!garment) {
-    const allGarments = getAllGarments();
-    garment = allGarments.find((g) => g.id === id);
-  }
+  const garment = getGarmentById(id);
 
   if (!garment) {
     notFound();

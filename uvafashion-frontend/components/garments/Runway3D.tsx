@@ -7,6 +7,7 @@ import { Group } from "three";
 import { Garment, Era, GarmentType, getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/garment";
 import { useRouter } from "next/navigation";
 import { filterGarments } from "@/lib/garments";
+import DemoGarment from "./DemoGarment";
 
 interface Props {
   garments: Garment[];

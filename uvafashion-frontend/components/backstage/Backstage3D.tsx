@@ -1,16 +1,20 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { PerspectiveCamera, OrbitControls, useGLTF, Environment } from "@react-three/drei";
-import { Suspense, useRef, useState, useEffect } from "react";
-import { Group, Vector3, Raycaster, Mesh } from "three";
+import { PerspectiveCamera, OrbitControls, useGLTF, Environment, useTexture } from "@react-three/drei";
+import { Suspense, useRef, useState, useEffect, useMemo, useCallback } from "react";
+import { Group, Vector3, Raycaster, Mesh, RepeatWrapping } from "three";
 import * as THREE from "three";
+import DemoGarment from "@/components/garments/DemoGarment";
+import { getGarmentById } from "@/lib/garments";
 
 interface Backstage3DProps {
   onGarmentSelected?: (garmentId: string) => void;
   modelUrl?: string;
   garmentId?: string;
   garmentPositions?: Array<[number, number, number]>;
+  backgroundImageUrl?: string; // Optional custom background image
+  backgroundModelUrl?: string; // Optional 3D photogrammetry room model (GLTF/GLB)
 }
 
 // First-person camera controls with WASD movement and mouse look
@@ -87,9 +91,22 @@ function FirstPersonControls() {
       isLocked.current = document.pointerLockElement === gl.domElement;
     };
 
-    const onClick = () => {
+    const onClick = (event: MouseEvent) => {
+      // Only request pointer lock if clicking in empty space
+      // Don't interfere with garment clicks
       if (!isLocked.current) {
-        gl.domElement.requestPointerLock();
+        // Small delay to let garment click handlers run first
+        setTimeout(() => {
+          if (!isLocked.current && document.pointerLockElement !== gl.domElement) {
+            try {
+              gl.domElement.requestPointerLock().catch(() => {
+                // Silently fail if pointer lock is not available
+              });
+            } catch (error) {
+              // Ignore errors
+            }
+          }
+        }, 200);
       }
     };
 
@@ -97,7 +114,7 @@ function FirstPersonControls() {
     window.addEventListener("keyup", onKeyUp);
     window.addEventListener("mousemove", onMouseMove);
     document.addEventListener("pointerlockchange", onPointerLockChange);
-    gl.domElement.addEventListener("click", onClick);
+    gl.domElement.addEventListener("click", onClick, { passive: true });
 
     return () => {
       window.removeEventListener("keydown", onKeyDown);
@@ -105,7 +122,13 @@ function FirstPersonControls() {
       window.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("pointerlockchange", onPointerLockChange);
       gl.domElement.removeEventListener("click", onClick);
-      document.exitPointerLock();
+      try {
+        if (document.pointerLockElement === gl.domElement) {
+          document.exitPointerLock();
+        }
+      } catch (error) {
+        // Ignore errors when exiting pointer lock
+      }
     };
   }, [camera, gl]);
 
@@ -150,8 +173,212 @@ function Pedestal({ position }: { position: [number, number, number] }) {
   );
 }
 
+// Decorative backdrop with image - must be in separate component for Suspense
+function BackdropWithImage({ imageUrl }: { imageUrl: string }) {
+  const texture = useTexture(imageUrl) as THREE.Texture;
+  
+  useEffect(() => {
+    texture.wrapS = RepeatWrapping;
+    texture.wrapT = RepeatWrapping;
+    texture.repeat.set(1, 1);
+  }, [texture]);
+
+  return (
+    <mesh 
+      rotation={[0, 0, 0]} 
+      position={[0, 2, -18.1]} 
+      receiveShadow
+    >
+      <planeGeometry args={[12, 4]} />
+      <meshStandardMaterial 
+        map={texture}
+        color="#ffffff"
+        roughness={0.9}
+      />
+    </mesh>
+  );
+}
+
+// Gradient backdrop (fallback when no image)
+function GradientBackdrop() {
+  const gradientTexture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d')!;
+    
+    // Create a dark gradient backdrop
+    const gradient = ctx.createLinearGradient(0, 0, 0, 512);
+    gradient.addColorStop(0, '#0a0a0a');
+    gradient.addColorStop(0.5, '#1a1a1a');
+    gradient.addColorStop(1, '#0f0f0f');
+    
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 1024, 512);
+    
+    // Add subtle decorative elements - fashion-inspired patterns
+    ctx.strokeStyle = '#2a2a2a';
+    ctx.lineWidth = 2;
+    // Horizontal lines for depth
+    for (let i = 0; i < 5; i++) {
+      const y = (i + 1) * 100;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(1024, y);
+      ctx.stroke();
+    }
+    
+    // Add subtle vertical elements
+    ctx.strokeStyle = '#1f1f1f';
+    for (let i = 0; i < 8; i++) {
+      const x = (i + 1) * 128;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, 512);
+      ctx.stroke();
+    }
+    
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = RepeatWrapping;
+    tex.wrapT = RepeatWrapping;
+    return tex;
+  }, []);
+
+  return (
+    <mesh 
+      rotation={[0, 0, 0]} 
+      position={[0, 2, -18.1]} 
+      receiveShadow
+    >
+      <planeGeometry args={[12, 4]} />
+      <meshStandardMaterial 
+        map={gradientTexture}
+        color="#1a1a1a"
+        roughness={0.9}
+        emissive="#0a0a0a"
+        emissiveIntensity={0.05}
+      />
+    </mesh>
+  );
+}
+
+// Decorative backdrop component with image support
+function DecorativeBackdrop({ imageUrl }: { imageUrl?: string }) {
+  if (imageUrl) {
+    return (
+      <Suspense fallback={<GradientBackdrop />}>
+        <BackdropWithImage imageUrl={imageUrl} />
+      </Suspense>
+    );
+  }
+  
+  return <GradientBackdrop />;
+}
+
+// Decorative pattern texture for walls
+function WallPattern() {
+  // Create a procedural pattern using canvas
+  const canvas = useMemo(() => {
+    const c = document.createElement('canvas');
+    c.width = 512;
+    c.height = 512;
+    const ctx = c.getContext('2d')!;
+    
+    // Create a subtle fabric/textile pattern
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(0, 0, 512, 512);
+    
+    // Add subtle grid pattern
+    ctx.strokeStyle = '#0f0f0f';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 512; i += 32) {
+      ctx.beginPath();
+      ctx.moveTo(i, 0);
+      ctx.lineTo(i, 512);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, i);
+      ctx.lineTo(512, i);
+      ctx.stroke();
+    }
+    
+    // Add subtle texture dots
+    ctx.fillStyle = '#151515';
+    for (let i = 0; i < 100; i++) {
+      const x = Math.random() * 512;
+      const y = Math.random() * 512;
+      ctx.beginPath();
+      ctx.arc(x, y, 1, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    return c;
+  }, []);
+
+  const texture = useMemo(() => {
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = RepeatWrapping;
+    tex.wrapT = RepeatWrapping;
+    tex.repeat.set(4, 4);
+    return tex;
+  }, [canvas]);
+
+  return texture;
+}
+
+// 3D Photogrammetry Room Model Component
+function PhotogrammetryRoom({ modelUrl }: { modelUrl: string }) {
+  const { scene } = useGLTF(modelUrl);
+  const clonedScene = scene.clone();
+  
+  // Scale and position the room model appropriately
+  // Adjust these values based on your room model's scale
+  const roomScale = 1;
+  const roomPosition: [number, number, number] = [0, 0, -8];
+  
+  return (
+    <primitive 
+      object={clonedScene} 
+      scale={roomScale}
+      position={roomPosition}
+      receiveShadow
+      castShadow={false} // Room typically doesn't cast shadows on garments
+    />
+  );
+}
+
 // Backstage room structure - long shallow room
-function BackstageRoom({ garmentPositions }: { garmentPositions: Array<[number, number, number]> }) {
+function BackstageRoom({ 
+  garmentPositions,
+  backgroundImageUrl,
+  backgroundModelUrl
+}: { 
+  garmentPositions: Array<[number, number, number]>;
+  backgroundImageUrl?: string;
+  backgroundModelUrl?: string;
+}) {
+  const wallPattern = WallPattern();
+  
+  // If 3D model is provided, use it instead of procedural room
+  if (backgroundModelUrl) {
+    return (
+      <group>
+        {/* 3D Photogrammetry Room */}
+        <Suspense fallback={null}>
+          <PhotogrammetryRoom modelUrl={backgroundModelUrl} />
+        </Suspense>
+        
+        {/* Still add pedestals for garments */}
+        {garmentPositions.map((pos, index) => (
+          <Pedestal 
+            key={index} 
+            position={[pos[0], 0.15, pos[2]]} 
+          />
+        ))}
+      </group>
+    );
+  }
+
   return (
     <group>
       {/* Floor - centered at (0, 0, -8), 12 units wide, 20 units deep */}
@@ -161,7 +388,11 @@ function BackstageRoom({ garmentPositions }: { garmentPositions: Array<[number, 
         receiveShadow
       >
         <planeGeometry args={[12, 20]} />
-        <meshStandardMaterial color="#2a2a2a" roughness={0.8} />
+        <meshStandardMaterial 
+          color="#2a2a2a" 
+          roughness={0.8}
+          map={wallPattern}
+        />
       </mesh>
 
       {/* Left Wall - PlaneGeometry(20, 4) at x = -6, y = 2, z = -8, rotated +90° on Y */}
@@ -171,7 +402,11 @@ function BackstageRoom({ garmentPositions }: { garmentPositions: Array<[number, 
         receiveShadow
       >
         <planeGeometry args={[20, 4]} />
-        <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+        <meshStandardMaterial 
+          color="#1a1a1a" 
+          roughness={0.9}
+          map={wallPattern}
+        />
       </mesh>
 
       {/* Right Wall - same but x = +6, rotated -90° on Y */}
@@ -181,7 +416,11 @@ function BackstageRoom({ garmentPositions }: { garmentPositions: Array<[number, 
         receiveShadow
       >
         <planeGeometry args={[20, 4]} />
-        <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+        <meshStandardMaterial 
+          color="#1a1a1a" 
+          roughness={0.9}
+          map={wallPattern}
+        />
       </mesh>
 
       {/* Back Wall - PlaneGeometry(12, 4) at (0, 2, -18), facing the camera */}
@@ -191,8 +430,15 @@ function BackstageRoom({ garmentPositions }: { garmentPositions: Array<[number, 
         receiveShadow
       >
         <planeGeometry args={[12, 4]} />
-        <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+        <meshStandardMaterial 
+          color="#1a1a1a" 
+          roughness={0.9}
+          map={wallPattern}
+        />
       </mesh>
+
+      {/* Decorative Backdrop - behind the back wall */}
+      <DecorativeBackdrop imageUrl={backgroundImageUrl} />
 
       {/* Ceiling */}
       <mesh 
@@ -259,8 +505,10 @@ function GarmentModel({
   position: [number, number, number];
 }) {
   const groupRef = useRef<Group>(null);
-  const { scene } = useGLTF(modelUrl);
-  const clonedScene = scene.clone();
+  
+  // useGLTF must be called unconditionally - Suspense will handle loading
+  const { scene: loadedScene } = useGLTF(modelUrl);
+  const scene = loadedScene.clone();
 
   // Rotate the garment slowly
   useFrame(() => {
@@ -269,14 +517,33 @@ function GarmentModel({
     }
   });
 
+  const handleClick = useCallback((e: any) => {
+    // Three.js event - only has stopPropagation, not preventDefault
+    if (e.stopPropagation) {
+      e.stopPropagation();
+    }
+    try {
+      // Exit pointer lock if active
+      if (document.pointerLockElement) {
+        document.exitPointerLock();
+      }
+      // Small delay to ensure pointer lock is released
+      setTimeout(() => {
+        onGarmentClick();
+      }, 100);
+    } catch (error) {
+      console.error("Error in garment model click:", error);
+    }
+  }, [onGarmentClick]);
+
   return (
-    <group ref={groupRef} position={position} onClick={onGarmentClick}>
-      <primitive object={clonedScene} scale={1} />
+    <group ref={groupRef} position={position} onClick={handleClick}>
+      <primitive object={scene} scale={1} />
     </group>
   );
 }
 
-// Placeholder garment when no model is available
+// Placeholder garment when no model is available - uses enhanced demo garment
 function PlaceholderGarment({ 
   onGarmentClick, 
   position 
@@ -284,25 +551,28 @@ function PlaceholderGarment({
   onGarmentClick: () => void;
   position: [number, number, number];
 }) {
-  const groupRef = useRef<Group>(null);
-
-  useFrame(() => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += 0.005;
+  const handleClick = useCallback((e: any) => {
+    // Three.js event - only has stopPropagation, not preventDefault
+    if (e.stopPropagation) {
+      e.stopPropagation();
     }
-  });
+    try {
+      // Exit pointer lock if active
+      if (document.pointerLockElement) {
+        document.exitPointerLock();
+      }
+      // Small delay to ensure pointer lock is released
+      setTimeout(() => {
+        onGarmentClick();
+      }, 100);
+    } catch (error) {
+      console.error("Error in placeholder garment click:", error);
+    }
+  }, [onGarmentClick]);
 
   return (
-    <group ref={groupRef} position={position} onClick={onGarmentClick}>
-      {/* Simple dress shape as placeholder */}
-      <mesh castShadow>
-        <coneGeometry args={[0.5, 1.5, 8]} />
-        <meshStandardMaterial color="#4a5568" metalness={0.3} roughness={0.7} />
-      </mesh>
-      <mesh position={[0, 0.75, 0]} castShadow>
-        <sphereGeometry args={[0.3, 16, 16]} />
-        <meshStandardMaterial color="#4a5568" metalness={0.3} roughness={0.7} />
-      </mesh>
+    <group position={position} onClick={handleClick}>
+      <DemoGarment position={[0, 0, 0]} rotation={true} color="#6b7280" scale={0.8} />
     </group>
   );
 }
@@ -357,78 +627,191 @@ function BackstageLighting({ garmentPositions }: { garmentPositions: Array<[numb
   );
 }
 
-// Raycasting for clicking garments
-function ClickHandler({
-  onGarmentClick,
-  garmentId,
-}: {
-  onGarmentClick?: (garmentId: string) => void;
-  garmentId?: string;
-}) {
-  const { camera, scene, gl } = useThree();
-  const raycaster = useRef(new Raycaster());
-  const mouse = useRef(new Vector3());
-
-  useEffect(() => {
-    const handleClick = (event: MouseEvent) => {
-      const rect = gl.domElement.getBoundingClientRect();
-      mouse.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-      raycaster.current.setFromCamera(mouse.current, camera);
-
-      const intersects = raycaster.current.intersectObjects(scene.children, true);
-
-      // Check if we clicked on a garment (look for objects near the pedestal)
-      for (const intersect of intersects) {
-        const object = intersect.object;
-        if (object.position.y > 1 && object.position.y < 2.5) {
-          // Likely the garment
-          if (onGarmentClick && garmentId) {
-            onGarmentClick(garmentId);
-          }
-          break;
-        }
-      }
-    };
-
-    gl.domElement.addEventListener("click", handleClick);
-
-    return () => {
-      gl.domElement.removeEventListener("click", handleClick);
-    };
-  }, [camera, scene, gl, onGarmentClick, garmentId]);
-
-  return null;
-}
+// Simplified - removed ClickHandler to avoid conflicts
+// Garments handle their own clicks now
 
 export default function Backstage3D({
   onGarmentSelected,
-  modelUrl = "/models/dress.glb",
-  garmentId = "uva-dress-001",
+  modelUrl,
+  garmentId = "G-0001",
   garmentPositions = [[0, 0.45, -8]], // Default: one garment at center, on pedestal
+  backgroundImageUrl, // Optional: URL to background image
+  backgroundModelUrl, // Optional: URL to 3D photogrammetry room model (GLTF/GLB)
 }: Backstage3DProps) {
   const [showUI, setShowUI] = useState(true);
-  const [useFirstPerson, setUseFirstPerson] = useState(true);
+  const [useFirstPerson, setUseFirstPerson] = useState(false); // Default to orbit controls for stability
+  const [isMounted, setIsMounted] = useState(false);
+  const [contextLost, setContextLost] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  // Get model URL from garment data if not provided
+  const actualModelUrl = useMemo(() => {
+    if (modelUrl) return modelUrl;
+    if (garmentId) {
+      const garment = getGarmentById(garmentId);
+      return garment?.model3d_url || garment?.modelUrl || undefined;
+    }
+    return undefined;
+  }, [modelUrl, garmentId]);
 
   useEffect(() => {
+    setIsMounted(true);
+    
     // Fade out UI after 5 seconds
     const timer = setTimeout(() => {
       setShowUI(false);
     }, 5000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      // Cleanup pointer lock on unmount
+      if (document.pointerLockElement) {
+        try {
+          document.exitPointerLock();
+        } catch (e) {
+          // Ignore errors
+        }
+      }
+      // Cleanup context monitoring if it exists
+      if (canvasRef.current && (canvasRef.current as any).__cleanup) {
+        try {
+          (canvasRef.current as any).__cleanup();
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+      }
+    };
   }, []);
 
-  const handleGarmentClick = () => {
-    if (onGarmentSelected) {
-      onGarmentSelected(garmentId);
-    }
-  };
+  const handleGarmentClick = useMemo(() => {
+    return () => {
+      try {
+        if (onGarmentSelected && garmentId) {
+          // Exit pointer lock if active
+          if (document.pointerLockElement) {
+            document.exitPointerLock();
+          }
+          // Use setTimeout to ensure state is stable
+          setTimeout(() => {
+            if (onGarmentSelected) {
+              onGarmentSelected(garmentId);
+            }
+          }, 50);
+        }
+      } catch (error) {
+        console.error("Error handling garment click:", error);
+      }
+    };
+  }, [onGarmentSelected, garmentId]);
+
+  if (!isMounted || contextLost) {
+    return (
+      <div className="relative w-full h-full bg-black flex items-center justify-center" style={{ minHeight: '600px' }}>
+        <div className="text-center text-zinc-400">
+          {contextLost ? (
+            <>
+              <p className="text-lg mb-2">WebGL Context Lost</p>
+              <p className="text-sm mb-4">Attempting to recover...</p>
+              <button
+                onClick={() => {
+                  setContextLost(false);
+                  setIsMounted(false);
+                  setTimeout(() => setIsMounted(true), 100);
+                }}
+                className="px-4 py-2 bg-zinc-800 text-zinc-200 rounded hover:bg-zinc-700 transition-colors"
+              >
+                Retry
+              </button>
+            </>
+          ) : (
+            <div className="text-zinc-500 text-sm">Loading 3D scene...</div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative w-full h-screen bg-black">
-      <Canvas shadows camera={{ position: [0, 1.6, 2], fov: 75 }}>
+    <div className="relative w-full h-full bg-black" style={{ minHeight: '600px' }}>
+      <Canvas 
+        shadows 
+        camera={{ position: [0, 1.6, 2], fov: 75 }}
+        gl={{ 
+          antialias: true, 
+          alpha: false,
+          powerPreference: "high-performance",
+          preserveDrawingBuffer: false,
+          stencil: false,
+          depth: true,
+          // Prevent context loss
+          failIfMajorPerformanceCaveat: false,
+          premultipliedAlpha: false
+        }}
+        dpr={Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 2)}
+        frameloop="always"
+        performance={{ min: 0.5 }}
+        onCreated={(state) => {
+          try {
+            state.gl.setClearColor("#000000", 1);
+            state.gl.domElement.style.touchAction = "none";
+            state.gl.domElement.style.outline = "none";
+            
+            // Store canvas reference for context loss handling
+            canvasRef.current = state.gl.domElement;
+            
+            // Add context loss listeners
+            const handleContextLost = (event: Event) => {
+              event.preventDefault();
+              console.warn("WebGL context lost - attempting recovery");
+              setContextLost(true);
+            };
+
+            const handleContextRestored = () => {
+              console.log("WebGL context restored");
+              setContextLost(false);
+              setIsMounted(false);
+              setTimeout(() => setIsMounted(true), 100);
+            };
+
+            state.gl.domElement.addEventListener('webglcontextlost', handleContextLost);
+            state.gl.domElement.addEventListener('webglcontextrestored', handleContextRestored);
+            
+            // Monitor for context loss periodically
+            const checkContext = () => {
+              try {
+                const gl = state.gl.getContext();
+                if (gl && gl.isContextLost && gl.isContextLost()) {
+                  setContextLost(true);
+                }
+              } catch (error) {
+                // Context might be lost, ignore errors
+              }
+            };
+            
+            const contextCheckInterval = setInterval(checkContext, 2000);
+            
+            // Store cleanup function on the renderer
+            const cleanup = () => {
+              clearInterval(contextCheckInterval);
+              try {
+                state.gl.domElement.removeEventListener('webglcontextlost', handleContextLost);
+                state.gl.domElement.removeEventListener('webglcontextrestored', handleContextRestored);
+              } catch (error) {
+                // Ignore cleanup errors
+              }
+            };
+            
+            // Store cleanup for later
+            (state.gl as any).__cleanup = cleanup;
+          } catch (error) {
+            console.error("Error initializing Canvas:", error);
+          }
+        }}
+          onError={(event: React.SyntheticEvent) => {
+          console.error("Canvas error:", event);
+          // Context loss is handled by event listeners
+        }}
+      >
         <PerspectiveCamera makeDefault position={[0, 1.6, 2]} fov={75} />
         
         {useFirstPerson ? (
@@ -448,14 +831,18 @@ export default function Backstage3D({
         <BackstageLighting garmentPositions={garmentPositions} />
         <Environment preset="warehouse" />
 
-        <BackstageRoom garmentPositions={garmentPositions} />
+        <BackstageRoom 
+          garmentPositions={garmentPositions}
+          backgroundImageUrl={backgroundImageUrl}
+          backgroundModelUrl={backgroundModelUrl}
+        />
 
         {/* Render garments at specified positions */}
-        {garmentPositions.map((position, index) => (
-          <Suspense key={index} fallback={<GarmentLoading position={position} />}>
-            {modelUrl ? (
+        {isMounted && garmentPositions.map((position, index) => (
+          <Suspense key={`garment-${index}`} fallback={<GarmentLoading position={position} />}>
+            {actualModelUrl ? (
               <GarmentModel 
-                modelUrl={modelUrl} 
+                modelUrl={actualModelUrl} 
                 onGarmentClick={handleGarmentClick} 
                 position={position}
               />
@@ -467,8 +854,6 @@ export default function Backstage3D({
             )}
           </Suspense>
         ))}
-
-        <ClickHandler onGarmentClick={onGarmentSelected} garmentId={garmentId} />
       </Canvas>
 
       {/* UI Overlay */}

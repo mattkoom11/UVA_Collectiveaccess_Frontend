@@ -4,6 +4,7 @@ import { Canvas, useLoader } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera, Environment, useGLTF } from "@react-three/drei";
 import { Suspense, useRef } from "react";
 import { Group } from "three";
+import DemoGarment from "./DemoGarment";
 
 interface Props {
   modelUrl?: string;
@@ -41,28 +42,9 @@ function GarmentModel({ modelUrl }: { modelUrl: string }) {
   );
 }
 
-// Fallback placeholder when no model is available
+// Fallback placeholder when no model is available - uses enhanced demo garment
 function PlaceholderModel() {
-  return (
-    <group>
-      {/* Simple garment representation */}
-      <mesh position={[0, 0.5, 0]} rotation={[0, 0, 0]}>
-        <boxGeometry args={[1, 1.5, 0.5]} />
-        <meshStandardMaterial 
-          color="#4a5568" 
-          metalness={0.3}
-          roughness={0.7}
-          wireframe
-        />
-      </mesh>
-      
-      {/* Stand/hanger */}
-      <mesh position={[0, -0.5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.05, 0.05, 1]} />
-        <meshStandardMaterial color="#1a1a1a" />
-      </mesh>
-    </group>
-  );
+  return <DemoGarment position={[0, 0, 0]} rotation={false} color="#6b7280" scale={1.2} />;
 }
 
 export default function Garment3DViewer({ modelUrl, garmentId }: Props) {
