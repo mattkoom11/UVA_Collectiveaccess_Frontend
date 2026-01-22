@@ -23,7 +23,7 @@ export default function HomePage() {
   return (
     <PageLayout>
       {/* Tab Navigation */}
-      <div className="border-b border-zinc-800 sticky top-[73px] md:top-[81px] bg-zinc-950/95 backdrop-blur-sm z-[9]">
+      <div className="border-b border-zinc-800 sticky top-[73px] md:top-[81px] bg-zinc-950/95 backdrop-blur-sm z-40">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex gap-8">
             <button

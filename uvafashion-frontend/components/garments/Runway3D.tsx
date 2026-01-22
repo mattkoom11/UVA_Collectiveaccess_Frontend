@@ -267,7 +267,7 @@ export default function Runway3D({ garments }: Props) {
   return (
     <div className="w-full h-[600px] md:h-[800px] bg-black relative">
       {/* Filter bar */}
-      <div className="absolute top-4 left-4 right-4 z-10 flex flex-wrap gap-3">
+      <div className="absolute top-4 left-4 right-4 z-[5] flex flex-wrap gap-3">
         <div className="bg-black/80 backdrop-blur-sm border border-zinc-700 px-4 py-2 rounded">
           <select
             value={selectedEra}

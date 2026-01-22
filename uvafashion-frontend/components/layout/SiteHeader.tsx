@@ -15,7 +15,7 @@ export default function SiteHeader() {
   };
 
   return (
-    <header className="border-b border-zinc-800 sticky top-0 bg-zinc-950/95 backdrop-blur-sm z-10">
+    <header className="border-b border-zinc-800 sticky top-0 bg-zinc-950/95 backdrop-blur-sm z-50">
       <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
         {/* Top row: Logo and Navigation */}
         <div className="flex items-center justify-between mb-4">
