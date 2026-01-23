@@ -6,6 +6,7 @@ import { Suspense, useRef } from "react";
 import { Group } from "three";
 import DemoGarment from "./DemoGarment";
 import { Garment } from "@/types/garment";
+import { getPrimaryColor } from "@/lib/colorUtils";
 
 interface Props {
   modelUrl?: string;
@@ -46,7 +47,7 @@ function GarmentModel({ modelUrl }: { modelUrl: string }) {
 
 // Fallback placeholder when no model is available - uses enhanced demo garment
 function PlaceholderModel({ garment }: { garment?: Garment }) {
-  const garmentColor = garment?.colors?.[0] || "#6b7280";
+  const garmentColor = getPrimaryColor(garment?.colors);
   return <DemoGarment position={[0, 0, 0]} rotation={false} color={garmentColor} scale={1.2} />;
 }
 

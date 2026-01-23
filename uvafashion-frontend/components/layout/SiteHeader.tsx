@@ -54,26 +54,6 @@ export default function SiteHeader() {
               Timeline
             </Link>
             <Link 
-              href="/favorites" 
-              className={`transition-colors ${
-                isActive("/favorites")
-                  ? "text-zinc-50 border-b border-zinc-50 pb-1"
-                  : "text-zinc-200 hover:text-zinc-50"
-              }`}
-            >
-              Favorites
-            </Link>
-            <Link 
-              href="/exhibitions" 
-              className={`transition-colors ${
-                isActive("/exhibitions")
-                  ? "text-zinc-50 border-b border-zinc-50 pb-1"
-                  : "text-zinc-200 hover:text-zinc-50"
-              }`}
-            >
-              Exhibitions
-            </Link>
-            <Link 
               href="/about" 
               className={`transition-colors ${
                 isActive("/about")

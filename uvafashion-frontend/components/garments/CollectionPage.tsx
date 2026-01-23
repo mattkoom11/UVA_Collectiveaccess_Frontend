@@ -3,11 +3,14 @@
 import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { getAllGarments, filterGarments, searchGarments } from "@/lib/garments";
-import { Era, GarmentType, Garment } from "@/types/garment";
+import { getAllGarments, filterGarments } from "@/lib/garments";
+import { Era, GarmentType } from "@/types/garment";
 import PageLayout from "@/components/layout/PageLayout";
-import SearchBar from "@/components/layout/SearchBar";
-import { ChevronDown, X, ArrowUpDown, Grid3x3, List } from "lucide-react";
+import AdvancedSearchBar from "./AdvancedSearchBar";
+import SkeletonCard from "./SkeletonCard";
+import SkeletonList from "./SkeletonList";
+import { advancedSearch } from "@/lib/advancedSearch";
+import { ChevronDown, X, ArrowUpDown } from "lucide-react";
 import FavoriteButton from "./FavoriteButton";
 
 type SortOption = "relevance" | "date-asc" | "date-desc" | "name-asc" | "name-desc" | "era-asc" | "era-desc";
@@ -43,9 +46,10 @@ export default function CollectionPage() {
     (searchParams.get("sort") as SortOption) || "relevance"
   );
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [viewMode, setViewMode] = useState<"grid" | "list">(
+  const [viewMode] = useState<"grid" | "list">(
     (searchParams.get("view") as "grid" | "list") || "grid"
   );
+  const [isLoading] = useState(false);
 
   // Update URL when filters change
   useEffect(() => {
@@ -89,9 +93,9 @@ export default function CollectionPage() {
   const filteredGarments = useMemo(() => {
     let results = allGarments;
 
-    // Apply search first
+    // Apply advanced search first
     if (searchQuery.trim().length > 0) {
-      results = searchGarments(results, searchQuery);
+      results = advancedSearch(results, searchQuery);
     }
 
     // Then apply filters
@@ -169,7 +173,7 @@ export default function CollectionPage() {
 
         {/* Search Bar */}
         <div className="mb-8 max-w-2xl mx-auto">
-          <SearchBar 
+          <AdvancedSearchBar 
             variant="full" 
             onSearch={setSearchQuery}
             placeholder="Search collection by name, material, color, decade..."
@@ -343,7 +347,17 @@ export default function CollectionPage() {
         </div>
 
         {/* Garment Cards Grid/List */}
-        {filteredGarments.length > 0 ? (
+        {isLoading ? (
+          viewMode === "grid" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <SkeletonCard key={i} />
+              ))}
+            </div>
+          ) : (
+            <SkeletonList count={6} />
+          )
+        ) : filteredGarments.length > 0 ? (
           <div className={viewMode === "grid" 
             ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10"
             : "space-y-4"

@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { getAllGarments } from "@/lib/garments";
 import { getGarmentById } from "@/lib/garments";
 import { sampleExhibitions } from "@/data/exhibitions";
 import PageLayout from "@/components/layout/PageLayout";
@@ -17,7 +16,6 @@ export default async function ExhibitionDetailPage({ params }: Props) {
     notFound();
   }
 
-  const allGarments = getAllGarments();
   const garments = exhibition.garmentIds
     .map((id) => getGarmentById(id))
     .filter((g) => g !== undefined);

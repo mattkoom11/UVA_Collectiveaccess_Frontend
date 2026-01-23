@@ -46,6 +46,26 @@ export default function SearchBar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleSelectResult = (garment: Garment) => {
+    setIsOpen(false);
+    setQuery("");
+    setFocusedIndex(-1);
+    router.push(`/garments/${garment.slug}`);
+  };
+
+  const handleSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (query.trim().length > 0) {
+      setIsOpen(false);
+      if (onSearch) {
+        onSearch(query);
+      } else {
+        router.push(`/search?q=${encodeURIComponent(query)}`);
+      }
+      inputRef.current?.blur();
+    }
+  };
+
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -94,26 +114,6 @@ export default function SearchBar({
   const handleInputFocus = () => {
     if (query.trim().length > 0 && searchResults.length > 0) {
       setIsOpen(true);
-    }
-  };
-
-  const handleSelectResult = (garment: Garment) => {
-    setIsOpen(false);
-    setQuery("");
-    setFocusedIndex(-1);
-    router.push(`/garments/${garment.slug}`);
-  };
-
-  const handleSubmit = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (query.trim().length > 0) {
-      setIsOpen(false);
-      if (onSearch) {
-        onSearch(query);
-      } else {
-        router.push(`/search?q=${encodeURIComponent(query)}`);
-      }
-      inputRef.current?.blur();
     }
   };
 
@@ -266,4 +266,3 @@ export default function SearchBar({
     </div>
   );
 }
-
