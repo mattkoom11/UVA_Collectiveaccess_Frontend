@@ -23,7 +23,7 @@ export default function AboutPage() {
             </h2>
             <div className="space-y-4 text-zinc-300 font-light leading-relaxed">
               <p>
-                UVA Fashion is a digital exploration of the University of Virginia's historic clothing collection, 
+                UVA Fashion is a digital exploration of the University of Virginia&apos;s historic clothing collection, 
                 bringing together cutting-edge technology and archival scholarship to create an immersive experience 
                 that bridges past and present.
               </p>
@@ -43,7 +43,7 @@ export default function AboutPage() {
             </h2>
             <div className="space-y-4 text-zinc-300 font-light leading-relaxed">
               <p>
-                The University of Virginia's Historic Clothing Collection preserves garments spanning over a century 
+                The University of Virginia&apos;s Historic Clothing Collection preserves garments spanning over a century 
                 of American fashion history. From elegant evening gowns of the 1920s to structured suits of the 1950s, 
                 each piece represents a moment in time, capturing the evolving aesthetics, materials, and techniques 
                 of fashion design.
@@ -107,7 +107,7 @@ export default function AboutPage() {
             <div className="text-sm text-zinc-400 font-light space-y-2">
               <p>
                 For more information about the UVA Historic Clothing Collection, please contact the collection 
-                curators through the University of Virginia's special collections department.
+                curators through the University of Virginia&apos;s special collections department.
               </p>
             </div>
           </section>

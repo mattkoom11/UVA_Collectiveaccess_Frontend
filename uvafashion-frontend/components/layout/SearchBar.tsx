@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getAllGarments, searchGarments } from "@/lib/garments";
 import { Garment } from "@/types/garment";
@@ -32,6 +32,26 @@ export default function SearchBar({
     const results = searchGarments(allGarments, query);
     return results.slice(0, 8);
   }, [query, allGarments]);
+
+  const handleSelectResult = useCallback((garment: Garment) => {
+    setIsOpen(false);
+    setQuery("");
+    setFocusedIndex(-1);
+    router.push(`/garments/${garment.slug}`);
+  }, [router]);
+
+  const handleSubmit = useCallback((e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (query.trim().length > 0) {
+      setIsOpen(false);
+      if (onSearch) {
+        onSearch(query);
+      } else {
+        router.push(`/search?q=${encodeURIComponent(query)}`);
+      }
+      inputRef.current?.blur();
+    }
+  }, [query, onSearch, router]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -82,7 +102,7 @@ export default function SearchBar({
       window.addEventListener("keydown", handleKeyDown);
       return () => window.removeEventListener("keydown", handleKeyDown);
     }
-  }, [isOpen, searchResults, focusedIndex, query]);
+  }, [isOpen, searchResults, focusedIndex, query, handleSelectResult, handleSubmit]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -97,31 +117,10 @@ export default function SearchBar({
     }
   };
 
-  const handleSelectResult = (garment: Garment) => {
-    setIsOpen(false);
-    setQuery("");
-    setFocusedIndex(-1);
-    router.push(`/garments/${garment.slug}`);
-  };
-
-  const handleSubmit = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (query.trim().length > 0) {
-      setIsOpen(false);
-      if (onSearch) {
-        onSearch(query);
-      } else {
-        router.push(`/search?q=${encodeURIComponent(query)}`);
-      }
-      inputRef.current?.blur();
-    }
-  };
-
   const highlightMatch = (text: string, query: string): React.ReactNode => {
     if (!query || query.trim().length === 0) return text;
     
     const terms = query.toLowerCase().trim().split(/\s+/);
-    let highlightedText = text;
     const parts: Array<{ text: string; match: boolean }> = [];
     
     // Simple highlighting - find first match
@@ -259,7 +258,7 @@ export default function SearchBar({
       {isOpen && query.trim().length > 0 && searchResults.length === 0 && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 p-4">
           <p className="text-sm text-zinc-400 font-light text-center">
-            No garments found matching "{query}"
+            No garments found matching &quot;{query}&quot;
           </p>
         </div>
       )}

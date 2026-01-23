@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { shows, getGarmentsForShow, type Show } from "@/data/shows";
@@ -11,13 +11,17 @@ export default function RunwayPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const showParam = searchParams.get("show");
-  const [selectedShowId, setSelectedShowId] = useState<string>(
+  const [selectedShowId, setSelectedShowId] = useState<string>(() => 
     showParam || shows[0]?.id || ""
   );
   const [showDescriptionVisible, setShowDescriptionVisible] = useState(false);
 
+  // Sync state with URL param when it changes externally
+  // Use a ref to track the previous value to avoid unnecessary updates
+  const prevShowParamRef = useRef(showParam);
   useEffect(() => {
-    if (showParam && showParam !== selectedShowId) {
+    if (showParam && showParam !== prevShowParamRef.current && showParam !== selectedShowId) {
+      prevShowParamRef.current = showParam;
       setSelectedShowId(showParam);
     }
   }, [showParam, selectedShowId]);

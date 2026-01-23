@@ -4,13 +4,13 @@ import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getAllGarments, filterGarments } from "@/lib/garments";
-import { Era, GarmentType, Garment } from "@/types/garment";
+import { Era, GarmentType } from "@/types/garment";
 import PageLayout from "@/components/layout/PageLayout";
 import AdvancedSearchBar from "./AdvancedSearchBar";
 import SkeletonCard from "./SkeletonCard";
 import SkeletonList from "./SkeletonList";
 import { advancedSearch } from "@/lib/advancedSearch";
-import { ChevronDown, X, ArrowUpDown, Grid3x3, List } from "lucide-react";
+import { ChevronDown, X, ArrowUpDown } from "lucide-react";
 import FavoriteButton from "./FavoriteButton";
 
 type SortOption = "relevance" | "date-asc" | "date-desc" | "name-asc" | "name-desc" | "era-asc" | "era-desc";
@@ -46,15 +46,10 @@ export default function CollectionPage() {
     (searchParams.get("sort") as SortOption) || "relevance"
   );
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [viewMode, setViewMode] = useState<"grid" | "list">(
+  const [viewMode] = useState<"grid" | "list">(
     (searchParams.get("view") as "grid" | "list") || "grid"
   );
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Simulate loading for skeleton screens
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
+  const [isLoading] = useState(false);
 
   // Update URL when filters change
   useEffect(() => {

@@ -1,9 +1,6 @@
 import { notFound } from "next/navigation";
 import { getAllGarments, getGarmentBySlug, getGarmentById } from "@/lib/garments";
-import { Garment, getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/garment";
-import Link from "next/link";
-import Garment3DViewer from "@/components/garments/Garment3DViewer";
-import GarmentDetailClient from "@/components/garments/GarmentDetailClient";
+import { Garment } from "@/types/garment";
 import GarmentDetailWithTabs from "@/components/garments/GarmentDetailWithTabs";
 import { Metadata } from "next";
 

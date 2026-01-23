@@ -69,7 +69,7 @@ function SearchPageContent() {
     const terms = query.toLowerCase().trim().split(/\s+/);
     const lowerText = text.toLowerCase();
     const parts: Array<{ text: string; match: boolean }> = [];
-    let lastIndex = 0;
+    const lastIndex = 0;
     
     // Find all matches
     const matches: Array<{ start: number; end: number }> = [];

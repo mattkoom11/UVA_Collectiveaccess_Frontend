@@ -58,7 +58,7 @@ export function advancedSearch(garments: Garment[], query: string): Garment[] {
   if (terms.length === 0) return garments;
 
   return garments.filter((garment) => {
-    let matches: boolean[] = [];
+    const matches: boolean[] = [];
 
     for (let i = 0; i < terms.length; i++) {
       const term = terms[i].toLowerCase();

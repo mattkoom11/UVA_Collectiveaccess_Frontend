@@ -1,9 +1,9 @@
 "use client";
 
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree, ThreeEvent } from "@react-three/fiber";
 import { PerspectiveCamera, OrbitControls, useGLTF, Environment, useTexture } from "@react-three/drei";
-import { Suspense, useRef, useState, useEffect, useMemo, useCallback } from "react";
-import { Group, Vector3, Raycaster, Mesh, RepeatWrapping } from "three";
+import { Suspense, useRef, useState, useEffect, useLayoutEffect, useMemo, useCallback } from "react";
+import { Group, Vector3, RepeatWrapping } from "three";
 import * as THREE from "three";
 import DemoGarment from "@/components/garments/DemoGarment";
 import { getGarmentById } from "@/lib/garments";
@@ -156,10 +156,9 @@ function FirstPersonControls() {
     const move = new Vector3();
     move.set(velocity.current.x, 0, velocity.current.z);
     move.applyQuaternion(camera.quaternion);
-    camera.position.add(move);
-
-    // Keep camera at eye level
-    camera.position.y = 1.6;
+    const newPosition = camera.position.clone().add(move);
+    newPosition.y = 1.6; // Keep camera at eye level
+    camera.position.copy(newPosition);
   });
 
   return null;
@@ -179,7 +178,7 @@ function Pedestal({ position }: { position: [number, number, number] }) {
 function BackdropWithImage({ imageUrl }: { imageUrl: string }) {
   const texture = useTexture(imageUrl) as THREE.Texture;
   
-  useEffect(() => {
+  useLayoutEffect(() => {
     texture.wrapS = RepeatWrapping;
     texture.wrapT = RepeatWrapping;
     texture.repeat.set(1, 1);
@@ -279,6 +278,18 @@ function DecorativeBackdrop({ imageUrl }: { imageUrl?: string }) {
 
 // Decorative pattern texture for walls
 function WallPattern() {
+  // Generate random positions once
+  const randomPositions = useMemo(() => {
+    const positions: Array<{ x: number; y: number }> = [];
+    for (let i = 0; i < 100; i++) {
+      positions.push({
+        x: Math.random() * 512,
+        y: Math.random() * 512,
+      });
+    }
+    return positions;
+  }, []);
+
   // Create a procedural pattern using canvas
   const canvas = useMemo(() => {
     const c = document.createElement('canvas');
@@ -304,18 +315,16 @@ function WallPattern() {
       ctx.stroke();
     }
     
-    // Add subtle texture dots
+    // Add subtle texture dots using pre-generated positions
     ctx.fillStyle = '#151515';
-    for (let i = 0; i < 100; i++) {
-      const x = Math.random() * 512;
-      const y = Math.random() * 512;
+    for (const pos of randomPositions) {
       ctx.beginPath();
-      ctx.arc(x, y, 1, 0, Math.PI * 2);
+      ctx.arc(pos.x, pos.y, 1, 0, Math.PI * 2);
       ctx.fill();
     }
     
     return c;
-  }, []);
+  }, [randomPositions]);
 
   const texture = useMemo(() => {
     const tex = new THREE.CanvasTexture(canvas);
@@ -521,7 +530,7 @@ function GarmentModel({
     }
   });
 
-  const handleClick = useCallback((e: any) => {
+  const handleClick = useCallback((e: ThreeEvent<MouseEvent>) => {
     // Three.js event - only has stopPropagation, not preventDefault
     if (e.stopPropagation) {
       e.stopPropagation();
@@ -538,7 +547,7 @@ function GarmentModel({
     } catch (error) {
       console.error("Error in garment model click:", error);
     }
-  }, [onGarmentClick]);
+  }, [onGarmentClick, garmentId]);
 
   return (
     <group ref={groupRef} position={position} onClick={handleClick}>
@@ -560,7 +569,7 @@ function PlaceholderGarment({
   const garment = garmentId ? getGarmentById(garmentId) : undefined;
   const garmentColor = getPrimaryColor(garment?.colors);
   
-  const handleClick = useCallback((e: any) => {
+  const handleClick = useCallback((e: ThreeEvent<MouseEvent>) => {
     // Three.js event - only has stopPropagation, not preventDefault
     if (e.stopPropagation) {
       e.stopPropagation();
@@ -650,9 +659,10 @@ export default function Backstage3D({
 }: Backstage3DProps) {
   const [showUI, setShowUI] = useState(true);
   const [useFirstPerson, setUseFirstPerson] = useState(false); // Default to orbit controls for stability
-  const [isMounted, setIsMounted] = useState(false);
+  const [isMounted, setIsMounted] = useState(true); // Initialize to true for client component
   const [contextLost, setContextLost] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const contextCleanupRef = useRef<(() => void) | null>(null);
 
   // Determine which garment IDs to use
   const actualGarmentIds = useMemo(() => {
@@ -694,8 +704,6 @@ export default function Backstage3D({
   }, [actualGarmentIds]);
 
   useEffect(() => {
-    setIsMounted(true);
-    
     // Fade out UI after 5 seconds
     const timer = setTimeout(() => {
       setShowUI(false);
@@ -712,9 +720,9 @@ export default function Backstage3D({
         }
       }
       // Cleanup context monitoring if it exists
-      if (canvasRef.current && (canvasRef.current as any).__cleanup) {
+      if (contextCleanupRef.current) {
         try {
-          (canvasRef.current as any).__cleanup();
+          contextCleanupRef.current();
         } catch (e) {
           // Ignore cleanup errors
         }
@@ -839,7 +847,7 @@ export default function Backstage3D({
             };
             
             // Store cleanup for later
-            (state.gl as any).__cleanup = cleanup;
+            contextCleanupRef.current = cleanup;
           } catch (error) {
             console.error("Error initializing Canvas:", error);
           }

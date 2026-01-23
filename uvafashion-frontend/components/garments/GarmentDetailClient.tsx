@@ -295,7 +295,7 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
             <section className="mb-20 border-t border-zinc-800 pt-12">
               <div className="max-w-3xl mx-auto">
                 <h2 className="text-xs uppercase tracking-[0.3em] text-zinc-400 mb-6 text-center">
-                  Curator's Note
+                  Curator&apos;s Note
                 </h2>
                 <p className="text-base md:text-lg leading-relaxed text-zinc-300 font-light italic text-center">
                   {curatorNote}
