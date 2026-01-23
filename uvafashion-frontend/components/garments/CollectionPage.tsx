@@ -10,8 +10,9 @@ import AdvancedSearchBar from "./AdvancedSearchBar";
 import SkeletonCard from "./SkeletonCard";
 import SkeletonList from "./SkeletonList";
 import { advancedSearch } from "@/lib/advancedSearch";
-import { ChevronDown, X, ArrowUpDown } from "lucide-react";
+import { ChevronDown, X, ArrowUpDown, Grid3x3, List, Bookmark } from "lucide-react";
 import FavoriteButton from "./FavoriteButton";
+import { getFilterPresets, saveFilterPreset, deleteFilterPreset, getPresetURL, FilterPreset } from "@/lib/filterPresets";
 
 type SortOption = "relevance" | "date-asc" | "date-desc" | "name-asc" | "name-desc" | "era-asc" | "era-desc";
 
@@ -46,10 +47,13 @@ export default function CollectionPage() {
     (searchParams.get("sort") as SortOption) || "relevance"
   );
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [viewMode] = useState<"grid" | "list">(
+  const [viewMode, setViewMode] = useState<"grid" | "list">(
     (searchParams.get("view") as "grid" | "list") || "grid"
   );
   const [isLoading] = useState(false);
+  const [showPresets, setShowPresets] = useState(false);
+  const [presetName, setPresetName] = useState("");
+  const presets = getFilterPresets();
 
   // Update URL when filters change
   useEffect(() => {
@@ -67,6 +71,34 @@ export default function CollectionPage() {
     const newUrl = params.toString() ? `/collection?${params.toString()}` : "/collection";
     router.replace(newUrl, { scroll: false });
   }, [selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy, viewMode, router]);
+
+  const saveCurrentAsPreset = () => {
+    if (!presetName.trim()) return;
+    const preset: FilterPreset = {
+      id: Date.now().toString(),
+      name: presetName.trim(),
+      era: selectedEra !== "all" ? selectedEra : undefined,
+      type: selectedType !== "all" ? selectedType : undefined,
+      color: selectedColor !== "all" ? selectedColor : undefined,
+      material: selectedMaterial !== "all" ? selectedMaterial : undefined,
+      dateStart: dateRange.start,
+      dateEnd: dateRange.end,
+    };
+    saveFilterPreset(preset);
+    setPresetName("");
+    setShowPresets(false);
+  };
+
+  const loadPreset = (preset: FilterPreset) => {
+    setSelectedEra((preset.era as any) || "all");
+    setSelectedType((preset.type as any) || "all");
+    setSelectedColor(preset.color || "all");
+    setSelectedMaterial(preset.material || "all");
+    setDateRange({
+      start: preset.dateStart,
+      end: preset.dateEnd,
+    });
+  };
 
   // Extract unique colors and materials
   const availableColors = useMemo(() => {
@@ -230,6 +262,96 @@ export default function CollectionPage() {
                 <option value="era-asc">Era: Early First</option>
                 <option value="era-desc">Era: Recent First</option>
               </select>
+            </div>
+
+            {/* View Mode Toggle */}
+            <div className="bg-zinc-900/50 border border-zinc-700 rounded flex">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`px-4 py-2 transition-colors ${
+                  viewMode === "grid"
+                    ? "bg-zinc-800 text-zinc-200"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+                aria-label="Grid view"
+              >
+                <Grid3x3 className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`px-4 py-2 transition-colors ${
+                  viewMode === "list"
+                    ? "bg-zinc-800 text-zinc-200"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+                aria-label="List view"
+              >
+                <List className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Filter Presets */}
+            <div className="relative">
+              <button
+                onClick={() => setShowPresets(!showPresets)}
+                className="bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-400 hover:text-zinc-200 uppercase tracking-[0.1em] font-light hover:border-zinc-600 transition-colors flex items-center gap-2"
+              >
+                <Bookmark className="w-4 h-4" />
+                Presets
+              </button>
+              {showPresets && (
+                <div className="absolute top-full right-0 mt-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 min-w-[250px] max-h-96 overflow-y-auto">
+                  <div className="p-4 space-y-3">
+                    <div>
+                      <input
+                        type="text"
+                        value={presetName}
+                        onChange={(e) => setPresetName(e.target.value)}
+                        placeholder="Preset name..."
+                        className="w-full bg-zinc-800 border border-zinc-700 px-3 py-2 rounded text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-600"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            saveCurrentAsPreset();
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={saveCurrentAsPreset}
+                        className="mt-2 w-full text-xs uppercase tracking-[0.1em] text-zinc-400 hover:text-zinc-200 border border-zinc-700 px-3 py-1.5 rounded hover:border-zinc-600 transition-colors"
+                      >
+                        Save Current Filters
+                      </button>
+                    </div>
+                    {presets.length > 0 && (
+                      <>
+                        <div className="border-t border-zinc-700 pt-3">
+                          <p className="text-xs uppercase tracking-[0.1em] text-zinc-400 mb-2">Saved Presets</p>
+                          {presets.map((preset) => (
+                            <div key={preset.id} className="flex items-center justify-between gap-2 mb-2">
+                              <button
+                                onClick={() => loadPreset(preset)}
+                                className="flex-1 text-left text-sm text-zinc-300 hover:text-zinc-200 px-2 py-1.5 rounded hover:bg-zinc-800 transition-colors"
+                              >
+                                {preset.name}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  deleteFilterPreset(preset.id);
+                                  setShowPresets(false);
+                                }}
+                                className="text-zinc-500 hover:text-zinc-300 transition-colors p-1"
+                                aria-label="Delete preset"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Advanced Filters Toggle */}

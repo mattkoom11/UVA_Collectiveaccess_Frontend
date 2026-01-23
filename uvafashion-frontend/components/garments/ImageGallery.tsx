@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download, DownloadCloud } from "lucide-react";
 
 interface ImageGalleryProps {
   images: string[];
@@ -160,6 +160,21 @@ export default function ImageGallery({
     }
   };
 
+  const handleDownloadAll = async () => {
+    // Download all images as a zip (requires JSZip library for full implementation)
+    // For now, download them sequentially
+    for (let i = 0; i < images.length; i++) {
+      if (images[i]) {
+        const link = document.createElement("a");
+        link.href = images[i];
+        link.download = `garment-image-${i + 1}.jpg`;
+        link.click();
+        // Small delay between downloads
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+    }
+  };
+
   if (images.length === 0) {
     return null;
   }
@@ -271,14 +286,27 @@ export default function ImageGallery({
           )}
         </div>
 
-        {/* Download button */}
-        <button
-          onClick={handleDownload}
-          className="text-zinc-300 hover:text-white transition-colors"
-          aria-label="Download image"
-        >
-          <Download className="w-5 h-5" />
-        </button>
+        {/* Download buttons */}
+        <div className="flex items-center gap-2 border-l border-zinc-700 pl-4">
+          <button
+            onClick={handleDownload}
+            className="text-zinc-300 hover:text-white transition-colors"
+            aria-label="Download current image"
+            title="Download current image"
+          >
+            <Download className="w-5 h-5" />
+          </button>
+          {images.length > 1 && (
+            <button
+              onClick={handleDownloadAll}
+              className="text-zinc-300 hover:text-white transition-colors"
+              aria-label="Download all images"
+              title="Download all images"
+            >
+              <DownloadCloud className="w-5 h-5" />
+            </button>
+          )}
+        </div>
 
         {/* Keyboard hints */}
         <div className="text-xs text-zinc-500 font-light border-l border-zinc-700 pl-4">

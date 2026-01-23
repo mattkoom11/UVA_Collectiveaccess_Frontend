@@ -1,6 +1,6 @@
 "use client";
 
-import { Share2, Twitter, Facebook, Linkedin, Link2, Copy } from "lucide-react";
+import { Share2, Twitter, Facebook, Linkedin, Link2, Copy, QrCode } from "lucide-react";
 import { useState } from "react";
 
 interface SocialShareProps {
@@ -60,6 +60,19 @@ export default function SocialShare({ url, title, description, image }: SocialSh
     setShowMenu(false);
   };
 
+  const shareToPinterest = () => {
+    const pinterestUrl = `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(fullUrl)}&description=${encodeURIComponent(title)}${image ? `&media=${encodeURIComponent(image)}` : ""}`;
+    window.open(pinterestUrl, "_blank", "width=550,height=420");
+    setShowMenu(false);
+  };
+
+  const generateQRCode = () => {
+    // Simple QR code generation using a service
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(fullUrl)}`;
+    window.open(qrUrl, "_blank");
+    setShowMenu(false);
+  };
+
   return (
     <div className="relative">
       <button
@@ -98,6 +111,21 @@ export default function SocialShare({ url, title, description, image }: SocialSh
               >
                 <Linkedin className="w-4 h-4" />
                 LinkedIn
+              </button>
+              <button
+                onClick={shareToPinterest}
+                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800 transition-colors rounded"
+              >
+                <Share2 className="w-4 h-4" />
+                Pinterest
+              </button>
+              <div className="border-t border-zinc-700 my-1" />
+              <button
+                onClick={generateQRCode}
+                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800 transition-colors rounded"
+              >
+                <QrCode className="w-4 h-4" />
+                QR Code
               </button>
               <div className="border-t border-zinc-700 my-1" />
               <button

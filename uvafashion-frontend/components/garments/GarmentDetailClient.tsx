@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Garment3DViewer from "./Garment3DViewer";
 import ImageGallery from "./ImageGallery";
-import { Share2, Download, ExternalLink } from "lucide-react";
+import { Share2, Download, ExternalLink, Printer } from "lucide-react";
 import { getEnhancedRelatedGarments } from "@/lib/relatedGarments";
 import { getAllGarments } from "@/lib/garments";
 import FavoriteButton from "./FavoriteButton";
@@ -96,6 +96,14 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
                 title={editorialTitle}
                 description={tagline || aestheticDescription}
               />
+              <button
+                onClick={() => window.print()}
+                className="text-xs uppercase tracking-[0.2em] text-zinc-400 hover:text-zinc-200 transition-colors border border-zinc-700 px-4 py-2 hover:border-zinc-500 flex items-center gap-2 print-hide"
+                aria-label="Print page"
+              >
+                <Printer className="w-4 h-4" />
+                Print
+              </button>
             </div>
             
             {/* Decorative divider */}

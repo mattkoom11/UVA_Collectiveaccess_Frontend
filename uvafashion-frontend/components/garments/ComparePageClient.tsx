@@ -5,8 +5,9 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Garment } from "@/types/garment";
 import { getGarmentById } from "@/lib/garments";
 import Link from "next/link";
-import { X, Plus, Download, FileText } from "lucide-react";
+import { X, Plus, Download, FileText, FileSpreadsheet, File } from "lucide-react";
 import Garment3DViewer from "./Garment3DViewer";
+import { exportToCSV, exportToJSON, exportToPDF } from "@/lib/exportUtils";
 
 interface ComparePageClientProps {
   allGarments: Garment[];
@@ -48,29 +49,16 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
     setCompareIds(compareIds.filter((id) => id !== garmentId));
   };
 
-  const exportComparison = () => {
-    const data = compareGarments.map((g) => ({
-      name: g.name || g.label || g.editorial_title,
-      id: g.id,
-      decade: g.decade,
-      date: g.date,
-      era: g.era,
-      work_type: g.work_type,
-      type: g.type,
-      colors: g.colors,
-      materials: g.materials,
-      dimensions: g.dimensions,
-      condition: g.condition,
-      collection: g.collection,
-    }));
+  const exportComparisonJSON = () => {
+    exportToJSON(compareGarments, `garment-comparison-${Date.now()}.json`);
+  };
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `garment-comparison-${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const exportComparisonCSV = () => {
+    exportToCSV(compareGarments, `garment-comparison-${Date.now()}.csv`);
+  };
+
+  const exportComparisonPDF = async () => {
+    await exportToPDF(compareGarments, `garment-comparison-${Date.now()}.pdf`);
   };
 
   return (
@@ -130,18 +118,37 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
         {compareGarments.length > 0 ? (
           <div className="space-y-8">
             {/* Actions */}
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={exportComparison}
-                className="text-xs uppercase tracking-[0.2em] text-zinc-400 hover:text-zinc-200 transition-colors border border-zinc-700 px-4 py-2 hover:border-zinc-500 flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Export JSON
-              </button>
+            <div className="flex justify-end gap-4 flex-wrap">
+              <div className="flex gap-2">
+                <button
+                  onClick={exportComparisonJSON}
+                  className="text-xs uppercase tracking-[0.2em] text-zinc-400 hover:text-zinc-200 transition-colors border border-zinc-700 px-4 py-2 hover:border-zinc-500 flex items-center gap-2"
+                  title="Export as JSON"
+                >
+                  <FileText className="w-4 h-4" />
+                  JSON
+                </button>
+                <button
+                  onClick={exportComparisonCSV}
+                  className="text-xs uppercase tracking-[0.2em] text-zinc-400 hover:text-zinc-200 transition-colors border border-zinc-700 px-4 py-2 hover:border-zinc-500 flex items-center gap-2"
+                  title="Export as CSV"
+                >
+                  <FileSpreadsheet className="w-4 h-4" />
+                  CSV
+                </button>
+                <button
+                  onClick={exportComparisonPDF}
+                  className="text-xs uppercase tracking-[0.2em] text-zinc-400 hover:text-zinc-200 transition-colors border border-zinc-700 px-4 py-2 hover:border-zinc-500 flex items-center gap-2"
+                  title="Export as PDF"
+                >
+                  <File className="w-4 h-4" />
+                  PDF
+                </button>
+              </div>
             </div>
 
             {/* Comparison Table */}
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto" id="comparison-table">
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b border-zinc-800">

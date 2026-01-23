@@ -107,3 +107,52 @@ body {
   mask-mode: var(--mask-mode);
   -webkit-mask-mode: var(--mask-mode);
 }
+
+/* Print Styles */
+@media print {
+  @page {
+    margin: 1in;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  header,
+  nav,
+  footer,
+  button,
+  .no-print,
+  .print-hide {
+    display: none !important;
+  }
+
+  a {
+    color: black;
+    text-decoration: underline;
+  }
+
+  a[href^="http"]:after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  .avoid-break {
+    page-break-inside: avoid;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+}

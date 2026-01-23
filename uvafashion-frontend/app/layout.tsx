@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import KeyboardShortcutsProvider from "@/components/layout/KeyboardShortcutsProvider";
+import Breadcrumbs from "@/components/layout/Breadcrumbs";
 
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <KeyboardShortcutsProvider>
           <div className="min-h-screen flex flex-col">
             <SiteHeader />
+            <Breadcrumbs />
             <main className="flex-1">
               {children}
             </main>
