@@ -9,6 +9,9 @@ import ImageGallery from "./ImageGallery";
 import { Share2, Download, ExternalLink } from "lucide-react";
 import { getEnhancedRelatedGarments } from "@/lib/relatedGarments";
 import { getAllGarments } from "@/lib/garments";
+import FavoriteButton from "./FavoriteButton";
+import CompareButton from "./CompareButton";
+import SocialShare from "./SocialShare";
 
 interface GarmentDetailClientProps {
   garment: Garment;
@@ -45,21 +48,6 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
     setGalleryOpen(true);
   };
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: editorialTitle,
-        text: tagline || aestheticDescription,
-        url: window.location.href,
-      }).catch(() => {
-        // Fallback to copy
-        navigator.clipboard.writeText(window.location.href);
-      });
-    } else {
-      // Fallback: copy to clipboard
-      navigator.clipboard.writeText(window.location.href);
-    }
-  };
 
   return (
     <>
@@ -99,15 +87,15 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
               </p>
             )}
             
-            {/* Share button */}
-            <div className="flex items-center justify-center gap-4">
-              <button
-                onClick={handleShare}
-                className="text-xs uppercase tracking-[0.2em] text-zinc-400 hover:text-zinc-200 transition-colors border border-zinc-700 px-4 py-2 hover:border-zinc-500 flex items-center gap-2"
-              >
-                <Share2 className="w-4 h-4" />
-                Share
-              </button>
+            {/* Action buttons */}
+            <div className="flex items-center justify-center gap-4 flex-wrap">
+              <FavoriteButton garmentId={garment.id} variant="button" />
+              <CompareButton garmentId={garment.id} variant="button" />
+              <SocialShare
+                url={`/garments/${garment.slug}`}
+                title={editorialTitle}
+                description={tagline || aestheticDescription}
+              />
             </div>
             
             {/* Decorative divider */}

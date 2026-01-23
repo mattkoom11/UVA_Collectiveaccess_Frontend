@@ -5,6 +5,7 @@ import Link from "next/link";
 import Garment3DViewer from "@/components/garments/Garment3DViewer";
 import GarmentDetailClient from "@/components/garments/GarmentDetailClient";
 import GarmentDetailWithTabs from "@/components/garments/GarmentDetailWithTabs";
+import { Metadata } from "next";
 
 export async function generateStaticParams() {
   const garments = getAllGarments();
@@ -13,6 +14,44 @@ export async function generateStaticParams() {
 
 interface Props {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const garment = getGarmentBySlug(slug);
+
+  if (!garment) {
+    return {
+      title: "Garment Not Found",
+    };
+  }
+
+  const title = garment.editorial_title || garment.name || garment.label || "Garment";
+  const description = garment.tagline || garment.description || garment.aesthetic_description || `Historic garment from the UVA Fashion Archive${garment.decade ? ` (${garment.decade})` : ""}`;
+  const image = garment.thumbnailUrl || garment.imageUrl || (garment.images && garment.images[0]) || "";
+  const url = `https://uvafashionarchive.com/garments/${slug}`;
+
+  return {
+    title: `${title} | UVA Fashion Archive`,
+    description,
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "UVA Fashion Archive",
+      images: image ? [{ url: image }] : [],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: image ? [image] : [],
+    },
+    alternates: {
+      canonical: url,
+    },
+  };
 }
 
 export default async function GarmentDetailPage({ params }: Props) {
@@ -31,6 +70,33 @@ export default async function GarmentDetailPage({ params }: Props) {
     : [];
 
   return (
-    <GarmentDetailWithTabs garment={garment} relatedGarments={relatedGarments} />
+    <>
+      {/* Structured Data (JSON-LD) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: garment.editorial_title || garment.name || garment.label,
+            description: garment.description || garment.tagline || garment.aesthetic_description,
+            image: garment.thumbnailUrl || garment.imageUrl || (garment.images && garment.images[0]),
+            brand: {
+              "@type": "Organization",
+              name: "UVA Fashion Archive",
+            },
+            material: Array.isArray(garment.materials) ? garment.materials.join(", ") : garment.materials,
+            color: Array.isArray(garment.colors) ? garment.colors.join(", ") : garment.colors,
+            dateCreated: garment.date || garment.decade,
+            additionalProperty: [
+              { "@type": "PropertyValue", name: "Era", value: garment.era },
+              { "@type": "PropertyValue", name: "Type", value: garment.work_type || garment.type },
+              { "@type": "PropertyValue", name: "Accession Number", value: garment.accessionNumber },
+            ].filter(p => p.value),
+          }),
+        }}
+      />
+      <GarmentDetailWithTabs garment={garment} relatedGarments={relatedGarments} />
+    </>
   );
 }

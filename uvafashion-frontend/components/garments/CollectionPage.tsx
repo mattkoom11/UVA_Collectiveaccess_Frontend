@@ -1,25 +1,68 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { getAllGarments, filterGarments, searchGarments } from "@/lib/garments";
 import { Era, GarmentType, Garment } from "@/types/garment";
 import PageLayout from "@/components/layout/PageLayout";
 import SearchBar from "@/components/layout/SearchBar";
-import { ChevronDown, X, ArrowUpDown } from "lucide-react";
+import { ChevronDown, X, ArrowUpDown, Grid3x3, List } from "lucide-react";
+import FavoriteButton from "./FavoriteButton";
 
 type SortOption = "relevance" | "date-asc" | "date-desc" | "name-asc" | "name-desc" | "era-asc" | "era-desc";
 
 export default function CollectionPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const allGarments = useMemo(() => getAllGarments(), []);
-  const [selectedEra, setSelectedEra] = useState<Era | "all">("all");
-  const [selectedType, setSelectedType] = useState<GarmentType | "all">("all");
-  const [selectedColor, setSelectedColor] = useState<string>("all");
-  const [selectedMaterial, setSelectedMaterial] = useState<string>("all");
-  const [dateRange, setDateRange] = useState<{ start?: number; end?: number }>({});
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<SortOption>("relevance");
+  
+  // Initialize state from URL params
+  const [selectedEra, setSelectedEra] = useState<Era | "all">(
+    (searchParams.get("era") as Era | null) || "all"
+  );
+  const [selectedType, setSelectedType] = useState<GarmentType | "all">(
+    (searchParams.get("type") as GarmentType | null) || "all"
+  );
+  const [selectedColor, setSelectedColor] = useState<string>(
+    searchParams.get("color") || "all"
+  );
+  const [selectedMaterial, setSelectedMaterial] = useState<string>(
+    searchParams.get("material") || "all"
+  );
+  const [dateRange, setDateRange] = useState<{ start?: number; end?: number }>(() => {
+    const start = searchParams.get("dateStart");
+    const end = searchParams.get("dateEnd");
+    return {
+      start: start ? parseInt(start) : undefined,
+      end: end ? parseInt(end) : undefined,
+    };
+  });
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+  const [sortBy, setSortBy] = useState<SortOption>(
+    (searchParams.get("sort") as SortOption) || "relevance"
+  );
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "list">(
+    (searchParams.get("view") as "grid" | "list") || "grid"
+  );
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (selectedEra !== "all") params.set("era", selectedEra);
+    if (selectedType !== "all") params.set("type", selectedType);
+    if (selectedColor !== "all") params.set("color", selectedColor);
+    if (selectedMaterial !== "all") params.set("material", selectedMaterial);
+    if (dateRange.start) params.set("dateStart", dateRange.start.toString());
+    if (dateRange.end) params.set("dateEnd", dateRange.end.toString());
+    if (searchQuery) params.set("q", searchQuery);
+    if (sortBy !== "relevance") params.set("sort", sortBy);
+    if (viewMode !== "grid") params.set("view", viewMode);
+
+    const newUrl = params.toString() ? `/collection?${params.toString()}` : "/collection";
+    router.replace(newUrl, { scroll: false });
+  }, [selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy, viewMode, router]);
 
   // Extract unique colors and materials
   const availableColors = useMemo(() => {
@@ -299,55 +342,68 @@ export default function CollectionPage() {
           )}
         </div>
 
-        {/* Garment Cards Grid */}
+        {/* Garment Cards Grid/List */}
         {filteredGarments.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
+          <div className={viewMode === "grid" 
+            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10"
+            : "space-y-4"
+          }>
             {filteredGarments.map((garment) => (
-              <Link
+              <div
                 key={garment.id}
-                href={`/garments/${garment.slug}`}
-                className="group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300 hover:bg-zinc-900"
+                className={viewMode === "grid"
+                  ? "group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300 hover:bg-zinc-900 relative"
+                  : "group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300 hover:bg-zinc-900 relative flex gap-6"
+                }
               >
-                {/* Card Image */}
-                <div className="relative w-full aspect-[3/4] bg-zinc-900 overflow-hidden">
-                  {garment.thumbnailUrl || (garment.images && garment.images.length > 0) ? (
-                    <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-sm">
-                      {/* Placeholder for image - replace with Next/Image when ready */}
-                      <div className="text-center">
-                        <p className="mb-2">Thumbnail</p>
-                        <p className="text-xs text-zinc-700">
-                          {garment.thumbnailUrl || garment.images[0]}
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-sm">
-                      <p>Image Placeholder</p>
-                    </div>
-                  )}
-                  {/* Hover overlay effect */}
-                  <div className="absolute inset-0 bg-zinc-950/0 group-hover:bg-zinc-950/20 transition-colors duration-300" />
+                {/* Favorite Button */}
+                <div className="absolute top-4 right-4 z-10">
+                  <FavoriteButton garmentId={garment.id} />
                 </div>
 
-                {/* Card Content */}
-                <div className="p-6 space-y-3">
-                  <div>
-                    <h2 className="text-lg md:text-xl font-light tracking-tight mb-2 group-hover:text-zinc-200 transition-colors">
-                      {garment.name || garment.label || garment.editorial_title}
-                    </h2>
-                    <p className="text-sm text-zinc-400 font-light">
-                      {garment.decade || garment.date || ''} {garment.work_type ? `• ${garment.work_type}` : ''}
-                    </p>
+                <Link
+                  href={`/garments/${garment.slug}`}
+                  className={viewMode === "list" ? "flex-1 flex gap-6" : "block"}
+                >
+                  {/* Card Image */}
+                  <div className={`relative ${viewMode === "grid" ? "w-full aspect-[3/4]" : "w-48 flex-shrink-0"} bg-zinc-900 overflow-hidden`}>
+                    {garment.thumbnailUrl || (garment.images && garment.images.length > 0) ? (
+                      <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-sm">
+                        <div className="text-center">
+                          <p className="mb-2">Thumbnail</p>
+                          <p className="text-xs text-zinc-700">
+                            {garment.thumbnailUrl || garment.images[0]}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-sm">
+                        <p>Image Placeholder</p>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-zinc-950/0 group-hover:bg-zinc-950/20 transition-colors duration-300" />
                   </div>
-                  
-                  {/* Description Excerpt */}
-                  {(garment.tagline || garment.description || garment.aesthetic_description) && (
-                    <p className="text-xs md:text-sm text-zinc-500 font-light leading-relaxed line-clamp-2">
-                      {getFirstLine(garment.tagline || garment.description || garment.aesthetic_description)}
-                    </p>
-                  )}
-                </div>
-              </Link>
+
+                  {/* Card Content */}
+                  <div className={`p-6 space-y-3 ${viewMode === "list" ? "flex-1" : ""}`}>
+                    <div>
+                      <h2 className="text-lg md:text-xl font-light tracking-tight mb-2 group-hover:text-zinc-200 transition-colors">
+                        {garment.name || garment.label || garment.editorial_title}
+                      </h2>
+                      <p className="text-sm text-zinc-400 font-light">
+                        {garment.decade || garment.date || ''} {garment.work_type ? `• ${garment.work_type}` : ''}
+                      </p>
+                    </div>
+                    
+                    {/* Description Excerpt */}
+                    {(garment.tagline || garment.description || garment.aesthetic_description) && (
+                      <p className={`text-xs md:text-sm text-zinc-500 font-light leading-relaxed ${viewMode === "grid" ? "line-clamp-2" : "line-clamp-3"}`}>
+                        {getFirstLine(garment.tagline || garment.description || garment.aesthetic_description)}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              </div>
             ))}
           </div>
         ) : (
