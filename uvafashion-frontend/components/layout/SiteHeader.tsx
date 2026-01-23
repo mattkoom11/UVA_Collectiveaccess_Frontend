@@ -18,11 +18,11 @@ export default function SiteHeader() {
     <header className="border-b border-zinc-800 sticky top-0 bg-zinc-950/95 backdrop-blur-sm z-50">
       <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
         {/* Top row: Logo and Navigation */}
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
+        <div className="flex items-center justify-between mb-4">
           <Link href="/" className="text-sm md:text-base tracking-[0.25em] uppercase font-light text-zinc-100 hover:text-zinc-50 transition-colors">
             UVA Fashion Archive
           </Link>
-          <nav className="flex flex-wrap gap-4 md:gap-6 lg:gap-8 text-xs md:text-sm uppercase tracking-[0.2em] font-light">
+          <nav className="flex gap-6 md:gap-8 text-xs md:text-sm uppercase tracking-[0.2em] font-light">
             <Link 
               href="/" 
               className={`transition-colors ${
