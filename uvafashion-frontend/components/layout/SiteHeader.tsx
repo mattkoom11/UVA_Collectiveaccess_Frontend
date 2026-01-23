@@ -74,16 +74,6 @@ export default function SiteHeader() {
               Exhibitions
             </Link>
             <Link 
-              href="/statistics" 
-              className={`transition-colors ${
-                isActive("/statistics")
-                  ? "text-zinc-50 border-b border-zinc-50 pb-1"
-                  : "text-zinc-200 hover:text-zinc-50"
-              }`}
-            >
-              Statistics
-            </Link>
-            <Link 
               href="/learn" 
               className={`transition-colors ${
                 isActive("/learn")
