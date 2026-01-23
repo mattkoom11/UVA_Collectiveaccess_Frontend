@@ -121,15 +121,25 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
 
         {/* Main editorial content */}
         <div className="max-w-5xl mx-auto px-4 py-16">
-          {/* 3D Model Viewer - if available, otherwise show images */}
-          {garment.model3d_url ? (
-            <section className="mb-20">
-              <Garment3DViewer modelUrl={garment.model3d_url} garmentId={garment.id} />
-              <p className="text-xs text-zinc-500 italic text-center tracking-wide mt-4">
-                Interactive 3D model • {editorialTitle}
+          {/* 3D Interactive Viewer - Always shown, isolated view */}
+          <section className="mb-20">
+            <div className="mb-6 text-center">
+              <h2 className="text-xs uppercase tracking-[0.3em] text-zinc-400 mb-2">
+                Interactive 3D View
+              </h2>
+              <p className="text-sm text-zinc-500 font-light">
+                Rotate, zoom, and explore this garment in 3D
               </p>
-            </section>
-          ) : garment.images && garment.images.length > 0 ? (
+            </div>
+            <Garment3DViewer 
+              modelUrl={garment.model3d_url} 
+              garmentId={garment.id}
+              garment={garment}
+            />
+          </section>
+
+          {/* Primary Image - if no 3D model or as additional view */}
+          {garment.images && garment.images.length > 0 && (
             <section className="mb-20">
               <div 
                 className="relative w-full aspect-[4/5] md:aspect-[3/4] mb-8 overflow-hidden cursor-pointer group"
@@ -162,7 +172,7 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
                 {editorialTitle}
               </p>
             </section>
-          ) : null}
+          )}
 
           {/* Aesthetic description - flowing prose */}
           <section className="mb-20">

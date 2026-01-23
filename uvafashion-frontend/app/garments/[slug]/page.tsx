@@ -4,6 +4,7 @@ import { Garment, getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/g
 import Link from "next/link";
 import Garment3DViewer from "@/components/garments/Garment3DViewer";
 import GarmentDetailClient from "@/components/garments/GarmentDetailClient";
+import GarmentDetailWithTabs from "@/components/garments/GarmentDetailWithTabs";
 
 export async function generateStaticParams() {
   const garments = getAllGarments();
@@ -30,6 +31,6 @@ export default async function GarmentDetailPage({ params }: Props) {
     : [];
 
   return (
-    <GarmentDetailClient garment={garment} relatedGarments={relatedGarments} />
+    <GarmentDetailWithTabs garment={garment} relatedGarments={relatedGarments} />
   );
 }

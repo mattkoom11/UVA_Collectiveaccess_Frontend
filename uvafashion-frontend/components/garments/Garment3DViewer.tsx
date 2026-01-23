@@ -5,10 +5,12 @@ import { OrbitControls, PerspectiveCamera, Environment, useGLTF } from "@react-t
 import { Suspense, useRef } from "react";
 import { Group } from "three";
 import DemoGarment from "./DemoGarment";
+import { Garment } from "@/types/garment";
 
 interface Props {
   modelUrl?: string;
   garmentId?: string;
+  garment?: Garment;
 }
 
 // Loading placeholder
@@ -43,59 +45,79 @@ function GarmentModel({ modelUrl }: { modelUrl: string }) {
 }
 
 // Fallback placeholder when no model is available - uses enhanced demo garment
-function PlaceholderModel() {
-  return <DemoGarment position={[0, 0, 0]} rotation={false} color="#6b7280" scale={1.2} />;
+function PlaceholderModel({ garment }: { garment?: Garment }) {
+  const garmentColor = garment?.colors?.[0] || "#6b7280";
+  return <DemoGarment position={[0, 0, 0]} rotation={false} color={garmentColor} scale={1.2} />;
 }
 
-export default function Garment3DViewer({ modelUrl, garmentId }: Props) {
+export default function Garment3DViewer({ modelUrl, garmentId, garment }: Props) {
   return (
-    <div className="w-full h-[600px] md:h-[800px] bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 rounded-lg overflow-hidden border border-zinc-800">
+    <div className="w-full h-[600px] md:h-[800px] lg:h-[900px] bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 rounded-lg overflow-hidden border border-zinc-800 shadow-2xl relative">
       <Canvas shadows>
         <PerspectiveCamera makeDefault position={[0, 1, 5]} fov={50} />
         <OrbitControls 
           enableZoom={true}
-          enablePan={false}
-          minDistance={2}
-          maxDistance={10}
+          enablePan={true}
+          enableRotate={true}
+          minDistance={1.5}
+          maxDistance={12}
+          minPolarAngle={0}
+          maxPolarAngle={Math.PI}
           enableDamping
           dampingFactor={0.05}
         />
         
-        {/* Lighting */}
-        <ambientLight intensity={0.5} />
+        {/* Enhanced Lighting for better visibility */}
+        <ambientLight intensity={0.6} />
         <spotLight
           position={[5, 5, 5]}
           angle={0.5}
           penumbra={0.5}
-          intensity={1}
+          intensity={1.2}
           castShadow
         />
-        <pointLight position={[-5, 3, -5]} intensity={0.3} color="#ffffff" />
-        <pointLight position={[5, 3, -5]} intensity={0.3} color="#ffffff" />
+        <spotLight
+          position={[-5, 5, -5]}
+          angle={0.5}
+          penumbra={0.5}
+          intensity={0.8}
+          castShadow
+        />
+        <pointLight position={[-5, 3, -5]} intensity={0.4} color="#ffffff" />
+        <pointLight position={[5, 3, -5]} intensity={0.4} color="#ffffff" />
+        <pointLight position={[0, 8, 0]} intensity={0.3} color="#ffffff" />
         
         <Environment preset="studio" />
+        
+        {/* Ground plane for shadows */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]} receiveShadow>
+          <planeGeometry args={[20, 20]} />
+          <meshStandardMaterial color="#0a0a0a" roughness={0.8} />
+        </mesh>
         
         {/* Model */}
         <Suspense fallback={<LoadingModel />}>
           {modelUrl ? (
             <GarmentModel modelUrl={modelUrl} />
           ) : (
-            <PlaceholderModel />
+            <PlaceholderModel garment={garment} />
           )}
         </Suspense>
       </Canvas>
       
       {/* Controls hint */}
-      <div className="absolute bottom-4 left-4 text-xs text-zinc-500 space-y-1">
-        <p>Rotate: Click & Drag</p>
-        <p>Zoom: Scroll</p>
+      <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm border border-zinc-800 rounded-lg px-4 py-3 text-xs text-zinc-300 space-y-1">
+        <p className="font-medium text-zinc-200 mb-2">Controls</p>
+        <p>🖱️ Rotate: Click & Drag</p>
+        <p>🔍 Zoom: Scroll Wheel</p>
+        <p>↔️ Pan: Right-click & Drag</p>
       </div>
       
       {!modelUrl && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="text-center text-zinc-600 text-sm bg-zinc-950/50 px-4 py-2 rounded">
-            <p>3D Model Placeholder</p>
-            <p className="text-xs mt-1">Add photogrammetry model URL</p>
+          <div className="text-center text-zinc-500 text-sm bg-zinc-950/70 backdrop-blur-sm border border-zinc-800 px-6 py-4 rounded-lg">
+            <p className="font-medium text-zinc-300 mb-1">3D Model Placeholder</p>
+            <p className="text-xs mt-1 text-zinc-500">Add photogrammetry model URL to view the actual 3D scan</p>
           </div>
         </div>
       )}

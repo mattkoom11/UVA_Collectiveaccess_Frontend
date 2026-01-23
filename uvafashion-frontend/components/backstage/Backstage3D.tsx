@@ -721,26 +721,24 @@ export default function Backstage3D({
     };
   }, []);
 
-  const handleGarmentClick = useMemo(() => {
-    return () => {
-      try {
-        if (onGarmentSelected && garmentId) {
-          // Exit pointer lock if active
-          if (document.pointerLockElement) {
-            document.exitPointerLock();
-          }
-          // Use setTimeout to ensure state is stable
-          setTimeout(() => {
-            if (onGarmentSelected) {
-              onGarmentSelected(garmentId);
-            }
-          }, 50);
+  const handleGarmentClick = useCallback((garmentIdToSelect?: string) => {
+    try {
+      if (onGarmentSelected && garmentIdToSelect) {
+        // Exit pointer lock if active
+        if (document.pointerLockElement) {
+          document.exitPointerLock();
         }
-      } catch (error) {
-        console.error("Error handling garment click:", error);
+        // Use setTimeout to ensure state is stable
+        setTimeout(() => {
+          if (onGarmentSelected) {
+            onGarmentSelected(garmentIdToSelect);
+          }
+        }, 50);
       }
-    };
-  }, [onGarmentSelected, garmentId]);
+    } catch (error) {
+      console.error("Error handling garment click:", error);
+    }
+  }, [onGarmentSelected]);
 
   if (!isMounted || contextLost) {
     return (
