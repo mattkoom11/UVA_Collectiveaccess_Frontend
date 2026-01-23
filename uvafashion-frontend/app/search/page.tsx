@@ -2,10 +2,11 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useMemo, useEffect, Suspense } from "react";
-import { getAllGarments, searchGarments, filterGarments } from "@/lib/garments";
+import { getAllGarments, filterGarments } from "@/lib/garments";
+import { advancedSearch } from "@/lib/advancedSearch";
 import { Era, GarmentType } from "@/types/garment";
 import PageLayout from "@/components/layout/PageLayout";
-import SearchBar from "@/components/layout/SearchBar";
+import AdvancedSearchBar from "@/components/garments/AdvancedSearchBar";
 import Link from "next/link";
 
 function SearchPageContent() {
@@ -27,9 +28,9 @@ function SearchPageContent() {
   const filteredResults = useMemo(() => {
     let results = allGarments;
 
-    // Apply search first
+    // Apply advanced search first
     if (searchQuery.trim().length > 0) {
-      results = searchGarments(results, searchQuery);
+      results = advancedSearch(results, searchQuery);
     }
 
     // Then apply filters
@@ -139,10 +140,11 @@ function SearchPageContent() {
           
           {/* Search Bar */}
           <div className="max-w-2xl mx-auto mb-8">
-            <SearchBar 
+            <AdvancedSearchBar 
               variant="full" 
               onSearch={handleSearch}
               placeholder="Search by name, material, color, decade, description..."
+              showAdvanced={true}
             />
           </div>
 

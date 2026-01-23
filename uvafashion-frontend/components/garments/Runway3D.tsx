@@ -7,6 +7,7 @@ import { Group } from "three";
 import { Garment, Era, GarmentType, getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/garment";
 import { useRouter } from "next/navigation";
 import { filterGarments } from "@/lib/garments";
+import { getPrimaryColor, getSecondaryColor } from "@/lib/colorUtils";
 import DemoGarment from "./DemoGarment";
 
 interface Props {
@@ -123,7 +124,7 @@ function WalkingModel({
       <mesh position={[0, -0.3, 0]}>
         <boxGeometry args={[0.3, 0.4, 0.15]} />
         <meshStandardMaterial 
-          color={garment.colors?.[0] || "#4a5568"} 
+          color={getPrimaryColor(garment.colors)} 
           metalness={0.3}
           roughness={0.7}
         />
@@ -143,7 +144,7 @@ function WalkingModel({
       <mesh position={[0, -0.35, 0]} scale={hovered ? [1.2, 1.2, 1.2] : [1, 1, 1]}>
         <boxGeometry args={[0.35, 0.5, 0.2]} />
         <meshStandardMaterial 
-          color={garment.colors?.[1] || garment.colors?.[0] || "#718096"}
+          color={getSecondaryColor(garment.colors, getPrimaryColor(garment.colors))}
           wireframe={!hovered}
           transparent
           opacity={hovered ? 0.8 : 0.3}

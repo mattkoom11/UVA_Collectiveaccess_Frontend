@@ -7,6 +7,7 @@ import { Group, Vector3, Raycaster, Mesh, RepeatWrapping } from "three";
 import * as THREE from "three";
 import DemoGarment from "@/components/garments/DemoGarment";
 import { getGarmentById } from "@/lib/garments";
+import { getPrimaryColor } from "@/lib/colorUtils";
 
 interface Backstage3DProps {
   onGarmentSelected?: (garmentId: string) => void;
@@ -557,7 +558,7 @@ function PlaceholderGarment({
   garmentId?: string;
 }) {
   const garment = garmentId ? getGarmentById(garmentId) : undefined;
-  const garmentColor = garment?.colors?.[0] || "#6b7280";
+  const garmentColor = getPrimaryColor(garment?.colors);
   
   const handleClick = useCallback((e: any) => {
     // Three.js event - only has stopPropagation, not preventDefault
