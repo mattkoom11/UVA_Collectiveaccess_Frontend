@@ -3,7 +3,6 @@ import "./globals.css";
 import { ReactNode } from "react";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
-import KeyboardShortcutsProvider from "@/components/layout/KeyboardShortcutsProvider";
 
 
 export const metadata: Metadata = {
@@ -15,15 +14,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className="bg-zinc-950 text-zinc-100">
-        <KeyboardShortcutsProvider>
-          <div className="min-h-screen flex flex-col">
-            <SiteHeader />
-            <main className="flex-1">
-              {children}
-            </main>
-            <SiteFooter />
-          </div>
-        </KeyboardShortcutsProvider>
+        <div className="min-h-screen flex flex-col">
+          <SiteHeader />
+          <main className="flex-1">
+            {children}
+          </main>
+          <SiteFooter />
+        </div>
       </body>
     </html>
   );
