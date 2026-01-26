@@ -1,6 +1,6 @@
 "use client";
 
-import { Share2, Twitter, Facebook, Linkedin, Link2, Copy, QrCode } from "lucide-react";
+import { Share2, Twitter, Facebook, Linkedin, Link2, Copy, QrCode, X, Download } from "lucide-react";
 import { useState } from "react";
 import { getAnalytics } from "@/lib/analytics";
 
@@ -72,12 +72,22 @@ export default function SocialShare({ url, title, description, image }: SocialSh
     setShowMenu(false);
   };
 
+  const [showQRCode, setShowQRCode] = useState(false);
+
   const generateQRCode = () => {
-    // Simple QR code generation using a service
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(fullUrl)}`;
-    window.open(qrUrl, "_blank");
-    getAnalytics().trackShare("qr", fullUrl);
+    setShowQRCode(true);
     setShowMenu(false);
+    getAnalytics().trackShare("qr", fullUrl);
+  };
+
+  const downloadQRCode = () => {
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(fullUrl)}`;
+    const link = document.createElement("a");
+    link.href = qrUrl;
+    link.download = `qr-code-${title.replace(/\s+/g, "-").toLowerCase()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -151,6 +161,59 @@ export default function SocialShare({ url, title, description, image }: SocialSh
                   </>
                 )}
               </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* QR Code Modal */}
+      {showQRCode && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+            onClick={() => setShowQRCode(false)}
+          >
+            <div
+              className="bg-zinc-900 border border-zinc-700 rounded-lg p-6 max-w-md w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-light text-zinc-200">QR Code</h3>
+                <button
+                  onClick={() => setShowQRCode(false)}
+                  className="text-zinc-400 hover:text-zinc-200 transition-colors"
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="flex flex-col items-center gap-4">
+                <div className="bg-white p-4 rounded">
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(fullUrl)}`}
+                    alt="QR Code"
+                    className="w-64 h-64"
+                  />
+                </div>
+                <p className="text-sm text-zinc-400 text-center">
+                  Scan to view this garment
+                </p>
+                <div className="flex gap-2 w-full">
+                  <button
+                    onClick={downloadQRCode}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-200 hover:bg-zinc-700 transition-colors rounded text-sm"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download
+                  </button>
+                  <button
+                    onClick={() => setShowQRCode(false)}
+                    className="px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-200 hover:bg-zinc-700 transition-colors rounded text-sm"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </>

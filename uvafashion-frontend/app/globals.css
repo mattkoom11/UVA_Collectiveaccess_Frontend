@@ -111,23 +111,81 @@ body {
 /* Print Styles */
 @media print {
   @page {
-    margin: 1in;
+    margin: 0.75in;
+    size: letter;
   }
 
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  html,
   body {
     background: white !important;
     color: black !important;
+    font-size: 12pt;
+    line-height: 1.5;
   }
 
+  /* Hide navigation and UI elements */
   header,
   nav,
   footer,
-  button,
+  button:not(.print-button),
   .no-print,
-  .print-hide {
+  .print-hide,
+  .site-header,
+  .site-footer,
+  .accessibility-controls,
+  .pwa-install-prompt,
+  .social-share,
+  .favorite-button,
+  .compare-button,
+  .image-gallery,
+  .garment-3d-viewer,
+  canvas {
     display: none !important;
   }
 
+  /* Show print-only content */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Typography */
+  h1 {
+    font-size: 24pt;
+    font-weight: bold;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    page-break-after: avoid;
+  }
+
+  h2 {
+    font-size: 18pt;
+    font-weight: bold;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    page-break-after: avoid;
+  }
+
+  h3 {
+    font-size: 14pt;
+    font-weight: bold;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    page-break-after: avoid;
+  }
+
+  p {
+    margin-bottom: 0.75em;
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Links */
   a {
     color: black;
     text-decoration: underline;
@@ -135,25 +193,130 @@ body {
 
   a[href^="http"]:after {
     content: " (" attr(href) ")";
-    font-size: 0.8em;
+    font-size: 0.9em;
+    color: #666;
+    font-weight: normal;
+  }
+
+  a[href^="/"]:after {
+    content: " (https://example.com" attr(href) ")";
+    font-size: 0.9em;
     color: #666;
   }
 
+  /* Images */
+  img {
+    max-width: 100%;
+    height: auto;
+    page-break-inside: avoid;
+    display: block;
+    margin: 1em auto;
+  }
+
+  /* Tables */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+    page-break-inside: avoid;
+  }
+
+  th,
+  td {
+    border: 1px solid #ddd;
+    padding: 0.5em;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+  }
+
+  /* Lists */
+  ul,
+  ol {
+    margin: 0.75em 0;
+    padding-left: 2em;
+  }
+
+  li {
+    margin-bottom: 0.5em;
+  }
+
+  /* Page breaks */
   .page-break {
     page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
   }
 
   .avoid-break {
     page-break-inside: avoid;
   }
 
-  img {
-    max-width: 100%;
-    height: auto;
+  /* Garment detail specific */
+  .garment-metadata {
+    border-top: 2px solid #000;
+    border-bottom: 2px solid #000;
+    padding: 1em 0;
+    margin: 1em 0;
   }
 
-  .print-only {
-    display: block !important;
+  .garment-metadata dt {
+    font-weight: bold;
+    margin-top: 0.5em;
+  }
+
+  .garment-metadata dd {
+    margin-left: 1.5em;
+    margin-bottom: 0.5em;
+  }
+
+  /* Remove backgrounds and borders */
+  .bg-zinc-950,
+  .bg-zinc-900,
+  .bg-zinc-800,
+  .border-zinc-700,
+  .border-zinc-800 {
+    background: white !important;
+    border: 1px solid #ddd !important;
+  }
+
+  /* Text colors */
+  .text-zinc-400,
+  .text-zinc-500,
+  .text-zinc-300 {
+    color: #333 !important;
+  }
+
+  /* Spacing */
+  .mb-12,
+  .mb-16,
+  .mb-20 {
+    margin-bottom: 1em !important;
+  }
+
+  .mt-12,
+  .mt-16,
+  .mt-20 {
+    margin-top: 1em !important;
+  }
+
+  /* Print header/footer */
+  @page {
+    @top-center {
+      content: "UVA Historic Fashion Archive";
+      font-size: 10pt;
+      color: #666;
+    }
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 10pt;
+      color: #666;
+    }
   }
 }
 
