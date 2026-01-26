@@ -55,10 +55,32 @@ export default function ExhibitionDetailClient({ exhibition, garments }: Exhibit
         )}
 
         {/* Description */}
-        <div className="mb-12 max-w-3xl">
+        <div className="mb-12 max-w-3xl space-y-6">
           <p className="text-base md:text-lg text-zinc-300 font-light leading-relaxed whitespace-pre-line">
             {exhibition.description}
           </p>
+          
+          {/* Curator Note */}
+          {exhibition.curatorNote && (
+            <div className="border-l-2 border-zinc-700 pl-6 italic text-zinc-400 font-light">
+              <p className="text-sm md:text-base">{exhibition.curatorNote}</p>
+              {exhibition.curator && (
+                <p className="text-xs mt-2 not-italic">— {exhibition.curator}</p>
+              )}
+            </div>
+          )}
+
+          {/* Extended Narrative */}
+          {exhibition.narrative && (
+            <div className="pt-6 border-t border-zinc-800">
+              <h2 className="text-xl font-light mb-4 text-zinc-200">Exhibition Narrative</h2>
+              <div className="prose prose-invert prose-lg max-w-none">
+                <p className="text-base md:text-lg text-zinc-300 font-light leading-relaxed whitespace-pre-line">
+                  {exhibition.narrative}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Garments Grid */}

@@ -6,11 +6,15 @@ export interface Exhibition {
   subtitle?: string;
   description: string;
   curator?: string;
+  curatorNote?: string;
+  narrative?: string; // Extended narrative/story
   startDate?: string;
   endDate?: string;
   garmentIds: string[];
   imageUrl?: string;
   featured?: boolean;
+  theme?: string;
+  tags?: string[];
 }
 
 export const sampleExhibitions: Exhibition[] = [

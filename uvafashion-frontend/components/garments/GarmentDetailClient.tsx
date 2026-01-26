@@ -1,17 +1,19 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Garment, getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/garment";
 import Link from "next/link";
 import Image from "next/image";
 import Garment3DViewer from "./Garment3DViewer";
 import ImageGallery from "./ImageGallery";
-import { Share2, Download, ExternalLink, Printer } from "lucide-react";
+import { Share2, Download, ExternalLink, Printer, BookOpen } from "lucide-react";
 import { getEnhancedRelatedGarments } from "@/lib/relatedGarments";
 import { getAllGarments } from "@/lib/garments";
 import FavoriteButton from "./FavoriteButton";
 import CompareButton from "./CompareButton";
 import SocialShare from "./SocialShare";
+import { getEducationalContentByEra, getEducationalContentByMaterial } from "@/data/educationalContent";
+import { getAnalytics } from "@/lib/analytics";
 
 interface GarmentDetailClientProps {
   garment: Garment;
@@ -47,6 +49,12 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
     setGalleryIndex(index);
     setGalleryOpen(true);
   };
+
+  // Track garment view
+  useEffect(() => {
+    const analytics = getAnalytics();
+    analytics.trackGarmentView(garment.id, editorialTitle);
+  }, [garment.id, editorialTitle]);
 
 
   return (

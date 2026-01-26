@@ -7,6 +7,8 @@ import { Group } from "three";
 import DemoGarment from "./DemoGarment";
 import { Garment } from "@/types/garment";
 import { getPrimaryColor } from "@/lib/colorUtils";
+import ModelAnnotations from "./ModelAnnotations";
+import { generateGarmentAnnotations } from "@/lib/annotations";
 
 interface Props {
   modelUrl?: string;
@@ -104,6 +106,13 @@ export default function Garment3DViewer({ modelUrl, garmentId, garment }: Props)
             <PlaceholderModel garment={garment} />
           )}
         </Suspense>
+
+        {/* Annotations */}
+        {garment && (
+          <ModelAnnotations
+            annotations={generateGarmentAnnotations(garment)}
+          />
+        )}
       </Canvas>
       
       {/* Controls hint */}

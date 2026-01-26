@@ -8,6 +8,7 @@ import Link from "next/link";
 import { X, Plus, Download, FileText, FileSpreadsheet, File } from "lucide-react";
 import Garment3DViewer from "./Garment3DViewer";
 import { exportToCSV, exportToJSON, exportToPDF } from "@/lib/exportUtils";
+import { getAnalytics } from "@/lib/analytics";
 
 interface ComparePageClientProps {
   allGarments: Garment[];
@@ -51,14 +52,17 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
 
   const exportComparisonJSON = () => {
     exportToJSON(compareGarments, `garment-comparison-${Date.now()}.json`);
+    getAnalytics().trackExport("json", compareGarments.length);
   };
 
   const exportComparisonCSV = () => {
     exportToCSV(compareGarments, `garment-comparison-${Date.now()}.csv`);
+    getAnalytics().trackExport("csv", compareGarments.length);
   };
 
   const exportComparisonPDF = async () => {
     await exportToPDF(compareGarments, `garment-comparison-${Date.now()}.pdf`);
+    getAnalytics().trackExport("pdf", compareGarments.length);
   };
 
   return (

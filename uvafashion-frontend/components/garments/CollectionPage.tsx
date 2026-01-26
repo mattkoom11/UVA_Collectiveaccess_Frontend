@@ -13,6 +13,7 @@ import { advancedSearch } from "@/lib/advancedSearch";
 import { ChevronDown, X, ArrowUpDown, Grid3x3, List, Bookmark } from "lucide-react";
 import FavoriteButton from "./FavoriteButton";
 import { getFilterPresets, saveFilterPreset, deleteFilterPreset, getPresetURL, FilterPreset } from "@/lib/filterPresets";
+import { getAnalytics } from "@/lib/analytics";
 
 type SortOption = "relevance" | "date-asc" | "date-desc" | "name-asc" | "name-desc" | "era-asc" | "era-desc";
 
@@ -53,7 +54,7 @@ export default function CollectionPage() {
   const [isLoading] = useState(false);
   const [showPresets, setShowPresets] = useState(false);
   const [presetName, setPresetName] = useState("");
-  const presets = getFilterPresets();
+  const presets = useMemo(() => getFilterPresets(), []);
 
   // Update URL when filters change
   useEffect(() => {
@@ -182,6 +183,23 @@ export default function CollectionPage() {
     
     return results;
   }, [allGarments, selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy]);
+
+  // Track filter usage
+  useEffect(() => {
+    const analytics = getAnalytics();
+    if (selectedEra !== "all") analytics.trackFilter("era", selectedEra);
+    if (selectedType !== "all") analytics.trackFilter("type", selectedType);
+    if (selectedColor !== "all") analytics.trackFilter("color", selectedColor);
+    if (selectedMaterial !== "all") analytics.trackFilter("material", selectedMaterial);
+  }, [selectedEra, selectedType, selectedColor, selectedMaterial]);
+
+  // Track search
+  useEffect(() => {
+    if (searchQuery.trim().length > 0) {
+      const analytics = getAnalytics();
+      analytics.trackSearch(searchQuery, filteredGarments.length);
+    }
+  }, [searchQuery, filteredGarments]);
 
   // Helper function to get first line of description
   const getFirstLine = (text?: string): string => {

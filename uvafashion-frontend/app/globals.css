@@ -156,3 +156,67 @@ body {
     display: block !important;
   }
 }
+
+/* Accessibility: High Contrast Mode */
+.high-contrast {
+  --background: #000000;
+  --foreground: #ffffff;
+}
+
+.high-contrast body {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .bg-zinc-950,
+.high-contrast .bg-zinc-900 {
+  background: #000000 !important;
+}
+
+.high-contrast .bg-zinc-800 {
+  background: #1a1a1a !important;
+}
+
+.high-contrast .text-zinc-400,
+.high-contrast .text-zinc-500 {
+  color: #cccccc !important;
+}
+
+.high-contrast .border-zinc-700,
+.high-contrast .border-zinc-800 {
+  border-color: #ffffff !important;
+}
+
+/* Accessibility: Font Size Options */
+.font-normal {
+  font-size: 100%;
+}
+
+.font-large {
+  font-size: 120%;
+}
+
+.font-large h1 { font-size: 1.2em; }
+.font-large h2 { font-size: 1.15em; }
+.font-large h3 { font-size: 1.1em; }
+.font-large p, .font-large span { font-size: 1.05em; }
+
+.font-xlarge {
+  font-size: 150%;
+}
+
+.font-xlarge h1 { font-size: 1.5em; }
+.font-xlarge h2 { font-size: 1.4em; }
+.font-xlarge h3 { font-size: 1.3em; }
+.font-xlarge p, .font-xlarge span { font-size: 1.2em; }
+
+/* Focus indicators for accessibility */
+*:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.high-contrast *:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 3px;
+}

@@ -2,6 +2,7 @@
 
 import { Share2, Twitter, Facebook, Linkedin, Link2, Copy, QrCode } from "lucide-react";
 import { useState } from "react";
+import { getAnalytics } from "@/lib/analytics";
 
 interface SocialShareProps {
   url: string;
@@ -38,6 +39,7 @@ export default function SocialShare({ url, title, description, image }: SocialSh
   const handleCopyLink = () => {
     navigator.clipboard.writeText(fullUrl);
     setCopied(true);
+    getAnalytics().trackShare("copy", fullUrl);
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -45,24 +47,28 @@ export default function SocialShare({ url, title, description, image }: SocialSh
     const text = encodeURIComponent(title);
     const twitterUrl = `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(fullUrl)}`;
     window.open(twitterUrl, "_blank", "width=550,height=420");
+    getAnalytics().trackShare("twitter", fullUrl);
     setShowMenu(false);
   };
 
   const shareToFacebook = () => {
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`;
     window.open(facebookUrl, "_blank", "width=550,height=420");
+    getAnalytics().trackShare("facebook", fullUrl);
     setShowMenu(false);
   };
 
   const shareToLinkedIn = () => {
     const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(fullUrl)}`;
     window.open(linkedInUrl, "_blank", "width=550,height=420");
+    getAnalytics().trackShare("linkedin", fullUrl);
     setShowMenu(false);
   };
 
   const shareToPinterest = () => {
     const pinterestUrl = `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(fullUrl)}&description=${encodeURIComponent(title)}${image ? `&media=${encodeURIComponent(image)}` : ""}`;
     window.open(pinterestUrl, "_blank", "width=550,height=420");
+    getAnalytics().trackShare("pinterest", fullUrl);
     setShowMenu(false);
   };
 
@@ -70,6 +76,7 @@ export default function SocialShare({ url, title, description, image }: SocialSh
     // Simple QR code generation using a service
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(fullUrl)}`;
     window.open(qrUrl, "_blank");
+    getAnalytics().trackShare("qr", fullUrl);
     setShowMenu(false);
   };
 
