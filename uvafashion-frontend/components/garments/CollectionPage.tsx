@@ -10,9 +10,10 @@ import AdvancedSearchBar from "./AdvancedSearchBar";
 import SkeletonCard from "./SkeletonCard";
 import SkeletonList from "./SkeletonList";
 import { advancedSearch } from "@/lib/advancedSearch";
-import { ChevronDown, X, ArrowUpDown, Grid3x3, List, Bookmark } from "lucide-react";
+import { ChevronDown, X, ArrowUpDown, Grid3x3, List, Bookmark, Save, Search } from "lucide-react";
 import FavoriteButton from "./FavoriteButton";
 import { getFilterPresets, saveFilterPreset, deleteFilterPreset, getPresetURL, FilterPreset } from "@/lib/filterPresets";
+import { getSavedSearches, saveSearch, deleteSavedSearch, getSavedSearchURL, updateSavedSearchLastUsed, SavedSearch } from "@/lib/savedSearches";
 import { getAnalytics } from "@/lib/analytics";
 
 type SortOption = "relevance" | "date-asc" | "date-desc" | "name-asc" | "name-desc" | "era-asc" | "era-desc";
@@ -55,6 +56,10 @@ export default function CollectionPage() {
   const [showPresets, setShowPresets] = useState(false);
   const [presetName, setPresetName] = useState("");
   const presets = useMemo(() => getFilterPresets(), []);
+  const [showSavedSearches, setShowSavedSearches] = useState(false);
+  const [savedSearchName, setSavedSearchName] = useState("");
+  const [showSaveSearchDialog, setShowSaveSearchDialog] = useState(false);
+  const savedSearches = useMemo(() => getSavedSearches(), []);
 
   // Update URL when filters change
   useEffect(() => {
@@ -99,6 +104,46 @@ export default function CollectionPage() {
       start: preset.dateStart,
       end: preset.dateEnd,
     });
+  };
+
+  const saveCurrentAsSearch = () => {
+    if (!savedSearchName.trim()) return;
+    try {
+      saveSearch({
+        name: savedSearchName.trim(),
+        query: searchQuery,
+        filters: {
+          era: selectedEra !== "all" ? selectedEra : undefined,
+          type: selectedType !== "all" ? selectedType : undefined,
+          color: selectedColor !== "all" ? selectedColor : undefined,
+          material: selectedMaterial !== "all" ? selectedMaterial : undefined,
+          dateStart: dateRange.start,
+          dateEnd: dateRange.end,
+        },
+        sortBy: sortBy !== "relevance" ? sortBy : undefined,
+      });
+      setSavedSearchName("");
+      setShowSaveSearchDialog(false);
+      setShowSavedSearches(false);
+    } catch (error) {
+      // Handle error
+      console.error("Failed to save search:", error);
+    }
+  };
+
+  const loadSavedSearch = (search: SavedSearch) => {
+    setSearchQuery(search.query || "");
+    setSelectedEra((search.filters?.era as Era | undefined) || "all");
+    setSelectedType((search.filters?.type as GarmentType | undefined) || "all");
+    setSelectedColor(search.filters?.color || "all");
+    setSelectedMaterial(search.filters?.material || "all");
+    setDateRange({
+      start: search.filters?.dateStart,
+      end: search.filters?.dateEnd,
+    });
+    if (search.sortBy) setSortBy(search.sortBy as SortOption);
+    setShowSavedSearches(false);
+    updateSavedSearchLastUsed(search.id);
   };
 
   // Extract unique colors and materials
@@ -308,10 +353,79 @@ export default function CollectionPage() {
               </button>
             </div>
 
+            {/* Saved Searches */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowSavedSearches(!showSavedSearches);
+                  setShowPresets(false);
+                }}
+                className="bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-400 hover:text-zinc-200 uppercase tracking-[0.1em] font-light hover:border-zinc-600 transition-colors flex items-center gap-2"
+              >
+                <Search className="w-4 h-4" />
+                Saved Searches
+              </button>
+              {showSavedSearches && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowSavedSearches(false)}
+                  />
+                  <div className="absolute top-full right-0 mt-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 min-w-[250px] max-h-96 overflow-y-auto">
+                    <div className="p-4 space-y-3">
+                      <div>
+                        <button
+                          onClick={() => {
+                            setShowSaveSearchDialog(true);
+                            setShowSavedSearches(false);
+                          }}
+                          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-zinc-800 border border-zinc-700 text-sm text-zinc-300 hover:bg-zinc-700 transition-colors rounded"
+                        >
+                          <Save className="w-4 h-4" />
+                          Save Current Search
+                        </button>
+                      </div>
+                      {savedSearches.length > 0 && (
+                        <>
+                          <div className="border-t border-zinc-700 pt-3">
+                            <p className="text-xs uppercase tracking-[0.1em] text-zinc-400 mb-2">Saved Searches</p>
+                            {savedSearches.map((search) => (
+                              <div key={search.id} className="flex items-center justify-between gap-2 mb-2">
+                                <button
+                                  onClick={() => loadSavedSearch(search)}
+                                  className="flex-1 text-left text-sm text-zinc-300 hover:text-zinc-200 px-2 py-1.5 rounded hover:bg-zinc-800 transition-colors"
+                                  title={search.query || "No query"}
+                                >
+                                  {search.name}
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    deleteSavedSearch(search.id);
+                                    setShowSavedSearches(false);
+                                  }}
+                                  className="text-zinc-500 hover:text-zinc-300 transition-colors p-1"
+                                  aria-label="Delete search"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
             {/* Filter Presets */}
             <div className="relative">
               <button
-                onClick={() => setShowPresets(!showPresets)}
+                onClick={() => {
+                  setShowPresets(!showPresets);
+                  setShowSavedSearches(false);
+                }}
                 className="bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-400 hover:text-zinc-200 uppercase tracking-[0.1em] font-light hover:border-zinc-600 transition-colors flex items-center gap-2"
               >
                 <Bookmark className="w-4 h-4" />
@@ -485,6 +599,68 @@ export default function CollectionPage() {
             </div>
           )}
         </div>
+
+        {/* Save Search Dialog */}
+        {showSaveSearchDialog && (
+          <>
+            <div
+              className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+              onClick={() => {
+                setShowSaveSearchDialog(false);
+                setSavedSearchName("");
+              }}
+            >
+              <div
+                className="bg-zinc-900 border border-zinc-700 rounded-lg p-6 max-w-md w-full"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 className="text-lg font-light text-zinc-200 mb-4">Save Search</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.1em] text-zinc-400 mb-2">
+                      Search Name
+                    </label>
+                    <input
+                      type="text"
+                      value={savedSearchName}
+                      onChange={(e) => setSavedSearchName(e.target.value)}
+                      placeholder="e.g., 1920s Silk Dresses"
+                      className="w-full bg-zinc-800 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-600"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          saveCurrentAsSearch();
+                        }
+                        if (e.key === "Escape") {
+                          setShowSaveSearchDialog(false);
+                          setSavedSearchName("");
+                        }
+                      }}
+                      autoFocus
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={saveCurrentAsSearch}
+                      disabled={!savedSearchName.trim()}
+                      className="flex-1 px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-200 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded text-sm"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowSaveSearchDialog(false);
+                        setSavedSearchName("");
+                      }}
+                      className="px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-200 hover:bg-zinc-700 transition-colors rounded text-sm"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Garment Cards Grid/List */}
         {isLoading ? (
