@@ -118,17 +118,30 @@ export function exportGarmentsToCSV(garments: Garment[], filename?: string) {
   URL.revokeObjectURL(url);
 }
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function safeHtml(s: string | undefined | null): string {
+  return escapeHtml(String(s ?? ""));
+}
+
 export function exportGarmentToPDF(garment: Garment) {
   // This is a placeholder - would need a PDF library like jsPDF or pdfmake
   // For now, we'll create a simple HTML page that can be printed
   const printWindow = window.open("", "_blank");
   if (!printWindow) return;
 
+  const title = safeHtml(garment.name || garment.label || garment.editorial_title);
   const html = `
     <!DOCTYPE html>
     <html>
       <head>
-        <title>${garment.name || garment.label || garment.editorial_title}</title>
+        <title>${title}</title>
         <style>
           body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -149,30 +162,30 @@ export function exportGarmentToPDF(garment: Garment) {
         </style>
       </head>
       <body>
-        <h1>${garment.name || garment.label || garment.editorial_title}</h1>
+        <h1>${title}</h1>
         <div class="meta">
-          ${garment.decade || garment.date || ""} ${garment.work_type ? `• ${garment.work_type}` : ""}
+          ${safeHtml(garment.decade || garment.date)} ${garment.work_type ? `• ${safeHtml(garment.work_type)}` : ""}
         </div>
         
-        ${garment.editorial_title ? `<h2>${garment.editorial_title}</h2>` : ""}
-        ${garment.editorial_subtitle ? `<p class="meta">${garment.editorial_subtitle}</p>` : ""}
-        ${garment.tagline ? `<p><em>${garment.tagline}</em></p>` : ""}
+        ${garment.editorial_title ? `<h2>${safeHtml(garment.editorial_title)}</h2>` : ""}
+        ${garment.editorial_subtitle ? `<p class="meta">${safeHtml(garment.editorial_subtitle)}</p>` : ""}
+        ${garment.tagline ? `<p><em>${safeHtml(garment.tagline)}</em></p>` : ""}
         
-        ${garment.description ? `<div class="section"><div class="label">Description</div><p>${garment.description}</p></div>` : ""}
-        ${garment.aesthetic_description ? `<div class="section"><div class="label">Aesthetic Description</div><p>${garment.aesthetic_description}</p></div>` : ""}
-        ${garment.story ? `<div class="section"><div class="label">Story</div><p>${garment.story}</p></div>` : ""}
-        ${garment.inspiration ? `<div class="section"><div class="label">Inspiration</div><p>${garment.inspiration}</p></div>` : ""}
-        ${garment.context ? `<div class="section"><div class="label">Context</div><p>${garment.context}</p></div>` : ""}
+        ${garment.description ? `<div class="section"><div class="label">Description</div><p>${safeHtml(garment.description)}</p></div>` : ""}
+        ${garment.aesthetic_description ? `<div class="section"><div class="label">Aesthetic Description</div><p>${safeHtml(garment.aesthetic_description)}</p></div>` : ""}
+        ${garment.story ? `<div class="section"><div class="label">Story</div><p>${safeHtml(garment.story)}</p></div>` : ""}
+        ${garment.inspiration ? `<div class="section"><div class="label">Inspiration</div><p>${safeHtml(garment.inspiration)}</p></div>` : ""}
+        ${garment.context ? `<div class="section"><div class="label">Context</div><p>${safeHtml(garment.context)}</p></div>` : ""}
         
         <h2>Details</h2>
-        ${garment.era ? `<p><span class="label">Era:</span> ${garment.era}</p>` : ""}
-        ${garment.colors && (Array.isArray(garment.colors) ? garment.colors.length > 0 : garment.colors) ? `<p><span class="label">Colors:</span> ${Array.isArray(garment.colors) ? garment.colors.join(", ") : garment.colors}</p>` : ""}
-        ${garment.materials && (Array.isArray(garment.materials) ? garment.materials.length > 0 : garment.materials) ? `<p><span class="label">Materials:</span> ${Array.isArray(garment.materials) ? garment.materials.join(", ") : garment.materials}</p>` : ""}
-        ${garment.dimensions ? `<p><span class="label">Dimensions:</span> ${garment.dimensions}</p>` : ""}
-        ${garment.condition ? `<p><span class="label">Condition:</span> ${garment.condition}</p>` : ""}
-        ${garment.collection ? `<p><span class="label">Collection:</span> ${garment.collection}</p>` : ""}
-        ${garment.accessionNumber ? `<p><span class="label">Accession Number:</span> ${garment.accessionNumber}</p>` : ""}
-        ${garment.provenance ? `<p><span class="label">Provenance:</span> ${garment.provenance}</p>` : ""}
+        ${garment.era ? `<p><span class="label">Era:</span> ${safeHtml(garment.era)}</p>` : ""}
+        ${garment.colors && (Array.isArray(garment.colors) ? garment.colors.length > 0 : garment.colors) ? `<p><span class="label">Colors:</span> ${safeHtml(Array.isArray(garment.colors) ? garment.colors.join(", ") : String(garment.colors))}</p>` : ""}
+        ${garment.materials && (Array.isArray(garment.materials) ? garment.materials.length > 0 : garment.materials) ? `<p><span class="label">Materials:</span> ${safeHtml(Array.isArray(garment.materials) ? garment.materials.join(", ") : String(garment.materials))}</p>` : ""}
+        ${garment.dimensions ? `<p><span class="label">Dimensions:</span> ${safeHtml(garment.dimensions)}</p>` : ""}
+        ${garment.condition ? `<p><span class="label">Condition:</span> ${safeHtml(garment.condition)}</p>` : ""}
+        ${garment.collection ? `<p><span class="label">Collection:</span> ${safeHtml(garment.collection)}</p>` : ""}
+        ${garment.accessionNumber ? `<p><span class="label">Accession Number:</span> ${safeHtml(garment.accessionNumber)}</p>` : ""}
+        ${garment.provenance ? `<p><span class="label">Provenance:</span> ${safeHtml(garment.provenance)}</p>` : ""}
         
         <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #999;">
           <p>UVA Fashion Archive</p>

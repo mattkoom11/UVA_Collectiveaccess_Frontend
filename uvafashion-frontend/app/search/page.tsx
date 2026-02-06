@@ -69,12 +69,11 @@ function SearchPageContent() {
     const terms = query.toLowerCase().trim().split(/\s+/);
     const lowerText = text.toLowerCase();
     const parts: Array<{ text: string; match: boolean }> = [];
-    const lastIndex = 0;
     
-    // Find all matches
+    // Find all matches for all terms
     const matches: Array<{ start: number; end: number }> = [];
     for (const term of terms) {
-      let index = lowerText.indexOf(term, lastIndex);
+      let index = lowerText.indexOf(term);
       while (index !== -1) {
         matches.push({ start: index, end: index + term.length });
         index = lowerText.indexOf(term, index + 1);

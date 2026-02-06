@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import KeyboardShortcutsProvider from "@/components/layout/KeyboardShortcutsProvider";
@@ -35,7 +35,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <KeyboardShortcutsProvider>
               <div className="min-h-screen flex flex-col">
                 <SiteHeader />
-                <Breadcrumbs />
+                <Suspense fallback={null}>
+                  <Breadcrumbs />
+                </Suspense>
                 <main className="flex-1">
                   {children}
                 </main>

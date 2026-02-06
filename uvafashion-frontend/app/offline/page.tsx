@@ -1,3 +1,5 @@
+"use client";
+
 import PageLayout from "@/components/layout/PageLayout";
 import { WifiOff } from "lucide-react";
 

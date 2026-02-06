@@ -15,6 +15,11 @@ export async function GET() {
   // Get the 20 most recent garments
   const recentGarments = sortedGarments.slice(0, 20);
 
+  // Escape ]]> inside CDATA so the XML stays valid
+  function escapeCdata(text: string): string {
+    return text.replace(/\]\]>/g, ']]]]><![CDATA[>');
+  }
+
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
@@ -30,8 +35,10 @@ export async function GET() {
       <link>${baseUrl}</link>
     </image>
     ${recentGarments.map(garment => {
-      const title = garment.editorial_title || garment.label || garment.name || 'Untitled Garment';
-      const description = garment.aesthetic_description || garment.description || garment.tagline || '';
+      const rawTitle = garment.editorial_title || garment.label || garment.name || 'Untitled Garment';
+      const rawDescription = garment.aesthetic_description || garment.description || garment.tagline || '';
+      const title = escapeCdata(rawTitle);
+      const description = escapeCdata(rawDescription.substring(0, 500) + (rawDescription.length > 500 ? '...' : ''));
       const slug = garment.slug || garment.id;
       const imageUrl = garment.images && garment.images.length > 0 
         ? garment.images[0].startsWith('http') 
@@ -40,17 +47,19 @@ export async function GET() {
         : '';
       const pubDate = garment.date || garment.decade || new Date().toISOString();
       const link = `${baseUrl}/garments/${slug}`;
+      const category = (garment.work_type || 'Garment').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const era = garment.era ? garment.era.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : '';
       
       return `
     <item>
       <title><![CDATA[${title}]]></title>
       <link>${link}</link>
       <guid isPermaLink="true">${link}</guid>
-      <description><![CDATA[${description.substring(0, 500)}${description.length > 500 ? '...' : ''}]]></description>
+      <description><![CDATA[${description}]]></description>
       ${imageUrl ? `<enclosure url="${imageUrl}" type="image/jpeg"/>` : ''}
       <pubDate>${new Date(pubDate).toUTCString()}</pubDate>
-      <category>${garment.work_type || 'Garment'}</category>
-      ${garment.era ? `<category>${garment.era}</category>` : ''}
+      <category>${category}</category>
+      ${era ? `<category>${era}</category>` : ''}
     </item>`;
     }).join('')}
   </channel>
