@@ -36,11 +36,19 @@ export default function SocialShare({ url, title, description, image }: SocialSh
     }
   };
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(fullUrl);
-    setCopied(true);
-    getAnalytics().trackShare("copy", fullUrl);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopyLink = async () => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(fullUrl);
+        setCopied(true);
+        getAnalytics().trackShare("copy", fullUrl);
+        setTimeout(() => setCopied(false), 2000);
+      } else {
+        setShowMenu(true);
+      }
+    } catch {
+      setShowMenu(true);
+    }
   };
 
   const shareToTwitter = () => {

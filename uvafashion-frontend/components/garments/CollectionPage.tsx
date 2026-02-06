@@ -40,8 +40,8 @@ export default function CollectionPage() {
     const start = searchParams.get("dateStart");
     const end = searchParams.get("dateEnd");
     return {
-      start: start ? parseInt(start) : undefined,
-      end: end ? parseInt(end) : undefined,
+      start: start ? parseInt(start, 10) : undefined,
+      end: end ? parseInt(end, 10) : undefined,
     };
   });
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
@@ -190,7 +190,7 @@ export default function CollectionPage() {
     // Apply date range filter
     if (dateRange.start !== undefined || dateRange.end !== undefined) {
       results = results.filter(g => {
-        const year = g.yearApprox || parseInt(g.date || g.decade?.replace('s', '') || '0');
+        const year = g.yearApprox || parseInt(g.date || g.decade?.replace('s', '') || '0', 10);
         if (isNaN(year)) return true; // Include if no date available
         if (dateRange.start !== undefined && year < dateRange.start) return false;
         if (dateRange.end !== undefined && year > dateRange.end) return false;
@@ -206,8 +206,8 @@ export default function CollectionPage() {
           const yearB = b.yearApprox || parseInt(b.date || b.decade?.replace('s', '') || '0');
           return yearA - yearB;
         case "date-desc":
-          const yearA2 = a.yearApprox || parseInt(a.date || a.decade?.replace('s', '') || '0');
-          const yearB2 = b.yearApprox || parseInt(b.date || b.decade?.replace('s', '') || '0');
+          const yearA2 = a.yearApprox || parseInt(a.date || a.decade?.replace('s', '') || '0', 10);
+          const yearB2 = b.yearApprox || parseInt(b.date || b.decade?.replace('s', '') || '0', 10);
           return yearB2 - yearA2;
         case "name-asc":
           return (a.name || a.label || a.editorial_title || '').localeCompare(b.name || b.label || b.editorial_title || '');
@@ -578,7 +578,7 @@ export default function CollectionPage() {
                       type="number"
                       placeholder="Start Year"
                       value={dateRange.start || ''}
-                      onChange={(e) => setDateRange({ ...dateRange, start: e.target.value ? parseInt(e.target.value) : undefined })}
+                      onChange={(e) => setDateRange({ ...dateRange, start: e.target.value ? parseInt(e.target.value, 10) : undefined })}
                       className="flex-1 bg-zinc-900/50 border border-zinc-700 px-3 py-2 rounded text-sm text-zinc-200 focus:outline-none focus:border-zinc-600"
                       min="1800"
                       max="2100"
@@ -588,7 +588,7 @@ export default function CollectionPage() {
                       type="number"
                       placeholder="End Year"
                       value={dateRange.end || ''}
-                      onChange={(e) => setDateRange({ ...dateRange, end: e.target.value ? parseInt(e.target.value) : undefined })}
+                      onChange={(e) => setDateRange({ ...dateRange, end: e.target.value ? parseInt(e.target.value, 10) : undefined })}
                       className="flex-1 bg-zinc-900/50 border border-zinc-700 px-3 py-2 rounded text-sm text-zinc-200 focus:outline-none focus:border-zinc-600"
                       min="1800"
                       max="2100"

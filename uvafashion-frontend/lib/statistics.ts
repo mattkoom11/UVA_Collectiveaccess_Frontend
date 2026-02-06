@@ -50,8 +50,8 @@ export function calculateStatistics(garments: Garment[]): CollectionStatistics {
 
     // Extract year for date range
     const year = garment.yearApprox || 
-      (garment.date ? parseInt(garment.date) : undefined) ||
-      (garment.decade ? parseInt(garment.decade.replace('s', '')) : undefined);
+      (garment.date ? parseInt(garment.date, 10) : undefined) ||
+      (garment.decade ? parseInt(garment.decade.replace('s', ''), 10) : undefined);
     if (year && !isNaN(year)) {
       years.push(year);
     }

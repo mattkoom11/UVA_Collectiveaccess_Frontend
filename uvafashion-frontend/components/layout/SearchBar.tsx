@@ -121,7 +121,6 @@ export default function SearchBar({
     if (!query || query.trim().length === 0) return text;
     
     const terms = query.toLowerCase().trim().split(/\s+/);
-    let highlightedText = text;
     const parts: Array<{ text: string; match: boolean }> = [];
     
     // Simple highlighting - find first match

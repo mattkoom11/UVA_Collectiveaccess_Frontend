@@ -7,8 +7,8 @@ export async function GET() {
   
   // Sort by most recent (if there's a date field) or by ID
   const sortedGarments = [...garments].sort((a, b) => {
-    const dateA = a.yearApprox || parseInt(a.date || a.decade?.replace('s', '') || '0');
-    const dateB = b.yearApprox || parseInt(b.date || b.decade?.replace('s', '') || '0');
+    const dateA = a.yearApprox || parseInt(a.date || a.decade?.replace('s', '') || '0', 10);
+    const dateB = b.yearApprox || parseInt(b.date || b.decade?.replace('s', '') || '0', 10);
     return dateB - dateA; // Most recent first
   });
 

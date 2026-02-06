@@ -56,8 +56,8 @@ function calculateSimilarity(garment1: Garment, garment2: Garment): number {
   // Decade proximity (weight: 0.1)
   maxScore += 0.1;
   if (garment1.decade && garment2.decade) {
-    const decade1 = parseInt(garment1.decade.replace('s', ''));
-    const decade2 = parseInt(garment2.decade.replace('s', ''));
+    const decade1 = parseInt(garment1.decade.replace('s', ''), 10);
+    const decade2 = parseInt(garment2.decade.replace('s', ''), 10);
     if (!isNaN(decade1) && !isNaN(decade2)) {
       const decadeDiff = Math.abs(decade1 - decade2);
       if (decadeDiff === 0) {

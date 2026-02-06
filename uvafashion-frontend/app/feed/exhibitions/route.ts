@@ -11,6 +11,13 @@ export async function GET() {
     return dateB - dateA;
   });
 
+  function escapeCdata(text: string): string {
+    return text.replace(/\]\]>/g, ']]]]><![CDATA[>');
+  }
+  function escapeXml(text: string): string {
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
@@ -33,18 +40,23 @@ export async function GET() {
           ? exhibition.imageUrl 
           : `${baseUrl}${exhibition.imageUrl}`
         : '';
+      const title = escapeCdata(exhibition.title + (exhibition.subtitle ? ` - ${exhibition.subtitle}` : ''));
+      const description = escapeCdata((exhibition.description || '') + (exhibition.narrative ? ` ${exhibition.narrative}` : ''));
+      const curator = exhibition.curator ? escapeXml(exhibition.curator) : '';
+      const theme = exhibition.theme ? escapeXml(exhibition.theme) : '';
+      const tagsEscaped = exhibition.tags ? exhibition.tags.map(tag => escapeXml(tag)) : [];
       
       return `
     <item>
-      <title><![CDATA[${exhibition.title}${exhibition.subtitle ? ` - ${exhibition.subtitle}` : ''}]]></title>
+      <title><![CDATA[${title}]]></title>
       <link>${link}</link>
       <guid isPermaLink="true">${link}</guid>
-      <description><![CDATA[${exhibition.description}${exhibition.narrative ? ` ${exhibition.narrative}` : ''}]]></description>
+      <description><![CDATA[${description}]]></description>
       ${imageUrl ? `<enclosure url="${imageUrl}" type="image/jpeg"/>` : ''}
       <pubDate>${new Date(pubDate).toUTCString()}</pubDate>
-      ${exhibition.curator ? `<author>${exhibition.curator}</author>` : ''}
-      ${exhibition.theme ? `<category>${exhibition.theme}</category>` : ''}
-      ${exhibition.tags ? exhibition.tags.map(tag => `<category>${tag}</category>`).join('') : ''}
+      ${curator ? `<author>${curator}</author>` : ''}
+      ${theme ? `<category>${theme}</category>` : ''}
+      ${tagsEscaped.map(t => `<category>${t}</category>`).join('')}
     </item>`;
     }).join('')}
   </channel>

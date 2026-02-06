@@ -1,5 +1,14 @@
 import { Garment } from "@/types/garment";
 
+function escapeHtml(s: string | undefined | null): string {
+  const str = String(s ?? "");
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 /**
  * Export garment data as CSV
  */
@@ -89,14 +98,14 @@ export async function exportToPDF(garments: Garment[], filename: string = "garme
         <p>Total garments: ${garments.length}</p>
         ${garments.map((garment, index) => `
           <div class="garment">
-            <h2>${index + 1}. ${garment.name || garment.label || garment.editorial_title || "Untitled"}</h2>
-            <div class="field"><span class="field-label">ID:</span> ${garment.id || "—"}</div>
-            <div class="field"><span class="field-label">Date:</span> ${garment.decade || garment.date || "—"}</div>
-            <div class="field"><span class="field-label">Era:</span> ${garment.era || "—"}</div>
-            <div class="field"><span class="field-label">Type:</span> ${garment.work_type || garment.type || "—"}</div>
-            <div class="field"><span class="field-label">Colors:</span> ${Array.isArray(garment.colors) ? garment.colors.join(", ") : garment.colors || "—"}</div>
-            <div class="field"><span class="field-label">Materials:</span> ${Array.isArray(garment.materials) ? garment.materials.join(", ") : garment.materials || "—"}</div>
-            <div class="field"><span class="field-label">Description:</span> ${garment.description || garment.tagline || "—"}</div>
+            <h2>${index + 1}. ${escapeHtml(garment.name || garment.label || garment.editorial_title || "Untitled")}</h2>
+            <div class="field"><span class="field-label">ID:</span> ${escapeHtml(garment.id || "—")}</div>
+            <div class="field"><span class="field-label">Date:</span> ${escapeHtml(garment.decade || garment.date || "—")}</div>
+            <div class="field"><span class="field-label">Era:</span> ${escapeHtml(garment.era || "—")}</div>
+            <div class="field"><span class="field-label">Type:</span> ${escapeHtml(garment.work_type || garment.type || "—")}</div>
+            <div class="field"><span class="field-label">Colors:</span> ${escapeHtml(Array.isArray(garment.colors) ? garment.colors.join(", ") : (garment.colors || "—"))}</div>
+            <div class="field"><span class="field-label">Materials:</span> ${escapeHtml(Array.isArray(garment.materials) ? garment.materials.join(", ") : (garment.materials || "—"))}</div>
+            <div class="field"><span class="field-label">Description:</span> ${escapeHtml(garment.description || garment.tagline || "—")}</div>
           </div>
         `).join("")}
       </body>

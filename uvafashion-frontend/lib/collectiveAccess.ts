@@ -184,7 +184,7 @@ class CollectiveAccessClient {
   private extractDecade(caObject: CAObject): string | undefined {
     const date = caObject.dates?.date || caObject.date;
     if (!date) return undefined;
-    const year = parseInt(date.substring(0, 4));
+    const year = parseInt(date.substring(0, 4), 10);
     if (isNaN(year)) return undefined;
     return `${Math.floor(year / 10) * 10}s`;
   }
@@ -192,7 +192,7 @@ class CollectiveAccessClient {
   private extractEra(caObject: CAObject): string | undefined {
     const decade = this.extractDecade(caObject);
     if (!decade) return undefined;
-    const year = parseInt(decade);
+    const year = parseInt(decade, 10);
     if (year < 1920) return 'pre-1920';
     if (year < 1950) return '1920-1950';
     if (year < 1980) return '1950-1980';

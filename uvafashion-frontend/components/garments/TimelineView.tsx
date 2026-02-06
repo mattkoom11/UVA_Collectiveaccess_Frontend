@@ -39,7 +39,7 @@ export default function TimelineView({ garments }: TimelineViewProps) {
       if (zoomLevel === "era") {
         key = era || 'Unknown';
       } else if (zoomLevel === "year") {
-        const year = garment.yearApprox || parseInt(garment.date || garment.decade?.replace('s', '') || '0');
+        const year = garment.yearApprox || parseInt(garment.date || garment.decade?.replace('s', '') || '0', 10);
         key = `${era || 'Unknown'}-${year}`;
       } else {
         // decade
@@ -58,7 +58,7 @@ export default function TimelineView({ garments }: TimelineViewProps) {
       .map(([key, items]) => {
         const parts = key.split('-');
         const era = parts[0];
-        const timeValue = zoomLevel === "era" ? 0 : parseInt(parts[1]?.replace('s', '') || '0');
+        const timeValue = zoomLevel === "era" ? 0 : parseInt(parts[1]?.replace('s', '') || '0', 10);
         return { era, key, timeValue, items, count: items.length };
       })
       .sort((a, b) => {

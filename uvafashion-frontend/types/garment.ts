@@ -58,12 +58,12 @@ export function getEraFromDecade(decade?: string, yearApprox?: number, date?: st
   if (yearApprox) {
     year = yearApprox;
   } else if (date) {
-    const parsed = parseInt(date);
+    const parsed = parseInt(date, 10);
     if (!isNaN(parsed)) year = parsed;
   } else if (decade) {
     const match = decade.match(/(\d{4})s/);
     if (match) {
-      year = parseInt(match[1]);
+      year = parseInt(match[1], 10);
     }
   }
   
