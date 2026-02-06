@@ -5,7 +5,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Garment } from "@/types/garment";
 import { getGarmentById } from "@/lib/garments";
 import Link from "next/link";
-import { X, Plus, Download, FileText, FileSpreadsheet, File } from "lucide-react";
+import { X, Plus, Download, FileText, FileSpreadsheet, File, GitCompare } from "lucide-react";
+import EmptyState from "./EmptyState";
 import Garment3DViewer from "./Garment3DViewer";
 import { exportToCSV, exportToJSON, exportToPDF } from "@/lib/exportUtils";
 import { getAnalytics } from "@/lib/analytics";
@@ -80,7 +81,7 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
 
         {/* Add Garments Section */}
         {compareIds.length < 4 && (
-          <div className="mb-8 p-6 border border-zinc-800 bg-zinc-900/30 rounded-lg">
+          <div className="print-hide mb-8 p-6 border border-zinc-800 bg-zinc-900/30 rounded-lg">
             <h2 className="text-sm uppercase tracking-[0.2em] text-zinc-400 mb-4">
               Add Garments to Compare
             </h2>
@@ -118,11 +119,22 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
           </div>
         )}
 
+        {/* Empty: no garments selected */}
+        {compareGarments.length === 0 && (
+          <EmptyState
+            icon={GitCompare}
+            title="Select garments to compare"
+            description="Add up to 4 garments from the list above, or browse the collection to find more."
+            actionLabel="Browse collection"
+            actionHref="/collection"
+          />
+        )}
+
         {/* Comparison Grid */}
         {compareGarments.length > 0 ? (
           <div className="space-y-8">
             {/* Actions */}
-            <div className="flex justify-end gap-4 flex-wrap">
+            <div className="print-hide flex justify-end gap-4 flex-wrap">
               <div className="flex gap-2">
                 <button
                   onClick={exportComparisonJSON}

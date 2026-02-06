@@ -7,6 +7,7 @@ import { getGarmentById } from "@/lib/garments";
 import Link from "next/link";
 import Image from "next/image";
 import { Heart, Trash2 } from "lucide-react";
+import EmptyState from "./EmptyState";
 
 interface FavoritesPageClientProps {
   allGarments: Garment[];
@@ -46,7 +47,7 @@ export default function FavoritesPageClient({ allGarments }: FavoritesPageClient
 
         {/* Actions */}
         {favoriteGarments.length > 0 && (
-          <div className="mb-8 flex justify-center">
+          <div className="print-hide mb-8 flex justify-center">
             <button
               onClick={clearFavorites}
               className="text-xs uppercase tracking-[0.2em] text-zinc-500 hover:text-zinc-300 transition-colors border border-zinc-700 px-4 py-2 hover:border-zinc-600 flex items-center gap-2"
@@ -58,7 +59,15 @@ export default function FavoritesPageClient({ allGarments }: FavoritesPageClient
         )}
 
         {/* Favorites Grid */}
-        {favoriteGarments.length > 0 ? (
+        {favoriteGarments.length === 0 ? (
+          <EmptyState
+            icon={Heart}
+            title="No favorites yet"
+            description="Save garments you love by clicking the heart on any garment. They’ll appear here."
+            actionLabel="Browse collection"
+            actionHref="/collection"
+          />
+        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
             {favoriteGarments.map((garment) => (
               <div
@@ -121,22 +130,6 @@ export default function FavoritesPageClient({ allGarments }: FavoritesPageClient
                 </Link>
               </div>
             ))}
-          </div>
-        ) : (
-          <div className="text-center py-16">
-            <Heart className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
-            <p className="text-lg text-zinc-400 font-light mb-2">
-              No favorites yet
-            </p>
-            <p className="text-sm text-zinc-500 font-light mb-6">
-              Click the heart icon on any garment to save it to your favorites
-            </p>
-            <Link
-              href="/collection"
-              className="inline-block text-xs uppercase tracking-[0.25em] text-zinc-400 hover:text-zinc-200 transition border border-zinc-700 px-6 py-3 hover:border-zinc-500"
-            >
-              Browse Collection
-            </Link>
           </div>
         )}
       </div>

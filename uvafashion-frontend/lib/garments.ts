@@ -1,7 +1,31 @@
 import garmentsData from "@/data/garments.json";
 import { Garment, Era, GarmentType, getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/garment";
+import { syncGarmentsFromCA } from "@/lib/collectiveAccess";
+
+let caGarmentsCache: Garment[] | null = null;
+
+/**
+ * When NEXT_PUBLIC_CA_BASE_URL is set, populate cache from CollectiveAccess so getAllGarments() can return CA data.
+ * Call once per request (e.g. in root layout); subsequent getAllGarments() calls use the cache.
+ */
+export async function hydrateGarmentsFromCA(): Promise<void> {
+  if (!process.env.NEXT_PUBLIC_CA_BASE_URL) return;
+  if (caGarmentsCache != null) return;
+  try {
+    const raw = await syncGarmentsFromCA(500);
+    caGarmentsCache = raw.map((g) => ({
+      ...g,
+      images: Array.isArray(g.images) ? g.images : g.images ? [g.images] : [],
+    })) as Garment[];
+  } catch (e) {
+    console.error("CollectiveAccess hydrate failed, using static data:", e);
+  }
+}
 
 export function getAllGarments(): Garment[] {
+  if (process.env.NEXT_PUBLIC_CA_BASE_URL && caGarmentsCache != null) {
+    return caGarmentsCache;
+  }
   return garmentsData as Garment[];
 }
 

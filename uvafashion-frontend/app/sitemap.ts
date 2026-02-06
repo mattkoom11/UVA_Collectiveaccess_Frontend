@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import { getAllGarments } from '@/lib/garments'
 import { sampleExhibitions } from '@/data/exhibitions'
+import { educationalContent } from '@/data/educationalContent'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://uvafashionarchive.com'
@@ -75,22 +76,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }))
 
-  // Educational content pages
-  const educationalPages: MetadataRoute.Sitemap = [
-    {
-      url: `${baseUrl}/learn`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/statistics`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
+  // Learn index + individual learn articles
+  const learnIndex: MetadataRoute.Sitemap = [
+    { url: `${baseUrl}/learn`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${baseUrl}/statistics`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
   ]
+  const learnArticlePages: MetadataRoute.Sitemap = educationalContent.map((c) => ({
+    url: `${baseUrl}/learn/${c.id}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }))
 
-  return [...staticPages, ...garmentPages, ...exhibitionPages, ...educationalPages]
+  // Backstage (3D) pages per garment
+  const backstagePages: MetadataRoute.Sitemap = garments.map((g) => ({
+    url: `${baseUrl}/backstage/${g.id}`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }))
+
+  return [...staticPages, ...garmentPages, ...exhibitionPages, ...learnIndex, ...learnArticlePages, ...backstagePages]
 }
 

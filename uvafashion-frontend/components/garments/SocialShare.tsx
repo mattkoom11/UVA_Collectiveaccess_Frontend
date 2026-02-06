@@ -81,6 +81,7 @@ export default function SocialShare({ url, title, description, image }: SocialSh
   };
 
   const [showQRCode, setShowQRCode] = useState(false);
+  const [qrDownloading, setQrDownloading] = useState(false);
 
   const generateQRCode = () => {
     setShowQRCode(true);
@@ -88,14 +89,25 @@ export default function SocialShare({ url, title, description, image }: SocialSh
     getAnalytics().trackShare("qr", fullUrl);
   };
 
-  const downloadQRCode = () => {
+  const downloadQRCode = async () => {
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(fullUrl)}`;
-    const link = document.createElement("a");
-    link.href = qrUrl;
-    link.download = `qr-code-${title.replace(/\s+/g, "-").toLowerCase()}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    setQrDownloading(true);
+    try {
+      const res = await fetch(qrUrl);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `qr-code-${title.replace(/\s+/g, "-").toLowerCase().replace(/[^a-z0-9-]/g, "")}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch {
+      window.open(qrUrl, "_blank");
+    } finally {
+      setQrDownloading(false);
+    }
   };
 
   return (
@@ -209,10 +221,12 @@ export default function SocialShare({ url, title, description, image }: SocialSh
                 <div className="flex gap-2 w-full">
                   <button
                     onClick={downloadQRCode}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-200 hover:bg-zinc-700 transition-colors rounded text-sm"
+                    disabled={qrDownloading}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-200 hover:bg-zinc-700 transition-colors rounded text-sm disabled:opacity-50"
+                    aria-label={qrDownloading ? "Downloading QR code" : "Download QR code image"}
                   >
                     <Download className="w-4 h-4" />
-                    Download
+                    {qrDownloading ? "Downloading…" : "Download"}
                   </button>
                   <button
                     onClick={() => setShowQRCode(false)}

@@ -7,7 +7,9 @@ import { advancedSearch } from "@/lib/advancedSearch";
 import { Era, GarmentType } from "@/types/garment";
 import PageLayout from "@/components/layout/PageLayout";
 import AdvancedSearchBar from "@/components/garments/AdvancedSearchBar";
+import EmptyState from "@/components/garments/EmptyState";
 import Link from "next/link";
+import { Search, FileQuestion } from "lucide-react";
 
 function SearchPageContent() {
   const searchParams = useSearchParams();
@@ -264,34 +266,22 @@ function SearchPageContent() {
               </Link>
             ))}
           </div>
+        ) : searchQuery ? (
+          <EmptyState
+            icon={Search}
+            title="No results found"
+            description="No garments match your search. Try different keywords or clear filters."
+            actionLabel="Clear search"
+            onAction={handleClearSearch}
+          />
         ) : (
-          <div className="text-center py-16">
-            {searchQuery ? (
-              <div className="space-y-4">
-                <p className="text-lg text-zinc-400 font-light">
-                  No garments found matching your search.
-                </p>
-                <p className="text-sm text-zinc-500 font-light">
-                  Try different keywords or clear your filters.
-                </p>
-                <button
-                  onClick={handleClearSearch}
-                  className="inline-block text-sm text-zinc-400 hover:text-zinc-200 transition-colors border border-zinc-700 px-4 py-2 rounded hover:border-zinc-600"
-                >
-                  Clear Search
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <p className="text-lg text-zinc-400 font-light">
-                  Enter a search query to find garments.
-                </p>
-                <p className="text-sm text-zinc-500 font-light">
-                  Search by name, material, color, decade, description, or any other attribute.
-                </p>
-              </div>
-            )}
-          </div>
+          <EmptyState
+            icon={FileQuestion}
+            title="Search the collection"
+            description="Search by name, material, color, decade, description, or any other attribute."
+            actionLabel="Browse collection"
+            actionHref="/collection"
+          />
         )}
       </div>
     </PageLayout>

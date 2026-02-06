@@ -9,9 +9,13 @@ import PageLayout from "@/components/layout/PageLayout";
 import AdvancedSearchBar from "./AdvancedSearchBar";
 import SkeletonCard from "./SkeletonCard";
 import SkeletonList from "./SkeletonList";
+import EmptyState from "./EmptyState";
 import { advancedSearch } from "@/lib/advancedSearch";
-import { ChevronDown, X, ArrowUpDown, Grid3x3, List, Bookmark, Save, Search } from "lucide-react";
+import { ChevronDown, X, ArrowUpDown, Grid3x3, List, Bookmark, Save, Search, FilterX, CheckSquare, Square, Heart, GitCompare, Download, FileText, FileJson, FileSpreadsheet } from "lucide-react";
 import FavoriteButton from "./FavoriteButton";
+import { useFavorites } from "@/hooks/useFavorites";
+import { exportGarmentsToJSON, exportGarmentsToCSV } from "@/lib/export";
+import { exportToPDF } from "@/lib/exportUtils";
 import { getFilterPresets, saveFilterPreset, deleteFilterPreset, getPresetURL, FilterPreset } from "@/lib/filterPresets";
 import { getSavedSearches, saveSearch, deleteSavedSearch, getSavedSearchURL, updateSavedSearchLastUsed, SavedSearch } from "@/lib/savedSearches";
 import { getAnalytics } from "@/lib/analytics";
@@ -60,6 +64,11 @@ export default function CollectionPage() {
   const [savedSearchName, setSavedSearchName] = useState("");
   const [showSaveSearchDialog, setShowSaveSearchDialog] = useState(false);
   const savedSearches = useMemo(() => getSavedSearches(), []);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [bulkMessage, setBulkMessage] = useState<string | null>(null);
+  const { addFavorite } = useFavorites();
 
   // Update URL when filters change
   useEffect(() => {
@@ -77,6 +86,18 @@ export default function CollectionPage() {
     const newUrl = params.toString() ? `/collection?${params.toString()}` : "/collection";
     router.replace(newUrl, { scroll: false });
   }, [selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy, viewMode, router]);
+
+  // Escape exits select mode and clears selection
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && selectMode) {
+        setSelectMode(false);
+        setSelectedIds([]);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [selectMode]);
 
   // Combined search and filter (must be before any hook that references filteredGarments)
   const filteredGarments = useMemo(() => {
@@ -139,6 +160,17 @@ export default function CollectionPage() {
 
     return results;
   }, [allGarments, selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy]);
+
+  const selectedGarments = useMemo(
+    () => filteredGarments.filter((g) => selectedIds.includes(g.id)),
+    [filteredGarments, selectedIds]
+  );
+
+  const toggleSelect = (garmentId: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(garmentId) ? prev.filter((id) => id !== garmentId) : [...prev, garmentId]
+    );
+  };
 
   const saveCurrentAsPreset = () => {
     if (!presetName.trim()) return;
@@ -267,7 +299,7 @@ export default function CollectionPage() {
         </div>
 
         {/* Search Bar */}
-        <div className="mb-8 max-w-2xl mx-auto">
+        <div className="print-hide mb-8 max-w-2xl mx-auto">
           <AdvancedSearchBar 
             variant="full" 
             onSearch={setSearchQuery}
@@ -276,7 +308,7 @@ export default function CollectionPage() {
         </div>
 
         {/* Filter and Sort Bar */}
-        <div className="mb-12 space-y-4">
+        <div className="print-hide mb-12 space-y-4">
           {/* Main Filters */}
           <div className="flex flex-wrap gap-4 items-center justify-center">
             <div className="bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded">
@@ -352,6 +384,20 @@ export default function CollectionPage() {
                 <List className="w-4 h-4" />
               </button>
             </div>
+
+            {/* Select mode */}
+            <button
+              onClick={() => {
+                setSelectMode((m) => !m);
+                if (selectMode) setSelectedIds([]);
+              }}
+              className={`bg-zinc-900/50 border px-4 py-2 rounded text-sm uppercase tracking-[0.1em] font-light transition-colors flex items-center gap-2 ${
+                selectMode ? "border-zinc-500 text-zinc-200 bg-zinc-800" : "border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:border-zinc-600"
+              }`}
+            >
+              {selectMode ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
+              {selectMode ? "Cancel select" : "Select"}
+            </button>
 
             {/* Saved Searches */}
             <div className="relative">
@@ -662,6 +708,92 @@ export default function CollectionPage() {
           </>
         )}
 
+        {/* Bulk action bar */}
+        {selectMode && selectedIds.length > 0 && (
+          <div className="print-hide sticky top-0 z-30 mb-6 flex flex-wrap items-center justify-center gap-3 bg-zinc-950/95 border border-zinc-700 rounded-lg px-4 py-3 backdrop-blur">
+            <span className="text-sm text-zinc-300">
+              {selectedIds.length} selected
+            </span>
+            <button
+              onClick={() => {
+                selectedIds.forEach((id) => addFavorite(id));
+                setBulkMessage("Added to Favorites");
+                setTimeout(() => setBulkMessage(null), 2000);
+              }}
+              className="flex items-center gap-2 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-300 hover:bg-zinc-800 hover:border-zinc-600 transition-colors"
+            >
+              <Heart className="w-4 h-4" />
+              Add to Favorites
+            </button>
+            {bulkMessage && (
+              <span role="status" aria-live="polite" className="text-sm text-zinc-400">
+                {bulkMessage}
+              </span>
+            )}
+            <button
+              onClick={() => {
+                const ids = selectedIds.slice(0, 4);
+                if (ids.length >= 2) router.push(`/compare?ids=${ids.join(",")}`);
+              }}
+              disabled={selectedIds.length < 2}
+              className="flex items-center gap-2 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-300 hover:bg-zinc-800 hover:border-zinc-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <GitCompare className="w-4 h-4" />
+              Compare (2–4)
+            </button>
+            <div className="relative">
+              <button
+                onClick={() => setShowExportMenu(!showExportMenu)}
+                className="flex items-center gap-2 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-300 hover:bg-zinc-800 hover:border-zinc-600 transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Export
+              </button>
+              {showExportMenu && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowExportMenu(false)} />
+                  <div className="absolute top-full left-0 mt-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 min-w-[180px] py-2">
+                    <button
+                      onClick={() => {
+                        exportGarmentsToJSON(selectedGarments);
+                        setShowExportMenu(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+                    >
+                      <FileJson className="w-4 h-4" /> JSON
+                    </button>
+                    <button
+                      onClick={() => {
+                        exportGarmentsToCSV(selectedGarments);
+                        setShowExportMenu(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+                    >
+                      <FileSpreadsheet className="w-4 h-4" /> CSV
+                    </button>
+                    <button
+                      onClick={async () => {
+                        await exportToPDF(selectedGarments, `garments-export-${Date.now()}.pdf`);
+                        setShowExportMenu(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+                    >
+                      <FileText className="w-4 h-4" /> PDF
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+            <button
+              onClick={() => setSelectedIds([])}
+              className="flex items-center gap-2 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-400 hover:bg-zinc-800 hover:border-zinc-600 transition-colors"
+            >
+              <X className="w-4 h-4" />
+              Clear selection
+            </button>
+          </div>
+        )}
+
         {/* Garment Cards Grid/List */}
         {isLoading ? (
           viewMode === "grid" ? (
@@ -686,8 +818,26 @@ export default function CollectionPage() {
                   : "group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300 hover:bg-zinc-900 relative flex gap-6"
                 }
               >
+                {selectMode && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toggleSelect(garment.id);
+                    }}
+                    className="print-hide absolute top-4 left-4 z-20 flex items-center justify-center w-8 h-8 rounded border-2 border-zinc-600 bg-zinc-900/90 hover:border-zinc-500 transition-colors"
+                    aria-label={selectedIds.includes(garment.id) ? "Deselect" : "Select"}
+                  >
+                    {selectedIds.includes(garment.id) ? (
+                      <CheckSquare className="w-5 h-5 text-zinc-200" />
+                    ) : (
+                      <Square className="w-5 h-5 text-zinc-500" />
+                    )}
+                  </button>
+                )}
                 {/* Favorite Button */}
-                <div className="absolute top-4 right-4 z-10">
+                <div className="print-hide absolute top-4 right-4 z-10">
                   <FavoriteButton garmentId={garment.id} />
                 </div>
 
@@ -737,22 +887,22 @@ export default function CollectionPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16">
-            <p className="text-zinc-500 font-light">
-              {searchQuery.trim().length > 0 
-                ? "No garments found matching your search and filters."
-                : "No garments found matching the selected filters."
-              }
-            </p>
-            {searchQuery.trim().length > 0 && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="mt-4 text-sm text-zinc-400 hover:text-zinc-200 transition-colors border border-zinc-700 px-4 py-2 rounded hover:border-zinc-600"
-              >
-                Clear Search
-              </button>
-            )}
-          </div>
+          <EmptyState
+            icon={FilterX}
+            title="No garments match your filters"
+            description={searchQuery.trim().length > 0
+              ? "Try different keywords or clear search and filters to see more results."
+              : "Try adjusting or clearing filters to see more garments."}
+            actionLabel="Clear filters"
+            onAction={() => {
+              setSearchQuery("");
+              setSelectedEra("all");
+              setSelectedType("all");
+              setSelectedColor("all");
+              setSelectedMaterial("all");
+              setDateRange({});
+            }}
+          />
         )}
       </div>
     </PageLayout>
