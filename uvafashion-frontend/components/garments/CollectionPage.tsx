@@ -78,6 +78,68 @@ export default function CollectionPage() {
     router.replace(newUrl, { scroll: false });
   }, [selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy, viewMode, router]);
 
+  // Combined search and filter (must be before any hook that references filteredGarments)
+  const filteredGarments = useMemo(() => {
+    let results = allGarments;
+
+    // Apply advanced search first
+    if (searchQuery.trim().length > 0) {
+      results = advancedSearch(results, searchQuery);
+    }
+
+    // Then apply filters
+    const filters: { era?: Era; type?: GarmentType; color?: string; material?: string } = {};
+    if (selectedEra !== "all") filters.era = selectedEra;
+    if (selectedType !== "all") filters.type = selectedType;
+    if (selectedColor !== "all") filters.color = selectedColor;
+    if (selectedMaterial !== "all") filters.material = selectedMaterial;
+
+    if (filters.era || filters.type || filters.color || filters.material) {
+      results = filterGarments(results, filters);
+    }
+
+    // Apply date range filter
+    if (dateRange.start !== undefined || dateRange.end !== undefined) {
+      results = results.filter(g => {
+        const year = g.yearApprox || parseInt(g.date || g.decade?.replace('s', '') || '0', 10);
+        if (isNaN(year)) return true;
+        if (dateRange.start !== undefined && year < dateRange.start) return false;
+        if (dateRange.end !== undefined && year > dateRange.end) return false;
+        return true;
+      });
+    }
+
+    // Apply sorting
+    results = [...results].sort((a, b) => {
+      switch (sortBy) {
+        case "date-asc":
+          const yearA = a.yearApprox || parseInt(a.date || a.decade?.replace('s', '') || '0', 10);
+          const yearB = b.yearApprox || parseInt(b.date || b.decade?.replace('s', '') || '0', 10);
+          return yearA - yearB;
+        case "date-desc":
+          const yearA2 = a.yearApprox || parseInt(a.date || a.decade?.replace('s', '') || '0', 10);
+          const yearB2 = b.yearApprox || parseInt(b.date || b.decade?.replace('s', '') || '0', 10);
+          return yearB2 - yearA2;
+        case "name-asc":
+          return (a.name || a.label || a.editorial_title || '').localeCompare(b.name || b.label || b.editorial_title || '');
+        case "name-desc":
+          return (b.name || b.label || b.editorial_title || '').localeCompare(a.name || a.label || a.editorial_title || '');
+        case "era-asc":
+          const eraA = a.era || (a.decade ? (a.decade.includes('196') ? '1950-1980' : a.decade.includes('192') ? '1920-1950' : 'pre-1920') : 'pre-1920');
+          const eraB = b.era || (b.decade ? (b.decade.includes('196') ? '1950-1980' : b.decade.includes('192') ? '1920-1950' : 'pre-1920') : 'pre-1920');
+          return eraA.localeCompare(eraB);
+        case "era-desc":
+          const eraA2 = a.era || (a.decade ? (a.decade.includes('196') ? '1950-1980' : a.decade.includes('192') ? '1920-1950' : 'pre-1920') : 'pre-1920');
+          const eraB2 = b.era || (b.decade ? (b.decade.includes('196') ? '1950-1980' : b.decade.includes('192') ? '1920-1950' : 'pre-1920') : 'pre-1920');
+          return eraB2.localeCompare(eraA2);
+        default:
+          return 0;
+      }
+    });
+
+    return results;
+  }, [allGarments, selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy]);
+
   const saveCurrentAsPreset = () => {
     if (!presetName.trim()) return;
     const preset: FilterPreset = {
@@ -166,68 +228,6 @@ export default function CollectionPage() {
     });
     return Array.from(materials).sort();
   }, [allGarments]);
-
-  // Combined search and filter
-  const filteredGarments = useMemo(() => {
-    let results = allGarments;
-
-    // Apply advanced search first
-    if (searchQuery.trim().length > 0) {
-      results = advancedSearch(results, searchQuery);
-    }
-
-    // Then apply filters
-    const filters: { era?: Era; type?: GarmentType; color?: string; material?: string } = {};
-    if (selectedEra !== "all") filters.era = selectedEra;
-    if (selectedType !== "all") filters.type = selectedType;
-    if (selectedColor !== "all") filters.color = selectedColor;
-    if (selectedMaterial !== "all") filters.material = selectedMaterial;
-    
-    if (filters.era || filters.type || filters.color || filters.material) {
-      results = filterGarments(results, filters);
-    }
-
-    // Apply date range filter
-    if (dateRange.start !== undefined || dateRange.end !== undefined) {
-      results = results.filter(g => {
-        const year = g.yearApprox || parseInt(g.date || g.decade?.replace('s', '') || '0', 10);
-        if (isNaN(year)) return true; // Include if no date available
-        if (dateRange.start !== undefined && year < dateRange.start) return false;
-        if (dateRange.end !== undefined && year > dateRange.end) return false;
-        return true;
-      });
-    }
-
-    // Apply sorting
-    results = [...results].sort((a, b) => {
-      switch (sortBy) {
-        case "date-asc":
-          const yearA = a.yearApprox || parseInt(a.date || a.decade?.replace('s', '') || '0');
-          const yearB = b.yearApprox || parseInt(b.date || b.decade?.replace('s', '') || '0');
-          return yearA - yearB;
-        case "date-desc":
-          const yearA2 = a.yearApprox || parseInt(a.date || a.decade?.replace('s', '') || '0', 10);
-          const yearB2 = b.yearApprox || parseInt(b.date || b.decade?.replace('s', '') || '0', 10);
-          return yearB2 - yearA2;
-        case "name-asc":
-          return (a.name || a.label || a.editorial_title || '').localeCompare(b.name || b.label || b.editorial_title || '');
-        case "name-desc":
-          return (b.name || b.label || b.editorial_title || '').localeCompare(a.name || a.label || a.editorial_title || '');
-        case "era-asc":
-          const eraA = a.era || (a.decade ? (a.decade.includes('196') ? '1950-1980' : a.decade.includes('192') ? '1920-1950' : 'pre-1920') : 'pre-1920');
-          const eraB = b.era || (b.decade ? (b.decade.includes('196') ? '1950-1980' : b.decade.includes('192') ? '1920-1950' : 'pre-1920') : 'pre-1920');
-          return eraA.localeCompare(eraB);
-        case "era-desc":
-          const eraA2 = a.era || (a.decade ? (a.decade.includes('196') ? '1950-1980' : a.decade.includes('192') ? '1920-1950' : 'pre-1920') : 'pre-1920');
-          const eraB2 = b.era || (b.decade ? (b.decade.includes('196') ? '1950-1980' : b.decade.includes('192') ? '1920-1950' : 'pre-1920') : 'pre-1920');
-          return eraB2.localeCompare(eraA2);
-        default: // relevance
-          return 0;
-      }
-    });
-    
-    return results;
-  }, [allGarments, selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy]);
 
   // Track filter usage
   useEffect(() => {
