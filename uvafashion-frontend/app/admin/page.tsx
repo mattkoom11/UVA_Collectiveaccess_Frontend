@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { getAllGarments } from "@/lib/garments";
-import { syncGarmentsFromCA } from "@/lib/collectiveAccess";
 import { getAnalytics } from "@/lib/analytics";
 import { exportToCSV, exportToJSON } from "@/lib/exportUtils";
 import { Garment } from "@/types/garment";
@@ -24,9 +23,10 @@ export default function AdminDashboard() {
     setIsSyncing(true);
     setSyncStatus("Syncing from CollectiveAccess...");
     try {
-      const syncedGarments = await syncGarmentsFromCA(100);
-      setSyncStatus(`Synced ${syncedGarments.length} garments successfully`);
-      setGarments(syncedGarments);
+      const res = await fetch("/api/admin/sync", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Sync failed");
+      setSyncStatus(`Synced ${data.count ?? 0} garments. Refresh the page to see updated counts.`);
     } catch (error) {
       setSyncStatus(`Error: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {

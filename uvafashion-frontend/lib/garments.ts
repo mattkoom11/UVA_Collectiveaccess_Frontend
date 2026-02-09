@@ -9,7 +9,8 @@ let caGarmentsCache: Garment[] | null = null;
  * Call once per request (e.g. in root layout); subsequent getAllGarments() calls use the cache.
  */
 export async function hydrateGarmentsFromCA(): Promise<void> {
-  if (!process.env.NEXT_PUBLIC_CA_BASE_URL) return;
+  const baseUrl = process.env.CA_BASE_URL || process.env.NEXT_PUBLIC_CA_BASE_URL;
+  if (!baseUrl) return;
   if (caGarmentsCache != null) return;
   try {
     const raw = await syncGarmentsFromCA(500);
@@ -22,8 +23,14 @@ export async function hydrateGarmentsFromCA(): Promise<void> {
   }
 }
 
+/** Used by server-only API (e.g. admin sync) to update cache after a CA sync. */
+export function setCAGarmentsCache(garments: Garment[] | null): void {
+  caGarmentsCache = garments;
+}
+
 export function getAllGarments(): Garment[] {
-  if (process.env.NEXT_PUBLIC_CA_BASE_URL && caGarmentsCache != null) {
+  const baseUrl = process.env.CA_BASE_URL || process.env.NEXT_PUBLIC_CA_BASE_URL;
+  if (baseUrl && caGarmentsCache != null) {
     return caGarmentsCache;
   }
   return garmentsData as Garment[];

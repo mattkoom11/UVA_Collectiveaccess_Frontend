@@ -218,13 +218,17 @@ class CollectiveAccessClient {
 // Singleton instance
 let clientInstance: CollectiveAccessClient | null = null;
 
+/**
+ * Prefer server-only env vars (CA_*) so credentials are never in the client bundle.
+ * NEXT_PUBLIC_CA_* fallbacks exist only for backward compatibility; do not use them for secrets in production.
+ */
 export function getCollectiveAccessClient(config?: CollectiveAccessConfig): CollectiveAccessClient {
   if (!clientInstance) {
     const defaultConfig: CollectiveAccessConfig = {
-      baseUrl: process.env.NEXT_PUBLIC_CA_BASE_URL || '',
-      apiKey: process.env.NEXT_PUBLIC_CA_API_KEY,
-      username: process.env.NEXT_PUBLIC_CA_USERNAME,
-      password: process.env.NEXT_PUBLIC_CA_PASSWORD,
+      baseUrl: process.env.CA_BASE_URL || process.env.NEXT_PUBLIC_CA_BASE_URL || '',
+      apiKey: process.env.CA_API_KEY || process.env.NEXT_PUBLIC_CA_API_KEY,
+      username: process.env.CA_USERNAME || process.env.NEXT_PUBLIC_CA_USERNAME,
+      password: process.env.CA_PASSWORD || process.env.NEXT_PUBLIC_CA_PASSWORD,
     };
     clientInstance = new CollectiveAccessClient(config || defaultConfig);
   }
