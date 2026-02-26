@@ -90,7 +90,10 @@ export function filterGarments(
   });
 }
 
-// Search function - searches across multiple fields
+/**
+ * Simple search across all garment text fields.
+ * For advanced boolean/field search, use advancedSearch() from lib/advancedSearch.
+ */
 export function searchGarments(
   items: Garment[],
   query: string
@@ -100,10 +103,9 @@ export function searchGarments(
   }
 
   const searchTerms = query.toLowerCase().trim().split(/\s+/);
-  
+
   return items.filter((g) => {
-    // Collect all searchable text fields
-    const searchableText = [
+    const fields: (string | undefined)[] = [
       g.name,
       g.label,
       g.editorial_title,
@@ -126,16 +128,12 @@ export function searchGarments(
       g.gender,
       g.age,
       g.condition,
-      // Materials (handle both string and array)
       Array.isArray(g.materials) ? g.materials.join(" ") : g.materials,
-      // Colors
       g.colors?.join(" "),
-    ]
-      .filter(Boolean)
-      .map((text) => text?.toLowerCase() || "")
-      .join(" ");
+    ];
 
-    // Check if all search terms appear in the searchable text
-    return searchTerms.every((term) => searchableText.includes(term));
+    return searchTerms.every((term) =>
+      fields.some((f) => f != null && f.toLowerCase().includes(term))
+    );
   });
 }

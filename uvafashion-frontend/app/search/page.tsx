@@ -8,6 +8,7 @@ import { Era, GarmentType } from "@/types/garment";
 import PageLayout from "@/components/layout/PageLayout";
 import AdvancedSearchBar from "@/components/garments/AdvancedSearchBar";
 import EmptyState from "@/components/garments/EmptyState";
+import GarmentImage from "@/components/garments/GarmentImage";
 import Link from "next/link";
 import { Search, FileQuestion } from "lucide-react";
 
@@ -220,24 +221,7 @@ function SearchPageContent() {
                 href={`/garments/${garment.slug}`}
                 className="group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300 hover:bg-zinc-900"
               >
-                {/* Card Image */}
-                <div className="relative w-full aspect-[3/4] bg-zinc-900 overflow-hidden">
-                  {garment.thumbnailUrl || (garment.images && garment.images.length > 0) ? (
-                    <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-sm">
-                      <div className="text-center">
-                        <p className="mb-2">Thumbnail</p>
-                        <p className="text-xs text-zinc-700">
-                          {garment.thumbnailUrl || garment.images[0]}
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-sm">
-                      <p>Image Placeholder</p>
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-zinc-950/0 group-hover:bg-zinc-950/20 transition-colors duration-300" />
-                </div>
+                <GarmentImage garment={garment} />
 
                 {/* Card Content */}
                 <div className="p-6 space-y-3">

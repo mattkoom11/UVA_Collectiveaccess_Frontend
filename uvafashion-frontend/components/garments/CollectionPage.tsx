@@ -11,7 +11,7 @@ import SkeletonCard from "./SkeletonCard";
 import SkeletonList from "./SkeletonList";
 import EmptyState from "./EmptyState";
 import { advancedSearch } from "@/lib/advancedSearch";
-import { ChevronDown, X, ArrowUpDown, Grid3x3, List, Bookmark, Save, Search, FilterX, CheckSquare, Square, Heart, GitCompare, Download, FileText, FileJson, FileSpreadsheet } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, X, ArrowUpDown, Grid3x3, List, Bookmark, Save, Search, FilterX, CheckSquare, Square, Heart, GitCompare, Download, FileText, FileJson, FileSpreadsheet } from "lucide-react";
 import FavoriteButton from "./FavoriteButton";
 import { useFavorites } from "@/hooks/useFavorites";
 import { exportGarmentsToJSON, exportGarmentsToCSV } from "@/lib/export";
@@ -19,6 +19,9 @@ import { exportToPDF } from "@/lib/exportUtils";
 import { getFilterPresets, saveFilterPreset, deleteFilterPreset, getPresetURL, FilterPreset } from "@/lib/filterPresets";
 import { getSavedSearches, saveSearch, deleteSavedSearch, getSavedSearchURL, updateSavedSearchLastUsed, SavedSearch } from "@/lib/savedSearches";
 import { getAnalytics } from "@/lib/analytics";
+import GarmentImage from "./GarmentImage";
+
+const PAGE_SIZE = 24;
 
 type SortOption = "relevance" | "date-asc" | "date-desc" | "name-asc" | "name-desc" | "era-asc" | "era-desc";
 
@@ -68,6 +71,7 @@ export default function CollectionPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [bulkMessage, setBulkMessage] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const { addFavorite } = useFavorites();
 
   // Update URL when filters change
@@ -87,17 +91,20 @@ export default function CollectionPage() {
     router.replace(newUrl, { scroll: false });
   }, [selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy, viewMode, router]);
 
-  // Escape exits select mode and clears selection
+  // Escape exits select mode / closes dropdowns
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && selectMode) {
-        setSelectMode(false);
-        setSelectedIds([]);
+      if (e.key === "Escape") {
+        if (showPresets) setShowPresets(false);
+        else if (showSavedSearches) setShowSavedSearches(false);
+        else if (showExportMenu) setShowExportMenu(false);
+        else if (selectMode) { setSelectMode(false); setSelectedIds([]); }
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [selectMode]);
+  }, [selectMode, showPresets, showSavedSearches, showExportMenu]);
+
 
   // Combined search and filter (must be before any hook that references filteredGarments)
   const filteredGarments = useMemo(() => {
@@ -160,6 +167,17 @@ export default function CollectionPage() {
 
     return results;
   }, [allGarments, selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredGarments.length / PAGE_SIZE));
+  const paginatedGarments = useMemo(
+    () => filteredGarments.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [filteredGarments, currentPage]
+  );
 
   const selectedGarments = useMemo(
     () => filteredGarments.filter((g) => selectedIds.includes(g.id)),
@@ -415,7 +433,7 @@ export default function CollectionPage() {
                 <>
                   <div
                     className="fixed inset-0 z-40"
-                    onClick={() => setShowSavedSearches(false)}
+                    onPointerDown={() => setShowSavedSearches(false)}
                   />
                   <div className="absolute top-full right-0 mt-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 min-w-[250px] max-h-96 overflow-y-auto">
                     <div className="p-4 space-y-3">
@@ -751,7 +769,7 @@ export default function CollectionPage() {
               </button>
               {showExportMenu && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setShowExportMenu(false)} />
+                  <div className="fixed inset-0 z-40" onPointerDown={() => setShowExportMenu(false)} />
                   <div className="absolute top-full left-0 mt-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 min-w-[180px] py-2">
                     <button
                       onClick={() => {
@@ -806,86 +824,123 @@ export default function CollectionPage() {
             <SkeletonList count={6} />
           )
         ) : filteredGarments.length > 0 ? (
-          <div className={viewMode === "grid" 
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10"
-            : "space-y-4"
-          }>
-            {filteredGarments.map((garment) => (
-              <div
-                key={garment.id}
-                className={viewMode === "grid"
-                  ? "group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300 hover:bg-zinc-900 relative"
-                  : "group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300 hover:bg-zinc-900 relative flex gap-6"
-                }
-              >
-                {selectMode && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      toggleSelect(garment.id);
-                    }}
-                    className="print-hide absolute top-4 left-4 z-20 flex items-center justify-center w-8 h-8 rounded border-2 border-zinc-600 bg-zinc-900/90 hover:border-zinc-500 transition-colors"
-                    aria-label={selectedIds.includes(garment.id) ? "Deselect" : "Select"}
+          <>
+            <div className={viewMode === "grid" 
+              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10"
+              : "space-y-4"
+            }>
+              {paginatedGarments.map((garment) => (
+                  <div
+                    key={garment.id}
+                    className={viewMode === "grid"
+                      ? "group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300 hover:bg-zinc-900 relative"
+                      : "group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300 hover:bg-zinc-900 relative flex gap-6"
+                    }
                   >
-                    {selectedIds.includes(garment.id) ? (
-                      <CheckSquare className="w-5 h-5 text-zinc-200" />
-                    ) : (
-                      <Square className="w-5 h-5 text-zinc-500" />
+                    {selectMode && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleSelect(garment.id);
+                        }}
+                        className="print-hide absolute top-4 left-4 z-20 flex items-center justify-center w-8 h-8 rounded border-2 border-zinc-600 bg-zinc-900/90 hover:border-zinc-500 transition-colors"
+                        aria-label={selectedIds.includes(garment.id) ? "Deselect" : "Select"}
+                      >
+                        {selectedIds.includes(garment.id) ? (
+                          <CheckSquare className="w-5 h-5 text-zinc-200" />
+                        ) : (
+                          <Square className="w-5 h-5 text-zinc-500" />
+                        )}
+                      </button>
                     )}
-                  </button>
-                )}
-                {/* Favorite Button */}
-                <div className="print-hide absolute top-4 right-4 z-10">
-                  <FavoriteButton garmentId={garment.id} />
-                </div>
+                    {/* Favorite Button */}
+                    <div className="print-hide absolute top-4 right-4 z-10">
+                      <FavoriteButton garmentId={garment.id} />
+                    </div>
 
-                <Link
-                  href={`/garments/${garment.slug}`}
-                  className={viewMode === "list" ? "flex-1 flex gap-6" : "block"}
-                >
-                  {/* Card Image */}
-                  <div className={`relative ${viewMode === "grid" ? "w-full aspect-[3/4]" : "w-48 flex-shrink-0"} bg-zinc-900 overflow-hidden`}>
-                    {garment.thumbnailUrl || (garment.images && garment.images.length > 0) ? (
-                      <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-sm">
-                        <div className="text-center">
-                          <p className="mb-2">Thumbnail</p>
-                          <p className="text-xs text-zinc-700">
-                            {garment.thumbnailUrl || garment.images[0]}
+                    <Link
+                      href={`/garments/${garment.slug}`}
+                      className={viewMode === "list" ? "flex-1 flex gap-6" : "block"}
+                    >
+                      <GarmentImage
+                        garment={garment}
+                        aspectClass={viewMode === "grid" ? "aspect-[3/4]" : "h-48 w-48"}
+                        sizes={viewMode === "grid" ? "(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" : "192px"}
+                      />
+
+                      {/* Card Content */}
+                      <div className={`p-6 space-y-3 ${viewMode === "list" ? "flex-1" : ""}`}>
+                        <div>
+                          <h2 className="text-lg md:text-xl font-light tracking-tight mb-2 group-hover:text-zinc-200 transition-colors">
+                            {garment.name || garment.label || garment.editorial_title}
+                          </h2>
+                          <p className="text-sm text-zinc-400 font-light">
+                            {garment.decade || garment.date || ''} {garment.work_type ? `• ${garment.work_type}` : ''}
                           </p>
                         </div>
+                        
+                        {/* Description Excerpt */}
+                        {(garment.tagline || garment.description || garment.aesthetic_description) && (
+                          <p className={`text-xs md:text-sm text-zinc-500 font-light leading-relaxed ${viewMode === "grid" ? "line-clamp-2" : "line-clamp-3"}`}>
+                            {getFirstLine(garment.tagline || garment.description || garment.aesthetic_description)}
+                          </p>
+                        )}
                       </div>
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-sm">
-                        <p>Image Placeholder</p>
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-zinc-950/0 group-hover:bg-zinc-950/20 transition-colors duration-300" />
+                    </Link>
                   </div>
+              ))}
+            </div>
 
-                  {/* Card Content */}
-                  <div className={`p-6 space-y-3 ${viewMode === "list" ? "flex-1" : ""}`}>
-                    <div>
-                      <h2 className="text-lg md:text-xl font-light tracking-tight mb-2 group-hover:text-zinc-200 transition-colors">
-                        {garment.name || garment.label || garment.editorial_title}
-                      </h2>
-                      <p className="text-sm text-zinc-400 font-light">
-                        {garment.decade || garment.date || ''} {garment.work_type ? `• ${garment.work_type}` : ''}
-                      </p>
-                    </div>
-                    
-                    {/* Description Excerpt */}
-                    {(garment.tagline || garment.description || garment.aesthetic_description) && (
-                      <p className={`text-xs md:text-sm text-zinc-500 font-light leading-relaxed ${viewMode === "grid" ? "line-clamp-2" : "line-clamp-3"}`}>
-                        {getFirstLine(garment.tagline || garment.description || garment.aesthetic_description)}
-                      </p>
-                    )}
-                  </div>
-                </Link>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="print-hide flex items-center justify-center gap-2 mt-12">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="p-2 border border-zinc-700 rounded hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  aria-label="Previous page"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
+                  .reduce<(number | "ellipsis")[]>((acc, p, idx, arr) => {
+                    if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("ellipsis");
+                    acc.push(p);
+                    return acc;
+                  }, [])
+                  .map((item, idx) =>
+                    item === "ellipsis" ? (
+                      <span key={`e-${idx}`} className="px-2 text-zinc-500">...</span>
+                    ) : (
+                      <button
+                        key={item}
+                        onClick={() => setCurrentPage(item as number)}
+                        className={`min-w-[36px] h-9 rounded text-sm transition-colors ${
+                          currentPage === item
+                            ? "bg-zinc-700 text-zinc-100 border border-zinc-600"
+                            : "border border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    )
+                  )}
+
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-2 border border-zinc-700 rounded hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  aria-label="Next page"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         ) : (
           <EmptyState
             icon={FilterX}

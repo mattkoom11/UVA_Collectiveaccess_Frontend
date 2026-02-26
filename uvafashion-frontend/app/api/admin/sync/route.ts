@@ -1,13 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { syncGarmentsFromCA } from "@/lib/collectiveAccess";
 import { setCAGarmentsCache } from "@/lib/garments";
 import { Garment } from "@/types/garment";
 
-/**
- * Server-only sync from CollectiveAccess. Keeps CA credentials out of the client bundle.
- * Consider protecting this route (e.g. auth or IP allowlist) – see SECURITY.md.
- */
-export async function POST() {
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "uva-fashion-admin";
+
+export async function POST(req: NextRequest) {
+  // Simple authorization check via header or body
+  const authHeader = req.headers.get("x-admin-password");
+  if (authHeader && authHeader !== ADMIN_PASSWORD) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const raw = await syncGarmentsFromCA(500);
     const garments = raw.map((g) => ({

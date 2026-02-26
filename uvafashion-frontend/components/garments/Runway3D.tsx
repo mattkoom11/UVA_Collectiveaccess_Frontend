@@ -8,7 +8,6 @@ import { Garment, Era, GarmentType, getEraFromDecade, getGarmentTypeFromWorkType
 import { useRouter } from "next/navigation";
 import { filterGarments } from "@/lib/garments";
 import { getPrimaryColor, getSecondaryColor } from "@/lib/colorUtils";
-import DemoGarment from "./DemoGarment";
 
 interface Props {
   garments: Garment[];
@@ -265,8 +264,18 @@ export default function Runway3D({ garments }: Props) {
     }
   };
 
+  const [sceneReady, setSceneReady] = useState(false);
+
   return (
     <div className="w-full h-[600px] md:h-[800px] bg-black relative">
+      {/* Loading overlay */}
+      {!sceneReady && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black">
+          <div className="w-8 h-8 border-2 border-zinc-700 border-t-zinc-300 rounded-full animate-spin mb-4" />
+          <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Loading 3D Runway</p>
+        </div>
+      )}
+
       {/* Filter bar */}
       <div className="absolute top-4 left-4 right-4 z-[5] flex flex-wrap gap-3">
         <div className="bg-black/80 backdrop-blur-sm border border-zinc-700 px-4 py-2 rounded">
@@ -308,7 +317,13 @@ export default function Runway3D({ garments }: Props) {
         )}
       </div>
       
-      <Canvas shadows>
+      <Canvas
+        shadows
+        onCreated={() => setSceneReady(true)}
+        dpr={Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 1.5)}
+        performance={{ min: 0.5 }}
+        gl={{ powerPreference: "high-performance", antialias: true, stencil: false, depth: true }}
+      >
         <PerspectiveCamera makeDefault position={[0, 3, 12]} fov={50} />
         <OrbitControls 
           enableZoom={true} 

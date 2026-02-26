@@ -1,16 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import Runway3D from "@/components/garments/Runway3D";
-import Backstage3D from "@/components/backstage/Backstage3D";
+import { useState, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { ErrorBoundary } from "@/components/backstage/ErrorBoundary";
 import { getAllGarments } from "@/lib/garments";
 import PageLayout from "@/components/layout/PageLayout";
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
 import { sampleExhibitions } from "@/data/exhibitions";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+
+const Runway3D = dynamic(() => import("@/components/garments/Runway3D"), {
+  ssr: false,
+  loading: () => <SceneLoader label="3D Runway" />,
+});
+const Backstage3D = dynamic(() => import("@/components/backstage/Backstage3D"), {
+  ssr: false,
+  loading: () => <SceneLoader label="3D Backstage" />,
+});
+
+function SceneLoader({ label }: { label: string }) {
+  return (
+    <div className="w-full h-[600px] md:h-[800px] bg-black flex flex-col items-center justify-center">
+      <div className="w-8 h-8 border-2 border-zinc-700 border-t-zinc-300 rounded-full animate-spin mb-4" />
+      <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Loading {label}</p>
+    </div>
+  );
+}
 
 type TabType = "runway" | "backstage";
 

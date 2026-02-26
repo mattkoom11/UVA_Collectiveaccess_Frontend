@@ -7,8 +7,17 @@ import { exportToCSV, exportToJSON } from "@/lib/exportUtils";
 import { Garment } from "@/types/garment";
 import { BarChart3, Download, RefreshCw, Database, TrendingUp, Users, Eye } from "lucide-react";
 import PageLayout from "@/components/layout/PageLayout";
+import AdminAuthGate from "@/components/admin/AdminAuthGate";
 
-export default function AdminDashboard() {
+export default function AdminPage() {
+  return (
+    <AdminAuthGate>
+      <AdminDashboard />
+    </AdminAuthGate>
+  );
+}
+
+function AdminDashboard() {
   const [garments, setGarments] = useState<Garment[]>([]);
   const [analytics, setAnalytics] = useState<any>(null);
   const [isSyncing, setIsSyncing] = useState(false);
