@@ -8,7 +8,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "uva-fashion-admin";
 export async function POST(req: NextRequest) {
   // Simple authorization check via header or body
   const authHeader = req.headers.get("x-admin-password");
-  if (authHeader && authHeader !== ADMIN_PASSWORD) {
+  if (authHeader !== ADMIN_PASSWORD) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 

@@ -8,6 +8,7 @@ import PageLayout from "@/components/layout/PageLayout";
 import { useRouter } from "next/navigation";
 import { sampleExhibitions } from "@/data/exhibitions";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 const Runway3D = dynamic(() => import("@/components/garments/Runway3D"), {
@@ -91,11 +92,19 @@ export default function HomePage() {
                   href={`/exhibitions/${exhibition.id}`}
                   className="group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300"
                 >
-                  <div className="aspect-[16/9] bg-zinc-900 flex items-center justify-center text-zinc-600">
+                  <div className="relative aspect-[16/9] bg-zinc-900 overflow-hidden">
                     {exhibition.imageUrl ? (
-                      <span className="text-sm">Image: {exhibition.imageUrl}</span>
+                      <Image
+                        src={exhibition.imageUrl}
+                        alt={exhibition.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
                     ) : (
-                      <span className="text-sm">Exhibition Image</span>
+                      <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-sm">
+                        Exhibition Image
+                      </div>
                     )}
                   </div>
                   <div className="p-6 space-y-2">
