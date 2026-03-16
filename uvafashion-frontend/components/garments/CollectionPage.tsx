@@ -631,7 +631,9 @@ export default function CollectionPage() {
                     setSelectedType("all");
                     setSelectedColor("all");
                     setSelectedMaterial("all");
+                    setDateRange({});
                   }}
+                  aria-label="Clear all active filters"
                   className="text-xs transition-colors duration-150"
                   style={{
                     fontFamily: "var(--font-body), Georgia, serif",
