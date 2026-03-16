@@ -2,6 +2,16 @@ import type { Metadata } from "next";
 import { DM_Serif_Display, Crimson_Pro } from "next/font/google";
 import "./globals.css";
 import { ReactNode, Suspense } from "react";
+import SiteHeader from "@/components/layout/SiteHeader";
+import SiteFooter from "@/components/layout/SiteFooter";
+import KeyboardShortcutsProvider from "@/components/layout/KeyboardShortcutsProvider";
+import Breadcrumbs from "@/components/layout/Breadcrumbs";
+import PWAInstallPrompt from "@/components/layout/PWAInstallPrompt";
+import AccessibilityControls from "@/components/layout/AccessibilityControls";
+import PWAScript from "@/components/layout/PWAScript";
+import AnalyticsProvider from "@/components/layout/AnalyticsProvider";
+import ErrorBoundary from "@/components/garments/ErrorBoundary";
+import { hydrateGarmentsFromCA } from "@/lib/garments";
 
 const dmSerifDisplay = DM_Serif_Display({
   subsets: ["latin"],
@@ -18,16 +28,6 @@ const crimsonPro = Crimson_Pro({
   variable: "--font-body",
   display: "swap",
 });
-import SiteHeader from "@/components/layout/SiteHeader";
-import SiteFooter from "@/components/layout/SiteFooter";
-import KeyboardShortcutsProvider from "@/components/layout/KeyboardShortcutsProvider";
-import Breadcrumbs from "@/components/layout/Breadcrumbs";
-import PWAInstallPrompt from "@/components/layout/PWAInstallPrompt";
-import AccessibilityControls from "@/components/layout/AccessibilityControls";
-import PWAScript from "@/components/layout/PWAScript";
-import AnalyticsProvider from "@/components/layout/AnalyticsProvider";
-import ErrorBoundary from "@/components/garments/ErrorBoundary";
-import { hydrateGarmentsFromCA } from "@/lib/garments";
 
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://uvafashionarchive.com";
