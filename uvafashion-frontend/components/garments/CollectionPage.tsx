@@ -72,6 +72,25 @@ export default function CollectionPage() {
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [bulkMessage, setBulkMessage] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Active filter chips — derived from current filter state
+  const activeFilterChips = useMemo(() => {
+    const chips: { id: string; label: string; clear: () => void }[] = [];
+    if (selectedEra !== "all") {
+      chips.push({ id: "era", label: `Era: ${selectedEra}`, clear: () => setSelectedEra("all") });
+    }
+    if (selectedType !== "all") {
+      chips.push({ id: "type", label: `Type: ${selectedType}`, clear: () => setSelectedType("all") });
+    }
+    if (selectedColor !== "all") {
+      chips.push({ id: "color", label: `Color: ${selectedColor}`, clear: () => setSelectedColor("all") });
+    }
+    if (selectedMaterial !== "all") {
+      chips.push({ id: "material", label: `Material: ${selectedMaterial}`, clear: () => setSelectedMaterial("all") });
+    }
+    return chips;
+  }, [selectedEra, selectedType, selectedColor, selectedMaterial]);
+
   const { addFavorite } = useFavorites();
 
   // Update URL when filters change
@@ -585,6 +604,50 @@ export default function CollectionPage() {
               </button>
             )}
           </div>
+
+          {/* Active filter chip strip */}
+          {activeFilterChips.length > 0 && (
+            <div className="flex flex-wrap gap-2 items-center pt-2">
+              {activeFilterChips.map((chip) => (
+                <button
+                  key={chip.id}
+                  onClick={chip.clear}
+                  className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 transition-colors duration-150"
+                  style={{
+                    fontFamily: "var(--font-body), Georgia, serif",
+                    color: "#e8e4de",
+                    border: "1px solid #555",
+                    background: "#161512",
+                  }}
+                >
+                  {chip.label}
+                  <span style={{ color: "#888", fontSize: "10px" }} aria-hidden>×</span>
+                </button>
+              ))}
+              {activeFilterChips.length >= 2 && (
+                <button
+                  onClick={() => {
+                    setSelectedEra("all");
+                    setSelectedType("all");
+                    setSelectedColor("all");
+                    setSelectedMaterial("all");
+                  }}
+                  className="text-xs transition-colors duration-150"
+                  style={{
+                    fontFamily: "var(--font-body), Georgia, serif",
+                    color: "var(--muted)",
+                    background: "transparent",
+                    border: "none",
+                    borderBottom: "1px solid #2a2a2a",
+                    padding: "2px 0",
+                    cursor: "pointer",
+                  }}
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Advanced Filters Panel */}
           {showAdvancedFilters && (
