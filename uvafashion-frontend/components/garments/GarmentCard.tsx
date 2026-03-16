@@ -27,7 +27,7 @@ function getMaterials(garment: Garment): string[] {
 }
 
 function getSubtitle(garment: Garment): string {
-  const decade = garment.decade || garment.date;
+  const decade = garment.decade;
   if (!decade) return garment.collection || "";
   if (garment.collection) return `circa ${decade} · ${garment.collection}`;
   return `circa ${decade}`;
@@ -66,7 +66,7 @@ export default function GarmentCard({ garment, variant = "grid" }: Props) {
             src={imageSrc}
             alt={garment.editorial_title || garment.label}
             fill
-            className="object-cover transition-transform duration-300"
+            className="object-cover"
             sizes={variant === "runway" ? "208px" : "(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"}
             onError={() => setImgError(true)}
           />
