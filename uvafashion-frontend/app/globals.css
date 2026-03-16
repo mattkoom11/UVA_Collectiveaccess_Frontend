@@ -56,13 +56,13 @@ body {
 
 /* Selection color */
 ::selection {
-  background-color: #3f3f46;
-  color: #fafafa;
+  background-color: #e8e4de;
+  color: #0a0908;
 }
 
 ::-moz-selection {
-  background-color: #3f3f46;
-  color: #fafafa;
+  background-color: #e8e4de;
+  color: #0a0908;
 }
 
 /* Animation utilities */

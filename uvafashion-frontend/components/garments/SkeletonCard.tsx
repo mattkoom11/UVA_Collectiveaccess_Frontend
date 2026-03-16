@@ -12,7 +12,7 @@ export default function SkeletonCard() {
       <div className="h-1 shimmer" />
 
       {/* Card body */}
-      <div className="p-3 space-y-2">
+      <div className="p-3 space-y-1.5">
         {/* Type label */}
         <div className="h-2 w-16 shimmer" />
 

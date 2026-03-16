@@ -612,6 +612,7 @@ export default function CollectionPage() {
                 <button
                   key={chip.id}
                   onClick={chip.clear}
+                  aria-label={`Remove filter: ${chip.label}`}
                   className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 transition-colors duration-150"
                   style={{
                     fontFamily: "var(--font-body), Georgia, serif",
