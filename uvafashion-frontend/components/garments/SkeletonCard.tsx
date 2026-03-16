@@ -1,6 +1,7 @@
 export default function SkeletonCard() {
   return (
     <div
+      aria-hidden="true"
       className="flex flex-col border"
       style={{ borderColor: "var(--border)", backgroundColor: "#0f0e0c" }}
     >

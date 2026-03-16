@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 export default function SiteFooter() {
@@ -42,7 +44,7 @@ export default function SiteFooter() {
           </div>
 
           {/* Explore column */}
-          <div>
+          <nav aria-label="Explore">
             <h4
               className="mb-2.5 uppercase"
               style={{
@@ -71,10 +73,10 @@ export default function SiteFooter() {
                 {label}
               </Link>
             ))}
-          </div>
+          </nav>
 
           {/* About column */}
-          <div>
+          <nav aria-label="About">
             <h4
               className="mb-2.5 uppercase"
               style={{
@@ -103,7 +105,7 @@ export default function SiteFooter() {
                 {label}
               </Link>
             ))}
-          </div>
+          </nav>
         </div>
 
         {/* Bottom bar — visible on all breakpoints */}
