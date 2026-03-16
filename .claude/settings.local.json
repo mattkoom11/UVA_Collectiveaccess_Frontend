@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash \"C:/Users/mjuwo/.claude/skills/brainstorming/scripts/start-server.sh\" --project-dir \"c:/UVA Historic Fashion/UVA_Collectiveaccess_Frontend\")",
+      "Bash(curl -s http://localhost:64733)",
+      "Bash(netstat -ano)",
+      "Bash(curl -s http://localhost:58471)",
+      "Bash(npx --prefix uvafashion-frontend tsc --noEmit)",
+      "Bash(npx tsc:*)",
+      "Bash(curl -s http://localhost:3000)"
+    ]
+  }
+}
