@@ -55,17 +55,14 @@ class CollectiveAccessClient {
       return this.token;
     }
 
+    // CA JSON API: GET /service.php/json/auth/login with Basic Auth header.
+    // The server validates credentials, creates a PHP session, and returns an authToken.
     const url = `${this.config.baseUrl}/service.php/json/auth/login`;
     const response = await fetch(url, {
-      method: 'POST',
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': this.basicAuthHeader(),
       },
-      body: JSON.stringify({
-        username: this.config.username,
-        password: this.config.password,
-      }),
     });
 
     if (!response.ok) {
@@ -74,7 +71,7 @@ class CollectiveAccessClient {
 
     const data = await response.json();
 
-    if (!data.ok || !data.authToken) {
+    if (!data.authToken) {
       throw new Error(`CollectiveAccess auth failed: ${JSON.stringify(data.errors ?? data)}`);
     }
 
