@@ -12,13 +12,15 @@ export async function hydrateGarmentsFromCA(): Promise<void> {
   if (!isCAConfigured()) return;
   if (caGarmentsCache != null) return;
   try {
-    const raw = await syncGarmentsFromCA(500);
+    console.log("[CA] Hydrating garments from CollectiveAccess...");
+    const raw = await syncGarmentsFromCA(500, true);
     caGarmentsCache = raw.map((g) => ({
       ...g,
       images: Array.isArray(g.images) ? g.images : g.images ? [g.images] : [],
     })) as Garment[];
+    console.log(`[CA] Hydrated ${caGarmentsCache.length} garments.`);
   } catch (e) {
-    console.error("CollectiveAccess hydrate failed, using static data:", e);
+    console.error("[CA] Hydrate failed, using static data:", e);
   }
 }
 

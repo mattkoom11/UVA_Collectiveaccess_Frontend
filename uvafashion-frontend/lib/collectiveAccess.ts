@@ -375,13 +375,13 @@ export function isCAConfigured(): boolean {
  * Sync garments from CollectiveAccess.
  * Called by the admin /api/admin/sync route and by hydrateGarmentsFromCA().
  */
-export async function syncGarmentsFromCA(limit = 100): Promise<any[]> {
+export async function syncGarmentsFromCA(limit = 100, skipImages = false): Promise<any[]> {
   const client = getCollectiveAccessClient();
   const objects = await client.fetchObjects({ limit });
 
   const garments = await Promise.all(
     objects.map(async obj => {
-      const images = await client.fetchObjectImages(obj.object_id);
+      const images = skipImages ? [] : await client.fetchObjectImages(obj.object_id);
       return client.convertToGarment(obj, images);
     }),
   );
