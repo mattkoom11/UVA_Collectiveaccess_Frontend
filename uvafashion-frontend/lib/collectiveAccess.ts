@@ -29,6 +29,7 @@ export interface CAImage {
 class CollectiveAccessClient {
   private config: CollectiveAccessConfig;
   private token: string | null = null;
+  private sessionCookie: string | null = null;
   private tokenExpiry = 0;
   // Token lifetime: CA sessions default to 24h; refresh 5min before expiry
   private readonly TOKEN_TTL_MS = 23 * 60 * 60 * 1000;
@@ -50,18 +51,63 @@ class CollectiveAccessClient {
     return `Basic ${encoded}`;
   }
 
+  private async getSessionCookie(): Promise<string> {
+    const origin = new URL(this.config.baseUrl).origin;
+    const loginPageUrl = `${origin}/index.php/LoginReg/loginForm`;
+
+    // Step 1: GET login form to grab session cookie + CSRF token
+    const pageRes = await fetch(loginPageUrl, { redirect: 'follow' });
+    const pageHtml = await pageRes.text();
+    const pageSetCookies: string[] =
+      (pageRes.headers as any).getSetCookie?.() ??
+      (pageRes.headers.get('set-cookie') ? [pageRes.headers.get('set-cookie')!] : []);
+    const pageCookieHeader = pageSetCookies.map(c => c.split(';')[0]).join('; ');
+
+    const csrfToken     = pageHtml.match(/name=.csrfToken.\s+value=.([^'"]+)/)?.[1] ?? '';
+    const formTimestamp = pageHtml.match(/name=.form_timestamp.\s+value=.([^'"]+)/)?.[1] ?? '';
+
+    // Step 2: POST credentials
+    const doLoginUrl = `${origin}/index.php/system/Auth/DoLogin`;
+    const body = new URLSearchParams({
+      _formName: 'login', form_timestamp: formTimestamp, csrfToken,
+      username: this.config.username, password: this.config.password,
+      redirect: '', local: '0',
+    });
+    const loginRes = await fetch(doLoginUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        ...(pageCookieHeader ? { Cookie: pageCookieHeader } : {}),
+      },
+      body: body.toString(),
+      redirect: 'manual',
+    });
+
+    const loginSetCookies: string[] =
+      (loginRes.headers as any).getSetCookie?.() ??
+      (loginRes.headers.get('set-cookie') ? [loginRes.headers.get('set-cookie')!] : []);
+
+    const sessionCookie = loginSetCookies
+      .map(c => c.split(';')[0])
+      .filter(c => c.startsWith('collectiveaccess=') && !c.includes('deleted'))
+      .at(-1) ?? '';
+
+    if (!sessionCookie) throw new Error('CollectiveAccess login failed: no session cookie returned');
+    return sessionCookie;
+  }
+
   private async getToken(): Promise<string> {
     if (this.token && Date.now() < this.tokenExpiry) {
       return this.token;
     }
 
-    // CA JSON API: GET /service.php/json/auth/login with Basic Auth header.
-    // The server validates credentials, creates a PHP session, and returns an authToken.
+    const sessionCookie = await this.getSessionCookie();
+
     const url = `${this.config.baseUrl}/service.php/json/auth/login`;
     const response = await fetch(url, {
-      method: 'GET',
       headers: {
-        'Authorization': this.basicAuthHeader(),
+        Cookie: sessionCookie,
+        Authorization: this.basicAuthHeader(),
       },
     });
 
@@ -76,6 +122,7 @@ class CollectiveAccessClient {
     }
 
     this.token = data.authToken as string;
+    this.sessionCookie = sessionCookie;
     this.tokenExpiry = Date.now() + this.TOKEN_TTL_MS;
     return this.token;
   }
@@ -99,7 +146,10 @@ class CollectiveAccessClient {
     }
 
     const response = await fetch(url, {
-      headers: { 'Authorization': this.basicAuthHeader() },
+      headers: {
+        'Authorization': this.basicAuthHeader(),
+        ...(this.sessionCookie ? { Cookie: this.sessionCookie } : {}),
+      },
     });
     if (!response.ok) {
       throw new Error(`CollectiveAccess API error ${response.status}: ${response.statusText} (${path})`);
@@ -283,6 +333,7 @@ class CollectiveAccessClient {
   clearCache(): void {
     this.cache.clear();
     this.token = null;
+    this.sessionCookie = null;
     this.tokenExpiry = 0;
   }
 }
