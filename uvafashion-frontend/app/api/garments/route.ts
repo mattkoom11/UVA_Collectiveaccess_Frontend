@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { getAllGarments } from "@/lib/garments";
+import { getAllGarments, hydrateGarmentsFromCA } from "@/lib/garments";
 
 export async function GET() {
+  await hydrateGarmentsFromCA();
   const garments = getAllGarments();
   return NextResponse.json(garments);
 }
