@@ -7,7 +7,7 @@ import { Menu, X } from "lucide-react";
 import SearchBar from "./SearchBar";
 
 const NAV_LINKS = [
-  { href: "/", label: "Runway" },
+  { href: "/", label: "Home" },
   { href: "/collection", label: "Collection" },
   { href: "/timeline", label: "Timeline" },
   { href: "/favorites", label: "Favorites" },
