@@ -1,6 +1,6 @@
 import garmentsData from "@/data/garments.json";
 import { Garment, Era, GarmentType, getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/garment";
-import { syncGarmentsFromCA } from "@/lib/collectiveAccess";
+import { syncGarmentsFromCA, isCAConfigured } from "@/lib/collectiveAccess";
 
 let caGarmentsCache: Garment[] | null = null;
 
@@ -9,8 +9,7 @@ let caGarmentsCache: Garment[] | null = null;
  * Call once per request (e.g. in root layout); subsequent getAllGarments() calls use the cache.
  */
 export async function hydrateGarmentsFromCA(): Promise<void> {
-  const baseUrl = process.env.CA_BASE_URL || process.env.NEXT_PUBLIC_CA_BASE_URL;
-  if (!baseUrl) return;
+  if (!isCAConfigured()) return;
   if (caGarmentsCache != null) return;
   try {
     const raw = await syncGarmentsFromCA(500);
@@ -29,8 +28,7 @@ export function setCAGarmentsCache(garments: Garment[] | null): void {
 }
 
 export function getAllGarments(): Garment[] {
-  const baseUrl = process.env.CA_BASE_URL || process.env.NEXT_PUBLIC_CA_BASE_URL;
-  if (baseUrl && caGarmentsCache != null) {
+  if (isCAConfigured() && caGarmentsCache != null) {
     return caGarmentsCache;
   }
   return garmentsData as Garment[];

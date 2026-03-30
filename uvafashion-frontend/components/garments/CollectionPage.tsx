@@ -159,26 +159,30 @@ export default function CollectionPage() {
     // Apply sorting
     results = [...results].sort((a, b) => {
       switch (sortBy) {
-        case "date-asc":
+        case "date-asc": {
           const yearA = a.yearApprox || parseInt(a.date || a.decade?.replace('s', '') || '0', 10);
           const yearB = b.yearApprox || parseInt(b.date || b.decade?.replace('s', '') || '0', 10);
           return yearA - yearB;
-        case "date-desc":
-          const yearA2 = a.yearApprox || parseInt(a.date || a.decade?.replace('s', '') || '0', 10);
-          const yearB2 = b.yearApprox || parseInt(b.date || b.decade?.replace('s', '') || '0', 10);
-          return yearB2 - yearA2;
+        }
+        case "date-desc": {
+          const yearA = a.yearApprox || parseInt(a.date || a.decade?.replace('s', '') || '0', 10);
+          const yearB = b.yearApprox || parseInt(b.date || b.decade?.replace('s', '') || '0', 10);
+          return yearB - yearA;
+        }
         case "name-asc":
           return (a.name || a.label || a.editorial_title || '').localeCompare(b.name || b.label || b.editorial_title || '');
         case "name-desc":
           return (b.name || b.label || b.editorial_title || '').localeCompare(a.name || a.label || a.editorial_title || '');
-        case "era-asc":
+        case "era-asc": {
           const eraA = a.era || (a.decade ? (a.decade.includes('196') ? '1950-1980' : a.decade.includes('192') ? '1920-1950' : 'pre-1920') : 'pre-1920');
           const eraB = b.era || (b.decade ? (b.decade.includes('196') ? '1950-1980' : b.decade.includes('192') ? '1920-1950' : 'pre-1920') : 'pre-1920');
           return eraA.localeCompare(eraB);
-        case "era-desc":
-          const eraA2 = a.era || (a.decade ? (a.decade.includes('196') ? '1950-1980' : a.decade.includes('192') ? '1920-1950' : 'pre-1920') : 'pre-1920');
-          const eraB2 = b.era || (b.decade ? (b.decade.includes('196') ? '1950-1980' : b.decade.includes('192') ? '1920-1950' : 'pre-1920') : 'pre-1920');
-          return eraB2.localeCompare(eraA2);
+        }
+        case "era-desc": {
+          const eraA = a.era || (a.decade ? (a.decade.includes('196') ? '1950-1980' : a.decade.includes('192') ? '1920-1950' : 'pre-1920') : 'pre-1920');
+          const eraB = b.era || (b.decade ? (b.decade.includes('196') ? '1950-1980' : b.decade.includes('192') ? '1920-1950' : 'pre-1920') : 'pre-1920');
+          return eraB.localeCompare(eraA);
+        }
         default:
           return 0;
       }
