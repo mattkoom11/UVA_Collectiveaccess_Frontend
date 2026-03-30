@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { getAllGarments, filterGarments } from "@/lib/garments";
-import { Era, GarmentType } from "@/types/garment";
+import { filterGarments } from "@/lib/garmentFilters";
+import { Garment, Era, GarmentType } from "@/types/garment";
 import PageLayout from "@/components/layout/PageLayout";
 import AdvancedSearchBar from "./AdvancedSearchBar";
 import SkeletonCard from "./SkeletonCard";
@@ -28,7 +28,14 @@ type SortOption = "relevance" | "date-asc" | "date-desc" | "name-asc" | "name-de
 export default function CollectionPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const allGarments = useMemo(() => getAllGarments(), []);
+  const [allGarments, setAllGarments] = useState<Garment[]>([]);
+
+  useEffect(() => {
+    fetch("/api/garments")
+      .then((r) => r.json())
+      .then((data) => setAllGarments(Array.isArray(data) ? data : []))
+      .catch(() => setAllGarments([]));
+  }, []);
   
   // Initialize state from URL params
   const [selectedEra, setSelectedEra] = useState<Era | "all">(

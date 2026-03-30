@@ -75,7 +75,13 @@ async function caLogin(): Promise<{ cookie: string; debug: any }> {
 
 async function caGetAuthToken(cookie: string): Promise<{ authToken?: string; raw: any; status: number }> {
   const url = `${CA_BASE}/service.php/json/auth/login`;
-  const res = await fetch(url, { headers: { Cookie: cookie } });
+  const basicAuth = Buffer.from(`${CA_USER}:${CA_PASS}`).toString('base64');
+  const res = await fetch(url, {
+    headers: {
+      Cookie: cookie,
+      Authorization: `Basic ${basicAuth}`,
+    },
+  });
   const text = await res.text();
   let raw: any;
   try { raw = JSON.parse(text); } catch { raw = text.slice(0, 500) || "(empty)"; }
