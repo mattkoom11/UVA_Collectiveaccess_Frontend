@@ -29,12 +29,14 @@ export default function CollectionPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [allGarments, setAllGarments] = useState<Garment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/garments")
       .then((r) => r.json())
       .then((data) => setAllGarments(Array.isArray(data) ? data : []))
-      .catch(() => setAllGarments([]));
+      .catch(() => setAllGarments([]))
+      .finally(() => setIsLoading(false));
   }, []);
   
   // Initialize state from URL params
@@ -66,7 +68,6 @@ export default function CollectionPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">(
     (searchParams.get("view") as "grid" | "list") || "grid"
   );
-  const [isLoading] = useState(false);
   const [showPresets, setShowPresets] = useState(false);
   const [presetName, setPresetName] = useState("");
   const presets = useMemo(() => getFilterPresets(), []);
@@ -954,8 +955,14 @@ export default function CollectionPage() {
                             {garment.name || garment.label || garment.editorial_title}
                           </h2>
                           <p className="text-sm text-zinc-400 font-light">
-                            {garment.decade || garment.date || ''} {garment.work_type ? `• ${garment.work_type}` : ''}
+                            {garment.date || (garment.decade ? `circa ${garment.decade}` : '')}
+                            {garment.work_type ? ` · ${garment.work_type}` : ''}
                           </p>
+                          {garment.accessionNumber && (
+                            <p className="text-xs text-zinc-600 font-light mt-0.5 tabular-nums">
+                              {garment.accessionNumber}
+                            </p>
+                          )}
                         </div>
                         
                         {/* Description Excerpt */}

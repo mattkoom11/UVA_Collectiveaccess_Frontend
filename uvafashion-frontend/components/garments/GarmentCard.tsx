@@ -27,10 +27,10 @@ function getMaterials(garment: Garment): string[] {
 }
 
 function getSubtitle(garment: Garment): string {
-  const decade = garment.decade;
-  if (!decade) return garment.collection || "";
-  if (garment.collection) return `circa ${decade} · ${garment.collection}`;
-  return `circa ${decade}`;
+  const date = garment.date || (garment.decade ? `circa ${garment.decade}` : null);
+  if (!date) return garment.collection || "";
+  if (garment.collection) return `${date} · ${garment.collection}`;
+  return date;
 }
 
 export default function GarmentCard({ garment, variant = "grid" }: Props) {
@@ -71,8 +71,17 @@ export default function GarmentCard({ garment, variant = "grid" }: Props) {
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-xs" style={{ color: "var(--muted)" }}>
-            <span>No Image</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-4">
+            <div className="w-10 h-10 border border-zinc-700 flex items-center justify-center">
+              <svg className="w-5 h-5 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            {garment.accessionNumber && (
+              <span className="text-[9px] uppercase tracking-widest text-zinc-600 text-center">
+                {garment.accessionNumber}
+              </span>
+            )}
           </div>
         )}
 
@@ -104,16 +113,23 @@ export default function GarmentCard({ garment, variant = "grid" }: Props) {
 
       {/* Card body */}
       <div className="p-3 space-y-1.5">
-        {/* Type label */}
-        <div
-          className="text-[9px] uppercase"
-          style={{
-            fontFamily: "var(--font-display), Georgia, serif",
-            letterSpacing: "0.25em",
-            color: "var(--muted)",
-          }}
-        >
-          {garment.work_type || "Garment"}
+        {/* Type + accession row */}
+        <div className="flex items-center justify-between gap-2">
+          <div
+            className="text-[9px] uppercase"
+            style={{
+              fontFamily: "var(--font-display), Georgia, serif",
+              letterSpacing: "0.25em",
+              color: "var(--muted)",
+            }}
+          >
+            {garment.work_type || "Garment"}
+          </div>
+          {garment.accessionNumber && (
+            <div className="text-[9px] tabular-nums" style={{ color: "var(--muted)", opacity: 0.6 }}>
+              {garment.accessionNumber}
+            </div>
+          )}
         </div>
 
         {/* Title */}
