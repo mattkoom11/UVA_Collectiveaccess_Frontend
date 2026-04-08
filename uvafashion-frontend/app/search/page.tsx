@@ -1,10 +1,8 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useMemo, useEffect, Suspense } from "react";
-import { getAllGarments, filterGarments } from "@/lib/garments";
-import { advancedSearch } from "@/lib/advancedSearch";
-import { Era, GarmentType } from "@/types/garment";
+import { useState, useEffect, Suspense } from "react";
+import { Era, GarmentType, Garment } from "@/types/garment";
 import PageLayout from "@/components/layout/PageLayout";
 import AdvancedSearchBar from "@/components/garments/AdvancedSearchBar";
 import EmptyState from "@/components/garments/EmptyState";
@@ -19,34 +17,32 @@ function SearchPageContent() {
   const [searchQuery, setSearchQuery] = useState(query);
   const [selectedEra, setSelectedEra] = useState<Era | "all">("all");
   const [selectedType, setSelectedType] = useState<GarmentType | "all">("all");
-
-  const allGarments = useMemo(() => getAllGarments(), []);
+  const [allResults, setAllResults] = useState<Garment[]>([]);
+  const [loading, setLoading] = useState(false);
 
   // Update search query when URL param changes
   useEffect(() => {
     setSearchQuery(query);
   }, [query]);
 
-  // Combined search and filter
-  const filteredResults = useMemo(() => {
-    let results = allGarments;
+  // Fetch from API whenever query changes
+  useEffect(() => {
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (searchQuery.trim()) params.set("q", searchQuery.trim());
+    fetch(`/api/search?${params.toString()}`)
+      .then(r => r.json())
+      .then(data => setAllResults(data.results ?? []))
+      .catch(() => setAllResults([]))
+      .finally(() => setLoading(false));
+  }, [searchQuery]);
 
-    // Apply advanced search first
-    if (searchQuery.trim().length > 0) {
-      results = advancedSearch(results, searchQuery);
-    }
-
-    // Then apply filters
-    const filters: { era?: Era; type?: GarmentType } = {};
-    if (selectedEra !== "all") filters.era = selectedEra;
-    if (selectedType !== "all") filters.type = selectedType;
-
-    if (filters.era || filters.type) {
-      results = filterGarments(results, filters);
-    }
-
-    return results;
-  }, [allGarments, searchQuery, selectedEra, selectedType]);
+  // Apply era/type filters client-side on top of API results
+  const filteredResults = allResults.filter(g => {
+    if (selectedEra !== "all" && g.era !== selectedEra) return false;
+    if (selectedType !== "all" && g.type !== selectedType) return false;
+    return true;
+  });
 
   const handleSearch = (newQuery: string) => {
     setSearchQuery(newQuery);
@@ -197,13 +193,26 @@ function SearchPageContent() {
               <option value="dress">Dress</option>
               <option value="coat">Coat</option>
               <option value="jacket">Jacket</option>
-              <option value="suit">Suit</option>
+              <option value="suit">Suit &amp; Ensemble</option>
+              <option value="shirt-blouse">Shirt &amp; Blouse</option>
+              <option value="skirt">Skirt</option>
+              <option value="pants-trousers">Pants &amp; Trousers</option>
+              <option value="outerwear">Outerwear</option>
+              <option value="undergarment">Undergarment</option>
+              <option value="headwear">Headwear</option>
+              <option value="footwear">Footwear</option>
               <option value="accessory">Accessory</option>
+              <option value="jewelry">Jewelry</option>
+              <option value="ensemble">Ensemble</option>
+              <option value="swimwear">Swimwear</option>
+              <option value="uniform">Uniform</option>
+              <option value="non-western">Non-Western</option>
+              <option value="textile">Textile</option>
               <option value="other">Other</option>
             </select>
           </div>
 
-          {filteredResults.length !== allGarments.length && (
+          {(searchQuery || selectedEra !== "all" || selectedType !== "all") && (
             <div className="bg-zinc-900/50 border border-zinc-600 px-4 py-2 rounded">
               <span className="text-sm text-zinc-200 uppercase tracking-[0.1em] font-light">
                 {filteredResults.length} {filteredResults.length === 1 ? 'result' : 'results'}
@@ -213,7 +222,11 @@ function SearchPageContent() {
         </div>
 
         {/* Results */}
-        {filteredResults.length > 0 ? (
+        {loading ? (
+          <div className="text-center py-20">
+            <p className="text-zinc-400 font-light">Searching...</p>
+          </div>
+        ) : filteredResults.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
             {filteredResults.map((garment) => (
               <Link

@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { getAllGarments, searchGarments } from "@/lib/garments";
 import { Garment } from "@/types/garment";
 import Link from "next/link";
 
@@ -12,26 +11,39 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-export default function SearchBar({ 
-  variant = "header", 
+export default function SearchBar({
+  variant = "header",
   onSearch,
   placeholder = "Search garments..."
 }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [searchResults, setSearchResults] = useState<Garment[]>([]);
+  const [totalResults, setTotalResults] = useState(0);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
 
-  const allGarments = useMemo(() => getAllGarments(), []);
-  
-  // Search results - limit to 8 for dropdown
-  const searchResults = useMemo(() => {
-    if (!query || query.trim().length === 0) return [];
-    const results = searchGarments(allGarments, query);
-    return results.slice(0, 8);
-  }, [query, allGarments]);
+  const fetchResults = useCallback(async (q: string) => {
+    if (!q.trim()) { setSearchResults([]); setTotalResults(0); return; }
+    try {
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}&limit=8`);
+      const data = await res.json();
+      setSearchResults(data.results ?? []);
+      setTotalResults(data.total ?? 0);
+    } catch {
+      setSearchResults([]);
+      setTotalResults(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => fetchResults(query), 200);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [query, fetchResults]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -214,8 +226,12 @@ export default function SearchBar({
                 `}
               >
                 <div className="flex items-start gap-3">
-                  {/* Thumbnail placeholder */}
-                  <div className="flex-shrink-0 w-12 h-16 bg-zinc-800 rounded" />
+                  {/* Thumbnail */}
+                  <div className="flex-shrink-0 w-12 h-16 bg-zinc-800 rounded overflow-hidden">
+                    {garment.thumbnailUrl && (
+                      <img src={garment.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                    )}
+                  </div>
                   
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-light text-zinc-100 mb-1 truncate">
@@ -242,12 +258,12 @@ export default function SearchBar({
             ))}
             
             {/* Show more results link */}
-            {searchGarments(allGarments, query).length > searchResults.length && (
+            {totalResults > searchResults.length && (
               <button
                 onClick={handleSubmit}
                 className="w-full mt-2 px-3 py-2 text-xs text-zinc-400 hover:text-zinc-200 text-center border-t border-zinc-800 pt-2"
               >
-                View all {searchGarments(allGarments, query).length} results
+                View all {totalResults} results
               </button>
             )}
           </div>

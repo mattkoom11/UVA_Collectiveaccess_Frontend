@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const raw = await syncGarmentsFromCA(500);
+    const raw = await syncGarmentsFromCA(0);
     const garments = raw.map((g) => ({
       ...g,
       images: Array.isArray(g.images) ? g.images : g.images ? [g.images] : [],

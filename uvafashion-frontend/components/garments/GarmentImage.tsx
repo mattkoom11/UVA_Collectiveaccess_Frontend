@@ -25,6 +25,16 @@ export default function GarmentImage({
   return (
     <div className={`relative w-full ${aspectClass} bg-zinc-900 overflow-hidden`}>
       {imageSrc && !error ? (
+        imageSrc.startsWith("http://") ? (
+          // Plain img for HTTP sources (e.g. local CA server) — Next.js Image
+          // optimization pipeline breaks on non-HTTPS URLs in dev.
+          <img
+            src={imageSrc}
+            alt={garment.editorial_title || garment.name || garment.label}
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={() => setError(true)}
+          />
+        ) : (
         <Image
           src={imageSrc}
           alt={garment.editorial_title || garment.name || garment.label}
@@ -33,6 +43,7 @@ export default function GarmentImage({
           sizes={sizes}
           onError={() => setError(true)}
         />
+        )
       ) : (
         <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-sm">
           <div className="text-center space-y-1">

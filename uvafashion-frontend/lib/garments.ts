@@ -4,16 +4,67 @@ import { syncGarmentsFromCA, isCAConfigured } from "@/lib/collectiveAccess";
 
 let caGarmentsCache: Garment[] | null = null;
 
+function getCacheFilePath(): string {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const path = require("path") as typeof import("path");
+  return path.join(process.cwd(), "data", "ca-garments-cache.json");
+}
+
+function loadDiskCache(): Garment[] | null {
+  if (typeof window !== "undefined") return null;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const fs = require("fs") as typeof import("fs");
+    const cacheFile = getCacheFilePath();
+    if (fs.existsSync(cacheFile)) {
+      const raw = fs.readFileSync(cacheFile, "utf-8");
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        console.log(`[CA] Loaded ${parsed.length} garments from disk cache.`);
+        return parsed as Garment[];
+      }
+    }
+  } catch (e) {
+    console.warn("[CA] Could not read disk cache:", e);
+  }
+  return null;
+}
+
+function saveDiskCache(garments: Garment[]): void {
+  if (typeof window !== "undefined") return;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const fs = require("fs") as typeof import("fs");
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const path = require("path") as typeof import("path");
+    const cacheFile = getCacheFilePath();
+    fs.mkdirSync(path.dirname(cacheFile), { recursive: true });
+    fs.writeFileSync(cacheFile, JSON.stringify(garments), "utf-8");
+    console.log(`[CA] Saved ${garments.length} garments to disk cache.`);
+  } catch (e) {
+    console.warn("[CA] Could not write disk cache:", e);
+  }
+}
+
 /**
- * When NEXT_PUBLIC_CA_BASE_URL is set, populate cache from CollectiveAccess so getAllGarments() can return CA data.
- * Call once per request (e.g. in root layout); subsequent getAllGarments() calls use the cache.
+ * When CA is configured, populate the in-memory cache from CollectiveAccess.
+ * On first run after a restart, tries the disk cache first (fast), then falls
+ * back to a live fast-hydration fetch from CA.
  */
 export async function hydrateGarmentsFromCA(): Promise<void> {
   if (!isCAConfigured()) return;
   if (caGarmentsCache != null) return;
+
+  // Try disk cache first — this has real dates/eras from the last admin sync
+  const disk = loadDiskCache();
+  if (disk) {
+    caGarmentsCache = disk;
+    return;
+  }
+
   try {
     console.log("[CA] Hydrating garments from CollectiveAccess...");
-    const raw = await syncGarmentsFromCA(500, true);
+    const raw = await syncGarmentsFromCA(0, true);
     caGarmentsCache = raw.map((g) => ({
       ...g,
       images: Array.isArray(g.images) ? g.images : g.images ? [g.images] : [],
@@ -27,6 +78,7 @@ export async function hydrateGarmentsFromCA(): Promise<void> {
 /** Used by server-only API (e.g. admin sync) to update cache after a CA sync. */
 export function setCAGarmentsCache(garments: Garment[] | null): void {
   caGarmentsCache = garments;
+  if (garments) saveDiskCache(garments);
 }
 
 export function getAllGarments(): Garment[] {

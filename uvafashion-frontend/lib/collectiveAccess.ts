@@ -4,6 +4,8 @@
  * Docs: https://docs.collectiveaccess.org/wiki/Web_Service_API
  */
 
+import { getGarmentTypeFromWorkType } from '@/types/garment';
+
 export interface CollectiveAccessConfig {
   baseUrl: string;
   username: string;
@@ -232,11 +234,19 @@ class CollectiveAccessClient {
         { bundles: 'ca_objects.representations' },
       );
 
-      const reps: any[] = data?.representations ?? data?.ca_objects_representations ?? [];
+      // CA returns representations as a keyed object { "69": {...}, "70": {...} }
+      // not as an array. Normalise to array first.
+      const raw = data?.representations ?? data?.ca_objects_representations ?? data ?? {};
+      const reps: any[] = Array.isArray(raw)
+        ? raw
+        : Object.values(raw).filter(
+            (v: any) => v && typeof v === 'object' && (v.representation_id || v.urls),
+          );
       return reps.map((r: any) => ({
         media_id: r.representation_id ?? r.media_id ?? '',
         url: r.urls?.original ?? r.url ?? '',
-        thumbnail_url: r.urls?.thumbnail ?? r.thumbnail_url ?? '',
+        // preview170 is the thumbnail — fall back to original if not yet processed
+        thumbnail_url: r.urls?.preview170 || r.urls?.thumbnail || r.urls?.original || r.thumbnail_url || '',
         caption: r.caption ?? r.captions?.[0] ?? '',
       }));
     } catch (err) {
@@ -254,10 +264,35 @@ class CollectiveAccessClient {
    * rest of the application.  Field paths (e.g. preferred_labels.name) may
    * need adjustment to match your specific CA metadata configuration.
    */
+  // Map idno prefix to a CA type label for fast stub hydration
+  private static readonly IDNO_PREFIX_TYPE: Record<string, string> = {
+    DR: 'Dress', WDR: 'Dress', DRW: 'Dress',
+    JKT: 'Jacket', SK: 'Skirt', SKT: 'Skirt',
+    SH: 'Shirt or Blouse', BD: 'Bodice',
+    OTW: 'Outerwear', OC: 'Overcoat',
+    ENS: 'Ensemble', CENS: 'Ensemble',
+    UND: 'Undergarment',
+    RB: 'Robe',
+    ST: 'Trouser', TR: 'Trouser',
+    VT: 'Vest',
+    PJ: 'Pajama',
+    MT: 'Military Garment',
+    CST: 'Suit',
+    CDR: 'Combination Garment',
+    CETH: 'Non-Western Garment', ETH: 'Non-Western Garment',
+    WENS: 'Ensemble',
+    ACS: 'Accessory',
+  };
+
   convertToGarment(caObject: CAObject, images: CAImage[] = []): any {
     const idno   = caObject.intrinsic?.idno ?? caObject.idno?.value ?? caObject.idno ?? '';
-    const name   = caObject.preferred_labels?.en_US?.[0]?.name ?? idno;
+    const name   = caObject.preferred_labels?.en_US?.[0]?.name ?? (caObject as any).display_label ?? idno;
+    // type_id.display_text.en_US is the human-readable type label e.g. "Overcoat"
     const typeDisplay = caObject.type_id?.display_text?.en_US ?? caObject.intrinsic?.type_id;
+    const idnoPrefix = String(idno).split('.')[0].toUpperCase();
+    const typeStr = typeof typeDisplay === 'string' && typeDisplay
+      ? typeDisplay
+      : CollectiveAccessClient.IDNO_PREFIX_TYPE[idnoPrefix] ?? '';
 
     const dateRange  = this.extractBundleValue(caObject, 'ca_objects.date_range');
     const earliest   = dateRange?.earliest_date as string | undefined;
@@ -266,20 +301,32 @@ class CollectiveAccessClient {
       ? `${earliest}–${latest}`
       : (earliest ?? latest);
 
+    // Infer year from idno (e.g. "DR.1965.001" → 1965) as era fallback when
+    // no date_range is present. Only use if year < 2010 to avoid treating
+    // acquisition years (e.g. ACS.2023.974) as manufacture dates.
+    const idnoYear = (() => {
+      const parts = String(idno).split('.');
+      for (const p of parts) {
+        const y = parseInt(p, 10);
+        if (p.length === 4 && y >= 1800 && y < 2010) return String(y);
+      }
+      return undefined;
+    })();
+
     const condition       = this.extractBundleValue(caObject, 'ca_objects.condition')?.condition as string | undefined;
     const provenance      = this.extractBundleValue(caObject, 'ca_objects.provenance')?.provenance as string | undefined;
     const storageLocation = this.extractBundleValue(caObject, 'ca_objects.storage_location')?.storage_location as string | undefined;
 
     return {
-      id:              caObject.object_id?.value ?? caObject.intrinsic?.object_id ?? idno,
+      id:              String(caObject.object_id?.value ?? caObject.intrinsic?.object_id ?? idno),
       slug:            this.generateSlug(idno),
       label:           name,
       name,
-      decade:          this.extractDecade(earliest),
-      date:            dateStr,
-      era:             this.extractEra(earliest),
-      work_type:       typeDisplay,
-      type:            typeDisplay,
+      decade:          this.extractDecade(earliest ?? idnoYear),
+      date:            dateStr,   // manufacture date from CA date_range only; undefined until admin sync
+      era:             this.extractEra(earliest ?? idnoYear),
+      work_type:       typeStr,
+      type:            getGarmentTypeFromWorkType(typeStr),
       colors:          [],   // not present in this CA config
       materials:       [],   // not present in this CA config
       description:     undefined,
@@ -372,19 +419,71 @@ export function isCAConfigured(): boolean {
 }
 
 /**
+ * Fetch all CA objects by paginating through results.
+ * CA's /find endpoint caps results per page, so we loop until exhausted.
+ */
+async function fetchAllObjects(client: CollectiveAccessClient): Promise<CAObject[]> {
+  const PAGE_SIZE = 100;
+  const all: CAObject[] = [];
+  let start = 0;
+  while (true) {
+    const page = await client.fetchObjects({ limit: PAGE_SIZE, start });
+    if (!page.length) break;
+    all.push(...page);
+    if (page.length < PAGE_SIZE) break;
+    start += PAGE_SIZE;
+  }
+  return all;
+}
+
+/**
+ * Run an array of async tasks with a max concurrency limit.
+ */
+async function pLimit<T>(tasks: (() => Promise<T>)[], concurrency: number): Promise<T[]> {
+  const results: T[] = new Array(tasks.length);
+  let index = 0;
+  async function worker() {
+    while (index < tasks.length) {
+      const i = index++;
+      results[i] = await tasks[i]();
+    }
+  }
+  await Promise.all(Array.from({ length: concurrency }, worker));
+  return results;
+}
+
+/**
  * Sync garments from CollectiveAccess.
  * Called by the admin /api/admin/sync route and by hydrateGarmentsFromCA().
+ *
+ * skipImages=true  → lightweight hydration: stubs only, type derived from idno prefix
+ * skipImages=false → full sync: fetches detail + images for every object (admin sync)
  */
-export async function syncGarmentsFromCA(limit = 100, skipImages = false): Promise<any[]> {
+export async function syncGarmentsFromCA(limit = 0, skipImages = false): Promise<any[]> {
   const client = getCollectiveAccessClient();
-  const objects = await client.fetchObjects({ limit });
 
-  const garments = await Promise.all(
-    objects.map(async obj => {
-      const images = skipImages ? [] : await client.fetchObjectImages(obj.object_id);
-      return client.convertToGarment(obj, images);
-    }),
+  const stubs = limit > 0
+    ? await client.fetchObjects({ limit })
+    : await fetchAllObjects(client);
+
+  if (skipImages) {
+    // Fast path: derive type/era from idno prefix, no extra requests
+    return stubs.map(stub => client.convertToGarment(stub, []));
+  }
+
+  // Full sync: fetch detail (type_id, dates) + images concurrently
+  const detailTasks = stubs.map(stub => () =>
+    client.fetchObjectById(
+      String(stub.object_id ?? stub.id),
+      'ca_objects.preferred_labels,type_id,idno,ca_objects.date_range,ca_objects.condition,ca_objects.provenance,ca_objects.storage_location'
+    ).then(detail => detail ?? stub)
   );
+  const detailedObjects = await pLimit(detailTasks, 10);
 
-  return garments;
+  const imageTasks = detailedObjects.map(obj => () =>
+    client.fetchObjectImages(String((obj as any).object_id?.value ?? (obj as any).object_id ?? (obj as any).id))
+  );
+  const imageResults = await pLimit(imageTasks, 10);
+
+  return detailedObjects.map((obj, i) => client.convertToGarment(obj, imageResults[i]));
 }

@@ -1,8 +1,27 @@
 // Era types from the prompt
 export type Era = 'pre-1920' | '1920-1950' | '1950-1980' | '1980+';
 
-// Garment types from the prompt
-export type GarmentType = 'dress' | 'coat' | 'accessory' | 'suit' | 'jacket' | 'other';
+// Garment types mapped from CollectiveAccess Object Types list
+export type GarmentType =
+  | 'dress'
+  | 'coat'
+  | 'jacket'
+  | 'suit'
+  | 'shirt-blouse'
+  | 'skirt'
+  | 'pants-trousers'
+  | 'undergarment'
+  | 'headwear'
+  | 'footwear'
+  | 'accessory'
+  | 'jewelry'
+  | 'outerwear'
+  | 'ensemble'
+  | 'swimwear'
+  | 'uniform'
+  | 'non-western'
+  | 'textile'
+  | 'other';
 
 export interface Garment {
   id: string;
@@ -75,14 +94,101 @@ export function getEraFromDecade(decade?: string, yearApprox?: number, date?: st
   return '1980+';
 }
 
-// Helper function to convert work_type to GarmentType
+// Helper function to convert CA type label to GarmentType
 export function getGarmentTypeFromWorkType(work_type?: string): GarmentType {
   if (!work_type) return 'other';
-  const normalized = work_type.toLowerCase();
-  if (normalized.includes('dress')) return 'dress';
-  if (normalized.includes('coat')) return 'coat';
-  if (normalized.includes('jacket')) return 'jacket';
-  if (normalized.includes('suit')) return 'suit';
-  if (normalized.includes('accessory') || normalized.includes('bag') || normalized.includes('hat') || normalized.includes('shoe')) return 'accessory';
+  const n = work_type.toLowerCase().trim();
+
+  // Exact matches first
+  const exact: Record<string, GarmentType> = {
+    'dress': 'dress',
+    'blue jeans': 'pants-trousers',
+    'dress slacks': 'pants-trousers',
+    'pants': 'pants-trousers',
+    'trouser': 'pants-trousers',
+    'skirt': 'skirt',
+    'blouse': 'shirt-blouse',
+    'shirt or blouse': 'shirt-blouse',
+    'work shirt': 'shirt-blouse',
+    'overcoat': 'coat',
+    'outerwear': 'outerwear',
+    'cape': 'outerwear',
+    'shawl': 'outerwear',
+    'robe': 'outerwear',
+    'jacket': 'jacket',
+    'suit jacket': 'jacket',
+    'smoking jacket': 'jacket',
+    'sports coat': 'jacket',
+    'blazer': 'jacket',
+    'suit': 'suit',
+    "men's and women's suit": 'suit',
+    'ensemble': 'ensemble',
+    'combination garment': 'ensemble',
+    'uniform': 'uniform',
+    'military garment': 'uniform',
+    'occupational garment': 'uniform',
+    'jumpsuit': 'suit',
+    'sweater': 'shirt-blouse',
+    'vest': 'shirt-blouse',
+    'bodice': 'shirt-blouse',
+    'camisole': 'undergarment',
+    'slip': 'undergarment',
+    'petticoat': 'undergarment',
+    'corset cover': 'undergarment',
+    'bustle support': 'undergarment',
+    'panties': 'undergarment',
+    'bloomer': 'undergarment',
+    'undergarment': 'undergarment',
+    'sock': 'footwear',
+    'shoe': 'footwear',
+    'boot': 'footwear',
+    'slipper': 'footwear',
+    'shoe clip': 'accessory',
+    'hat': 'headwear',
+    'bonnet': 'headwear',
+    'fascinator': 'headwear',
+    'headwear': 'headwear',
+    'head scarf': 'headwear',
+    'jewelry': 'jewelry',
+    'necklace': 'jewelry',
+    'earring': 'jewelry',
+    'bracelet': 'jewelry',
+    'pin': 'jewelry',
+    'bow tie': 'accessory',
+    'tie': 'accessory',
+    'belt': 'accessory',
+    'glove': 'accessory',
+    'purse': 'accessory',
+    'accessory': 'accessory',
+    'notion': 'accessory',
+    'ribbon': 'accessory',
+    'bustle support': 'undergarment',
+    'garment': 'other',
+    'pajama': 'undergarment',
+    'swimsuit': 'swimwear',
+    'non-western garment': 'non-western',
+    'textile piece': 'textile',
+    'textile': 'textile',
+  };
+  if (exact[n]) return exact[n];
+
+  // Fallback substring matches
+  if (n.includes('dress') || n.includes('gown') || n.includes('frock')) return 'dress';
+  if (n.includes('skirt')) return 'skirt';
+  if (n.includes('pant') || n.includes('trouser') || n.includes('jean')) return 'pants-trousers';
+  if (n.includes('shirt') || n.includes('blouse') || n.includes('sweater') || n.includes('top')) return 'shirt-blouse';
+  if (n.includes('overcoat') || n.includes('cape') || n.includes('shawl') || n.includes('wrap') || n.includes('robe')) return 'outerwear';
+  if (n.includes('coat')) return 'coat';
+  if (n.includes('jacket') || n.includes('blazer')) return 'jacket';
+  if (n.includes('suit') || n.includes('ensemble')) return 'suit';
+  if (n.includes('uniform') || n.includes('military') || n.includes('occupational')) return 'uniform';
+  if (n.includes('under') || n.includes('corset') || n.includes('slip') || n.includes('camisole') || n.includes('petticoat')) return 'undergarment';
+  if (n.includes('hat') || n.includes('bonnet') || n.includes('head') || n.includes('fascinator')) return 'headwear';
+  if (n.includes('shoe') || n.includes('boot') || n.includes('sock') || n.includes('slipper')) return 'footwear';
+  if (n.includes('jewel') || n.includes('necklace') || n.includes('earring') || n.includes('bracelet')) return 'jewelry';
+  if (n.includes('accessory') || n.includes('bag') || n.includes('purse') || n.includes('belt') || n.includes('glove') || n.includes('tie') || n.includes('scarf')) return 'accessory';
+  if (n.includes('swim') || n.includes('bathing')) return 'swimwear';
+  if (n.includes('non-western') || n.includes('ethnic')) return 'non-western';
+  if (n.includes('textile')) return 'textile';
   return 'other';
 }

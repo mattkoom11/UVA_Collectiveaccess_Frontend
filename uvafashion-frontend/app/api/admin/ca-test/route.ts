@@ -122,6 +122,24 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ ok: false, step: "authToken", debug: loginDebug, authStatus, authRaw });
     }
 
+    // Debug: show raw representations response for a specific idno
+    if (req.nextUrl.searchParams.get("debug") === "representations") {
+      const idno = req.nextUrl.searchParams.get("idno") ?? "";
+      // First find the object_id
+      const findUrl = `${CA_BASE}/service.php/json/find/ca_objects?q=${encodeURIComponent(idno)}&limit=1&authToken=${encodeURIComponent(authToken)}`;
+      const findRes = await fetch(findUrl, { headers: { Cookie: cookie } });
+      const findData = await findRes.json();
+      const objectId = findData?.results?.[0]?.object_id ?? findData?.results?.[0]?.id;
+      if (!objectId) {
+        return NextResponse.json({ ok: false, error: "Object not found", findData });
+      }
+      // Fetch representations bundle
+      const repUrl = `${CA_BASE}/service.php/json/item/ca_objects/id/${objectId}?bundles=ca_objects.representations&authToken=${encodeURIComponent(authToken)}`;
+      const repRes = await fetch(repUrl, { headers: { Cookie: cookie } });
+      const repData = await repRes.json();
+      return NextResponse.json({ ok: true, objectId, idno, repData });
+    }
+
     const objects = await caFetchObjects(authToken, cookie);
     return NextResponse.json({ ok: true, authToken: authToken.slice(0, 12) + "…", objects, loginDebug });
   } catch (err: any) {

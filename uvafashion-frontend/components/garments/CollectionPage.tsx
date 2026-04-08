@@ -384,8 +384,21 @@ export default function CollectionPage() {
                 <option value="dress">Dress</option>
                 <option value="coat">Coat</option>
                 <option value="jacket">Jacket</option>
-                <option value="suit">Suit</option>
+                <option value="suit">Suit &amp; Ensemble</option>
+                <option value="shirt-blouse">Shirt &amp; Blouse</option>
+                <option value="skirt">Skirt</option>
+                <option value="pants-trousers">Pants &amp; Trousers</option>
+                <option value="outerwear">Outerwear</option>
+                <option value="undergarment">Undergarment</option>
+                <option value="headwear">Headwear</option>
+                <option value="footwear">Footwear</option>
                 <option value="accessory">Accessory</option>
+                <option value="jewelry">Jewelry</option>
+                <option value="ensemble">Ensemble</option>
+                <option value="swimwear">Swimwear</option>
+                <option value="uniform">Uniform</option>
+                <option value="non-western">Non-Western</option>
+                <option value="textile">Textile</option>
                 <option value="other">Other</option>
               </select>
             </div>
@@ -955,7 +968,7 @@ export default function CollectionPage() {
                             {garment.name || garment.label || garment.editorial_title}
                           </h2>
                           <p className="text-sm text-zinc-400 font-light">
-                            {garment.date || (garment.decade ? `circa ${garment.decade}` : '')}
+                            {garment.date || (garment.decade ? `c. ${garment.decade}` : 'Date unknown')}
                             {garment.work_type ? ` · ${garment.work_type}` : ''}
                           </p>
                           {garment.accessionNumber && (
