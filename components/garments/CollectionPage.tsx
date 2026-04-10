@@ -99,8 +99,17 @@ export default function CollectionPage() {
     if (selectedMaterial !== "all") {
       chips.push({ id: "material", label: `Material: ${selectedMaterial}`, clear: () => setSelectedMaterial("all") });
     }
+    if (selectedDecade !== "all") {
+      chips.push({ id: "decade", label: `Decade: ${selectedDecade}`, clear: () => setSelectedDecade("all") });
+    }
+    if (dateRange.start !== undefined) {
+      chips.push({ id: "dateStart", label: `From: ${dateRange.start}`, clear: () => setDateRange({ ...dateRange, start: undefined }) });
+    }
+    if (dateRange.end !== undefined) {
+      chips.push({ id: "dateEnd", label: `To: ${dateRange.end}`, clear: () => setDateRange({ ...dateRange, end: undefined }) });
+    }
     return chips;
-  }, [selectedEra, selectedType, selectedColor, selectedMaterial]);
+  }, [selectedEra, selectedType, selectedColor, selectedMaterial, selectedDecade, dateRange]);
 
   const { addFavorite } = useFavorites();
 
@@ -371,7 +380,7 @@ export default function CollectionPage() {
         {/* Two-column layout: sidebar (lg+) + main */}
         <div className="flex gap-8 items-start">
           {/* Desktop filter sidebar — hidden below lg */}
-          <aside className="hidden lg:flex flex-col gap-5 w-56 shrink-0 pt-2">
+          <aside aria-label="Collection filters" className="hidden lg:flex flex-col gap-5 w-56 shrink-0 pt-2">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-archive-muted mb-3">Filters</p>
               {activeFilterChips.length > 0 && (
@@ -774,13 +783,14 @@ export default function CollectionPage() {
             )}
 
             {/* Clear Filters */}
-            {(selectedEra !== "all" || selectedType !== "all" || selectedColor !== "all" || selectedMaterial !== "all" || dateRange.start || dateRange.end) && (
+            {(selectedEra !== "all" || selectedType !== "all" || selectedColor !== "all" || selectedMaterial !== "all" || selectedDecade !== "all" || dateRange.start || dateRange.end) && (
               <button
                 onClick={() => {
                   setSelectedEra("all");
                   setSelectedType("all");
                   setSelectedColor("all");
                   setSelectedMaterial("all");
+                  setSelectedDecade("all");
                   setDateRange({});
                 }}
                 className="bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-400 hover:text-zinc-200 uppercase tracking-[0.1em] font-light hover:border-zinc-600 transition-colors flex items-center gap-2"
@@ -818,6 +828,7 @@ export default function CollectionPage() {
                     setSelectedType("all");
                     setSelectedColor("all");
                     setSelectedMaterial("all");
+                    setSelectedDecade("all");
                     setDateRange({});
                   }}
                   aria-label="Clear all active filters"
@@ -1213,6 +1224,7 @@ export default function CollectionPage() {
               setSelectedType("all");
               setSelectedColor("all");
               setSelectedMaterial("all");
+              setSelectedDecade("all");
               setDateRange({});
             }}
           />
