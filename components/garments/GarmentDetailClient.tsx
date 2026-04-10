@@ -59,7 +59,7 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
 
   return (
     <>
-      <div className="min-h-screen bg-zinc-950 text-zinc-50">
+      <div className="min-h-screen bg-archive-bg text-archive-fg">
         {/* Hero section - full width, magazine-style */}
         <section className="relative w-full min-h-[90vh] flex items-center justify-center overflow-hidden">
           {/* Background image overlay */}
@@ -124,355 +124,220 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
         </section>
 
         {/* Main editorial content */}
-        <div className="max-w-5xl mx-auto px-4 py-16">
-          {/* 3D Interactive Viewer - Always shown, isolated view */}
-          <section className="mb-20">
+
+        {/* 3D Interactive Viewer - full width above two-column section */}
+        <div className="max-w-5xl mx-auto px-4 pt-12 pb-0">
+          <section className="mb-12">
             <div className="mb-6 text-center">
-              <h2 className="text-xs uppercase tracking-[0.3em] text-zinc-400 mb-2">
+              <h2 className="text-xs uppercase tracking-[0.3em] text-archive-muted mb-2">
                 Interactive 3D View
               </h2>
-              <p className="text-sm text-zinc-500 font-light">
+              <p className="text-sm text-archive-muted font-light">
                 Rotate, zoom, and explore this garment in 3D
               </p>
             </div>
-            <Garment3DViewer 
-              modelUrl={garment.model3d_url} 
+            <Garment3DViewer
+              modelUrl={garment.model3d_url}
               garmentId={garment.id}
               garment={garment}
             />
           </section>
+        </div>
 
-          {/* Primary Image - if no 3D model or as additional view */}
-          {garment.images && garment.images.length > 0 && (
-            <section className="mb-20">
-              <div 
-                className="relative w-full aspect-[4/5] md:aspect-[3/4] mb-8 overflow-hidden cursor-pointer group"
-                onClick={() => handleImageClick(0)}
-              >
-                {garment.images[0] ? (
-                  <Image
-                    src={garment.images[0]}
-                    alt={editorialTitle}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    sizes="(max-width: 768px) 100vw, 80vw"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center">
-                    <div className="text-center text-zinc-500 text-sm">
-                      <p>Primary Image</p>
+        {/* Two-column layout: images (left) + metadata (right) */}
+        <div className="max-w-6xl mx-auto px-4 py-12">
+          <div className="flex flex-col lg:flex-row gap-10 lg:gap-16 items-start">
+            {/* Left column: images + editorial prose */}
+            <div className="w-full lg:w-[55%] min-w-0">
+              {/* Primary image */}
+              {garment.images && garment.images.length > 0 && (
+                <div
+                  className="relative w-full aspect-[3/4] mb-6 overflow-hidden cursor-pointer group"
+                  onClick={() => handleImageClick(0)}
+                >
+                  {garment.images[0] ? (
+                    <Image
+                      src={garment.images[0]}
+                      alt={editorialTitle}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 1024px) 100vw, 55vw"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-archive-surface flex items-center justify-center">
+                      <span className="text-archive-muted text-sm">No image</span>
                     </div>
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-200 text-sm uppercase tracking-[0.2em]">
-                    Click to View
-                  </div>
+                  )}
                 </div>
-              </div>
-              
-              {/* Image caption */}
-              <p className="text-xs text-zinc-500 italic text-center tracking-wide">
-                {editorialTitle}
-              </p>
-            </section>
-          )}
+              )}
 
-          {/* Aesthetic description - flowing prose */}
-          <section className="mb-20">
-            <div className="max-w-3xl mx-auto">
-              <div className="prose prose-invert prose-lg max-w-none">
-                <p className="text-xl md:text-2xl font-light leading-relaxed text-zinc-200 text-center mb-12 tracking-wide">
+              {/* Additional images */}
+              {garment.images && garment.images.length > 1 && (
+                <div className="grid grid-cols-3 gap-2 mb-10">
+                  {garment.images.slice(1, 4).map((img, i) => (
+                    <div
+                      key={i}
+                      className="relative aspect-[3/4] overflow-hidden cursor-pointer group"
+                      onClick={() => handleImageClick(i + 1)}
+                    >
+                      <Image
+                        src={img}
+                        alt={`${editorialTitle} — view ${i + 2}`}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-200"
+                        sizes="(max-width: 1024px) 33vw, 18vw"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Aesthetic description */}
+              <div className="mb-10">
+                <p className="text-base text-archive-muted font-light leading-[1.8]">
                   {aestheticDescription}
                 </p>
               </div>
-            </div>
-          </section>
 
-          {/* Story section - if available */}
-          {story && (
-            <section className="mb-20">
-              <div className="max-w-3xl mx-auto">
-                <h2 className="text-xs uppercase tracking-[0.3em] text-zinc-400 mb-6 text-center">
-                  The Story
-                </h2>
-                <div className="prose prose-invert max-w-none">
-                  <p className="text-base md:text-lg leading-relaxed text-zinc-300 text-center font-light">
-                    {story}
-                  </p>
+              {/* Editorial prose — full width below images */}
+              {(story || context || curatorNote) && (
+                <div className="space-y-10 pt-4 border-t border-archive-border">
+                  {story && (
+                    <section>
+                      <h2 className="text-xs uppercase tracking-[0.3em] text-archive-muted mb-4">The Story</h2>
+                      <p className="text-base text-archive-muted font-light leading-[1.8]">{story}</p>
+                    </section>
+                  )}
+                  {context && (
+                    <section>
+                      <h2 className="text-xs uppercase tracking-[0.3em] text-archive-muted mb-4">Historical Context</h2>
+                      <p className="text-base text-archive-muted font-light leading-[1.8]">{context}</p>
+                    </section>
+                  )}
+                  {curatorNote && (
+                    <section>
+                      <h2 className="text-xs uppercase tracking-[0.3em] text-archive-muted mb-4">Curator&apos;s Note</h2>
+                      <p className="text-base italic text-archive-muted font-light leading-[1.8]">{curatorNote}</p>
+                    </section>
+                  )}
                 </div>
-              </div>
-            </section>
-          )}
+              )}
+            </div>
 
-          {/* Additional images grid - editorial style */}
-          {garment.images && garment.images.length > 1 && (
-            <section className="mb-20">
-              <h2 className="text-xs uppercase tracking-[0.3em] text-zinc-400 mb-8 text-center">
-                Additional Views
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {garment.images.slice(1).map((imageSrc, i) => (
-                  <div
-                    key={i}
-                    className="relative aspect-[3/4] bg-zinc-900 overflow-hidden cursor-pointer group"
-                    onClick={() => handleImageClick(i + 1)}
-                  >
-                    {imageSrc ? (
-                      <Image
-                        src={imageSrc}
-                        alt={`${editorialTitle} - View ${i + 2}`}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-xs text-zinc-500">
-                        <p>Image {i + 2}</p>
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity text-zinc-200 text-xs uppercase tracking-[0.2em]">
-                        View
-                      </div>
+            {/* Right column: metadata panel (sticky on desktop) */}
+            <div
+              className="w-full lg:w-[45%] shrink-0 lg:sticky"
+              style={{ top: "calc(var(--header-h, 73px) + 1.5rem)", maxHeight: "calc(100vh - var(--header-h, 73px) - 3rem)", overflowY: "auto" }}
+            >
+              {/* Work type badge */}
+              <div className="mb-4">
+                <span className="text-xs uppercase tracking-[0.2em] border border-archive-border text-archive-muted px-3 py-1">
+                  {garment.work_type || "Garment"}
+                </span>
+              </div>
+
+              {/* Title */}
+              <h1
+                className="text-2xl font-light text-archive-fg mb-1 leading-snug"
+                style={{ fontFamily: "var(--font-display), Georgia, serif" }}
+              >
+                {editorialTitle}
+              </h1>
+
+              {/* Accession number */}
+              {garment.accessionNumber && (
+                <p className="font-mono text-sm text-archive-muted mb-6">
+                  {garment.accessionNumber}
+                </p>
+              )}
+
+              {/* Metadata definition list */}
+              <dl className="space-y-0 mb-8">
+                {[
+                  { label: "Accession No.", value: garment.accessionNumber },
+                  { label: "Era", value: era },
+                  { label: "Type", value: garment.work_type },
+                  { label: "Date", value: garment.date },
+                  { label: "Decade", value: garment.decade },
+                  { label: "Materials", value: Array.isArray(garment.materials) ? garment.materials.join(", ") : garment.materials },
+                  { label: "Colors", value: garment.colors?.join(", ") },
+                  { label: "Dimensions", value: garment.dimensions },
+                  { label: "Provenance", value: garment.provenance },
+                  { label: "Collection", value: garment.collection },
+                  { label: "Storage Location", value: (garment as any).storageLocation },
+                ]
+                  .filter(({ value }) => value)
+                  .map(({ label, value }) => (
+                    <div key={label} className="flex gap-4 py-2 border-b border-archive-border/40">
+                      <dt className="text-[11px] uppercase tracking-[0.15em] text-archive-muted w-32 shrink-0 pt-0.5">
+                        {label}
+                      </dt>
+                      <dd className="text-sm text-archive-fg flex-1">
+                        {String(value)}
+                      </dd>
                     </div>
-                  </div>
+                  ))}
+              </dl>
+
+              {/* Actions */}
+              <div className="flex gap-3 flex-wrap mb-6">
+                <FavoriteButton garmentId={garment.id} variant="button" />
+                <CompareButton garmentId={garment.id} variant="button" />
+              </div>
+
+              {/* Back link */}
+              <Link
+                href="/collection"
+                className="text-xs uppercase tracking-[0.2em] text-archive-muted hover:text-archive-fg transition-colors"
+              >
+                ← Back to Collection
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Related garments */}
+        <div className="max-w-6xl mx-auto px-4 pb-20">
+          {relatedGarments.length > 0 && (
+            <section className="border-t border-archive-border pt-12">
+              <h2 className="text-xs uppercase tracking-[0.3em] text-archive-muted mb-8 text-center">
+                Related Garments
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {relatedGarments.map((related) => (
+                  <Link
+                    key={related.id}
+                    href={`/garments/${related.slug}`}
+                    className="group border border-archive-border bg-archive-surface hover:border-archive-muted transition-all duration-300"
+                  >
+                    <div className="relative w-full aspect-[3/4] bg-archive-surface overflow-hidden">
+                      {(related.thumbnailUrl || (related.images && related.images[0])) ? (
+                        <Image
+                          src={related.thumbnailUrl || related.images[0]}
+                          alt={related.name || related.label || related.editorial_title || "Related garment"}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          sizes="(max-width: 768px) 50vw, 25vw"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center text-archive-muted text-xs">
+                          <p>No image</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4 space-y-1">
+                      <h3 className="text-sm font-light tracking-tight group-hover:text-archive-fg transition-colors line-clamp-2">
+                        {related.name || related.label || related.editorial_title}
+                      </h3>
+                      <p className="text-xs text-archive-muted font-light">
+                        {related.decade || related.date || ''}
+                      </p>
+                    </div>
+                  </Link>
                 ))}
               </div>
             </section>
           )}
-
-          {/* Inspiration & Context - side by side */}
-          {(inspiration || context) && (
-            <section className="mb-20 grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
-              {inspiration && (
-                <div>
-                  <h2 className="text-xs uppercase tracking-[0.3em] text-zinc-400 mb-4">
-                    Inspiration
-                  </h2>
-                  <p className="text-sm md:text-base leading-relaxed text-zinc-300 font-light">
-                    {inspiration}
-                  </p>
-                </div>
-              )}
-              {context && (
-                <div>
-                  <h2 className="text-xs uppercase tracking-[0.3em] text-zinc-400 mb-4">
-                    Context
-                  </h2>
-                  <p className="text-sm md:text-base leading-relaxed text-zinc-300 font-light">
-                    {context}
-                  </p>
-                </div>
-              )}
-            </section>
-          )}
-
-          {/* Timeline/Context block */}
-          {era && (
-            <section className="mb-20 bg-zinc-900/50 border border-zinc-800 p-8 md:p-12">
-              <div className="max-w-4xl mx-auto">
-                <h2 className="text-xs uppercase tracking-[0.3em] text-zinc-400 mb-6 text-center">
-                  Timeline & Context
-                </h2>
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div>
-                    <h3 className="text-sm uppercase tracking-[0.2em] text-zinc-400 mb-3 font-light">
-                      Decade
-                    </h3>
-                    <p className="text-lg text-zinc-200 font-light">
-                      {garment.decade || garment.date || era.replace('-', '–')}
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm uppercase tracking-[0.2em] text-zinc-400 mb-3 font-light">
-                      Fashion Trends
-                    </h3>
-                    {context ? (
-                      <p className="text-base leading-relaxed text-zinc-300 font-light">
-                        {context}
-                      </p>
-                    ) : (
-                      <p className="text-base leading-relaxed text-zinc-400 font-light italic">
-                        {era === 'pre-1920' && 'Early 20th century fashion emphasized structured silhouettes and traditional craftsmanship.'}
-                        {era === '1920-1950' && 'This era saw dramatic shifts from the liberated flapper style to wartime utility, then post-war elegance.'}
-                        {era === '1950-1980' && 'Mid-century fashion balanced sophisticated elegance with emerging youth culture and ready-to-wear innovation.'}
-                        {era === '1980+' && 'Late 20th century fashion embraced bold expressions, designer labels, and diverse stylistic movements.'}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </section>
-          )}
-
-          {/* Curator's Note */}
-          {curatorNote && (
-            <section className="mb-20 border-t border-zinc-800 pt-12">
-              <div className="max-w-3xl mx-auto">
-                <h2 className="text-xs uppercase tracking-[0.3em] text-zinc-400 mb-6 text-center">
-                  Curator&apos;s Note
-                </h2>
-                <p className="text-base md:text-lg leading-relaxed text-zinc-300 font-light italic text-center">
-                  {curatorNote}
-                </p>
-              </div>
-            </section>
-          )}
-
-          {/* Technical details - elegant presentation */}
-          <section className="mb-20 border-t border-zinc-800 pt-12">
-            <div className="max-w-3xl mx-auto">
-              <h2 className="text-xs uppercase tracking-[0.3em] text-zinc-400 mb-8 text-center">
-                Metadata
-              </h2>
-              <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 text-sm">
-                {garment.accessionNumber && (
-                  <>
-                    <dt className="text-zinc-400 font-light">Accession Number</dt>
-                    <dd className="text-zinc-200 font-mono">{garment.accessionNumber}</dd>
-                  </>
-                )}
-                {garmentType && (
-                  <>
-                    <dt className="text-zinc-400 font-light">Garment Type</dt>
-                    <dd className="text-zinc-200 capitalize">{garmentType}</dd>
-                  </>
-                )}
-                {garment.date && (
-                  <>
-                    <dt className="text-zinc-400 font-light">Date</dt>
-                    <dd className="text-zinc-200">{garment.date}</dd>
-                  </>
-                )}
-                {garment.decade && (
-                  <>
-                    <dt className="text-zinc-400 font-light">Decade</dt>
-                    <dd className="text-zinc-200">{garment.decade}</dd>
-                  </>
-                )}
-                {garment.yearApprox && (
-                  <>
-                    <dt className="text-zinc-400 font-light">Year (approx.)</dt>
-                    <dd className="text-zinc-200">{garment.yearApprox}</dd>
-                  </>
-                )}
-                {garment.colors && garment.colors.length > 0 && (
-                  <>
-                    <dt className="text-zinc-400 font-light">Colors</dt>
-                    <dd className="text-zinc-200">{garment.colors.join(", ")}</dd>
-                  </>
-                )}
-                {garment.materials && (
-                  <>
-                    <dt className="text-zinc-400 font-light">Materials</dt>
-                    <dd className="text-zinc-200">
-                      {Array.isArray(garment.materials) 
-                        ? garment.materials.join(", ")
-                        : garment.materials}
-                    </dd>
-                  </>
-                )}
-                {garment.dimensions && (
-                  <>
-                    <dt className="text-zinc-400 font-light">Dimensions</dt>
-                    <dd className="text-zinc-200">{garment.dimensions}</dd>
-                  </>
-                )}
-                {garment.function && garment.function.length > 0 && (
-                  <>
-                    <dt className="text-zinc-400 font-light">Function</dt>
-                    <dd className="text-zinc-200">{garment.function.join(", ")}</dd>
-                  </>
-                )}
-                {garment.gender && (
-                  <>
-                    <dt className="text-zinc-400 font-light">Gender</dt>
-                    <dd className="text-zinc-200">{garment.gender}</dd>
-                  </>
-                )}
-                {garment.age && (
-                  <>
-                    <dt className="text-zinc-400 font-light">Age</dt>
-                    <dd className="text-zinc-200">{garment.age}</dd>
-                  </>
-                )}
-                {garment.collection && (
-                  <>
-                    <dt className="text-zinc-400 font-light">Collection</dt>
-                    <dd className="text-zinc-200">{garment.collection}</dd>
-                  </>
-                )}
-                {garment.provenance && (
-                  <>
-                    <dt className="text-zinc-400 font-light">Provenance</dt>
-                    <dd className="text-zinc-200">{garment.provenance}</dd>
-                  </>
-                )}
-                {garment.condition && (
-                  <>
-                    <dt className="text-zinc-400 font-light">Condition</dt>
-                    <dd className="text-zinc-200">{garment.condition}</dd>
-                  </>
-                )}
-              </dl>
-            </div>
-          </section>
-
-          {/* Related garments */}
-          {relatedGarments.length > 0 && (
-            <section className="mb-20 border-t border-zinc-800 pt-12">
-              <div className="max-w-7xl mx-auto px-4">
-                <h2 className="text-xs uppercase tracking-[0.3em] text-zinc-400 mb-8 text-center">
-                  Related Garments
-                </h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {relatedGarments.map((related) => (
-                    <Link
-                      key={related.id}
-                      href={`/garments/${related.slug}`}
-                      className="group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300"
-                    >
-                      <div className="relative w-full aspect-[3/4] bg-zinc-900 overflow-hidden">
-                        {(related.thumbnailUrl || (related.images && related.images[0])) ? (
-                          <Image
-                            src={related.thumbnailUrl || related.images[0]}
-                            alt={related.name || related.label || related.editorial_title || "Related garment"}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                            sizes="(max-width: 768px) 50vw, 25vw"
-                          />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-xs">
-                            <p>No image</p>
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-zinc-950/0 group-hover:bg-zinc-950/20 transition-colors duration-300" />
-                      </div>
-                      <div className="p-4 space-y-1">
-                        <h3 className="text-sm font-light tracking-tight group-hover:text-zinc-200 transition-colors line-clamp-2">
-                          {related.name || related.label || related.editorial_title}
-                        </h3>
-                        <p className="text-xs text-zinc-400 font-light">
-                          {related.decade || related.date || ''}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </section>
-          )}
-
-          {/* Navigation */}
-          <section className="text-center pt-8 border-t border-zinc-800">
-            <Link
-              href="/collection"
-              className="inline-block text-xs uppercase tracking-[0.25em] text-zinc-400 hover:text-zinc-200 transition border border-zinc-700 px-6 py-3 hover:border-zinc-500"
-            >
-              ← Back to Collection
-            </Link>
-          </section>
         </div>
       </div>
 
