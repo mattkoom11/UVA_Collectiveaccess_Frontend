@@ -3,9 +3,8 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { Garment, Era } from "@/types/garment";
 import { getEraFromDecade } from "@/types/garment";
-import Link from "next/link";
-import Image from "next/image";
-import { ZoomIn, ZoomOut, Filter, X, ChevronDown, ArrowUp, ArrowDown, Hash } from "lucide-react";
+import { Filter, X, ChevronDown, ArrowUp, Hash } from "lucide-react";
+import GarmentCard from "./GarmentCard";
 
 interface TimelineViewProps {
   garments: Garment[];
@@ -286,77 +285,23 @@ export default function TimelineView({ garments }: TimelineViewProps) {
       </div>
 
       <div className="relative">
-        {/* Timeline line */}
-        <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-zinc-800" />
-
-        {/* Timeline entries */}
-        <div className="space-y-16">
-          {timelineData.map(({ era, key, items }, groupIndex) => (
-            <div key={key} data-timeline-key={key} className="relative scroll-mt-24">
-              {/* Era marker */}
-              <div className="flex items-start md:items-center gap-6 md:gap-8">
-                {/* Left side (mobile) / Right side (desktop) */}
-                <div className="flex-1 md:flex-none md:w-1/2 md:pr-8 md:text-right">
-                  <div className={`inline-block border px-6 py-3 rounded ${getEraColor(era)}`}>
-                    <div className="text-xs uppercase tracking-[0.3em] text-zinc-400 mb-1">
-                      {getEraLabel(era)}
-                    </div>
-                    <div className="text-lg font-light text-zinc-200">
-                      {zoomLevel === "era" 
-                        ? getEraLabel(era) 
-                        : zoomLevel === "year" 
-                        ? key.split('-')[1] 
-                        : key.split('-')[1]}
-                    </div>
-                    <div className="text-xs text-zinc-500 mt-1 flex items-center gap-1">
-                      <span>{items.length} {items.length === 1 ? 'garment' : 'garments'}</span>
-                      {zoomLevel === "decade" && key.split('-')[1] && (
-                        <span className="text-zinc-600">•</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Timeline dot */}
-                <div className="absolute left-6 md:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-zinc-700 border-2 border-zinc-950 z-10" />
-
-                {/* Right side (mobile) / Left side (desktop) */}
-                <div className="flex-1 md:flex-none md:w-1/2 md:pl-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {items.map((garment) => (
-                      <Link
-                        key={garment.id}
-                        href={`/garments/${garment.slug}`}
-                        className="group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300"
-                      >
-                        <div className="relative w-full aspect-[3/4] bg-zinc-900 overflow-hidden">
-                          {garment.thumbnailUrl || (garment.images && garment.images[0]) ? (
-                            <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-xs">
-                              <p>Thumbnail</p>
-                            </div>
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-xs">
-                              <p>Image</p>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-zinc-950/0 group-hover:bg-zinc-950/20 transition-colors duration-300" />
-                        </div>
-                        <div className="p-4 space-y-1">
-                          <h3 className="text-sm font-light tracking-tight group-hover:text-zinc-200 transition-colors line-clamp-2">
-                            {garment.name || garment.label || garment.editorial_title}
-                          </h3>
-                          <p className="text-xs text-zinc-400 font-light">
-                            {garment.work_type || 'Garment'}
-                          </p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
+        {timelineData.map((group) => (
+          <section key={group.key} className="relative">
+            <div
+              className="sticky z-10 bg-archive-bg py-2 border-b border-archive-border mb-4"
+              style={{ top: "var(--header-h, 73px)" }}
+            >
+              <h3 className="text-xs uppercase tracking-[0.2em] text-archive-muted">
+                {(zoomLevel !== "era" ? group.key.split('-')[1] : undefined) || group.era}
+              </h3>
             </div>
-          ))}
-        </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-8">
+              {group.items.map((garment) => (
+                <GarmentCard key={garment.id} garment={garment} variant="research" />
+              ))}
+            </div>
+          </section>
+        ))}
       </div>
 
       {/* Scroll to Top Button */}
