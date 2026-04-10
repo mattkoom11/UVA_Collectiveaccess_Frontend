@@ -23,6 +23,7 @@ interface GarmentDetailClientProps {
 export default function GarmentDetailClient({ garment, relatedGarments: initialRelatedGarments }: GarmentDetailClientProps) {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState<"images" | "3d">("images");
 
   // Enhance related garments with algorithm-based recommendations
   const allGarments = useMemo(() => getAllGarments(), []);
@@ -125,32 +126,32 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
 
         {/* Main editorial content */}
 
-        {/* 3D Interactive Viewer - full width above two-column section */}
-        <div className="max-w-5xl mx-auto px-4 pt-12 pb-0">
-          <section className="mb-12">
-            <div className="mb-6 text-center">
-              <h2 className="text-xs uppercase tracking-[0.3em] text-archive-muted mb-2">
-                Interactive 3D View
-              </h2>
-              <p className="text-sm text-archive-muted font-light">
-                Rotate, zoom, and explore this garment in 3D
-              </p>
-            </div>
-            <Garment3DViewer
-              modelUrl={garment.model3d_url}
-              garmentId={garment.id}
-              garment={garment}
-            />
-          </section>
-        </div>
-
         {/* Two-column layout: images (left) + metadata (right) */}
         <div className="max-w-6xl mx-auto px-4 py-12">
           <div className="flex flex-col lg:flex-row gap-10 lg:gap-16 items-start">
             {/* Left column: images + editorial prose */}
             <div className="w-full lg:w-[55%] min-w-0">
+              {/* Tab bar — only show 3D tab if model exists */}
+              {garment.model3d_url && (
+                <div className="flex gap-0 border-b border-archive-border mb-6">
+                  {(["images", "3d"] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`px-4 py-2 text-xs uppercase tracking-[0.15em] transition-colors ${
+                        activeTab === tab
+                          ? "border-b-2 border-archive-fg text-archive-fg -mb-px"
+                          : "text-archive-muted hover:text-archive-fg"
+                      }`}
+                    >
+                      {tab === "images" ? "Images" : "3D Model"}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {/* Primary image */}
-              {garment.images && garment.images.length > 0 && (
+              {activeTab === "images" && garment.images && garment.images.length > 0 && (
                 <div
                   className="relative w-full aspect-[3/4] mb-6 overflow-hidden cursor-pointer group"
                   onClick={() => handleImageClick(0)}
@@ -172,7 +173,7 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
               )}
 
               {/* Additional images */}
-              {garment.images && garment.images.length > 1 && (
+              {activeTab === "images" && garment.images && garment.images.length > 1 && (
                 <div className="grid grid-cols-3 gap-2 mb-10">
                   {garment.images.slice(1, 4).map((img, i) => (
                     <div
@@ -189,6 +190,17 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
                       />
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* 3D Viewer tab content — only mounts when 3D tab is active */}
+              {garment.model3d_url && activeTab === "3d" && (
+                <div className="mb-10">
+                  <Garment3DViewer
+                    modelUrl={garment.model3d_url}
+                    garmentId={garment.id}
+                    garment={garment}
+                  />
                 </div>
               )}
 
