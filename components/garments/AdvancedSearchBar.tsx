@@ -9,6 +9,7 @@ interface AdvancedSearchBarProps {
   placeholder?: string;
   variant?: "header" | "full";
   showAdvanced?: boolean;
+  inputRef?: React.RefObject<HTMLInputElement>;
 }
 
 export default function AdvancedSearchBar({
@@ -16,13 +17,15 @@ export default function AdvancedSearchBar({
   placeholder = "Search by name, material, color, decade...",
   variant = "full",
   showAdvanced = false,
+  inputRef: externalInputRef,
 }: AdvancedSearchBarProps) {
   const [query, setQuery] = useState("");
   const [showHistory, setShowHistory] = useState(false);
   const [showAdvancedPanel, setShowAdvancedPanel] = useState(showAdvanced);
   const [field, setField] = useState<string>("all");
   const searchHistory = getSearchHistory();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const internalInputRef = useRef<HTMLInputElement>(null);
+  const inputRef = externalInputRef ?? internalInputRef;
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

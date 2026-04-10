@@ -1,12 +1,11 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { Era, GarmentType, Garment } from "@/types/garment";
 import PageLayout from "@/components/layout/PageLayout";
 import AdvancedSearchBar from "@/components/garments/AdvancedSearchBar";
 import EmptyState from "@/components/garments/EmptyState";
-import GarmentImage from "@/components/garments/GarmentImage";
 import Link from "next/link";
 import { Search, FileQuestion } from "lucide-react";
 
@@ -19,6 +18,11 @@ function SearchPageContent() {
   const [selectedType, setSelectedType] = useState<GarmentType | "all">("all");
   const [allResults, setAllResults] = useState<Garment[]>([]);
   const [loading, setLoading] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    searchInputRef.current?.focus();
+  }, []);
 
   // Update search query when URL param changes
   useEffect(() => {
@@ -116,7 +120,7 @@ function SearchPageContent() {
       <>
         {parts.map((part, i) => 
           part.match ? (
-            <mark key={i} className="bg-zinc-700 text-zinc-100 px-0.5 rounded">
+            <mark key={i} className="bg-archive-surface text-archive-fg px-0.5 rounded">
               {part.text}
             </mark>
           ) : (
@@ -137,25 +141,26 @@ function SearchPageContent() {
           </h1>
           
           {/* Search Bar */}
-          <div className="max-w-2xl mx-auto mb-8">
-            <AdvancedSearchBar 
-              variant="full" 
+          <div className="max-w-3xl mx-auto mb-8">
+            <AdvancedSearchBar
+              variant="full"
               onSearch={handleSearch}
-              placeholder="Search by name, material, color, decade, description..."
-              showAdvanced={true}
+              placeholder="Search by name, accession number, material… (press / to focus)"
+              showAdvanced={false}
+              inputRef={searchInputRef}
             />
           </div>
 
           {/* Active search query */}
           {searchQuery && (
             <div className="text-center mb-6">
-              <div className="inline-flex items-center gap-2 bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded">
-                <span className="text-sm text-zinc-400 font-light">
-                  Results for: <span className="text-zinc-200">{searchQuery}</span>
+              <div className="inline-flex items-center gap-2 bg-archive-surface border border-archive-border px-4 py-2 rounded">
+                <span className="text-sm text-archive-muted font-light">
+                  Results for: <span className="text-archive-fg">{searchQuery}</span>
                 </span>
                 <button
                   onClick={handleClearSearch}
-                  className="text-zinc-500 hover:text-zinc-300 transition-colors"
+                  className="text-archive-muted hover:text-archive-fg transition-colors"
                   aria-label="Clear search"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -169,11 +174,11 @@ function SearchPageContent() {
 
         {/* Filter Bar */}
         <div className="mb-12 flex flex-wrap gap-4 items-center justify-center">
-          <div className="bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded">
+          <div className="bg-archive-surface border border-archive-border px-4 py-2 rounded">
             <select
               value={selectedEra}
               onChange={(e) => setSelectedEra(e.target.value as Era | "all")}
-              className="bg-transparent text-sm text-zinc-200 uppercase tracking-[0.1em] font-light focus:outline-none cursor-pointer"
+              className="bg-transparent text-sm text-archive-fg uppercase tracking-[0.1em] font-light focus:outline-none cursor-pointer"
             >
               <option value="all">All Eras</option>
               <option value="pre-1920">Pre-1920</option>
@@ -183,11 +188,11 @@ function SearchPageContent() {
             </select>
           </div>
           
-          <div className="bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded">
+          <div className="bg-archive-surface border border-archive-border px-4 py-2 rounded">
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value as GarmentType | "all")}
-              className="bg-transparent text-sm text-zinc-200 uppercase tracking-[0.1em] font-light focus:outline-none cursor-pointer"
+              className="bg-transparent text-sm text-archive-fg uppercase tracking-[0.1em] font-light focus:outline-none cursor-pointer"
             >
               <option value="all">All Types</option>
               <option value="dress">Dress</option>
@@ -213,8 +218,8 @@ function SearchPageContent() {
           </div>
 
           {(searchQuery || selectedEra !== "all" || selectedType !== "all") && (
-            <div className="bg-zinc-900/50 border border-zinc-600 px-4 py-2 rounded">
-              <span className="text-sm text-zinc-200 uppercase tracking-[0.1em] font-light">
+            <div className="bg-archive-surface border border-archive-border px-4 py-2 rounded">
+              <span className="text-sm text-archive-fg uppercase tracking-[0.1em] font-light">
                 {filteredResults.length} {filteredResults.length === 1 ? 'result' : 'results'}
               </span>
             </div>
@@ -224,42 +229,64 @@ function SearchPageContent() {
         {/* Results */}
         {loading ? (
           <div className="text-center py-20">
-            <p className="text-zinc-400 font-light">Searching...</p>
+            <p className="text-archive-muted font-light">Searching...</p>
           </div>
         ) : filteredResults.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
+          <div className="divide-y divide-archive-border/60">
             {filteredResults.map((garment) => (
               <Link
                 key={garment.id}
                 href={`/garments/${garment.slug}`}
-                className="group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300 hover:bg-zinc-900"
+                className="flex gap-4 items-center py-3 hover:bg-archive-surface transition-colors group"
               >
-                <GarmentImage garment={garment} />
-
-                {/* Card Content */}
-                <div className="p-6 space-y-3">
-                  <div>
-                    <h2 className="text-lg md:text-xl font-light tracking-tight mb-2 group-hover:text-zinc-200 transition-colors">
-                      {highlightMatch(
-                        garment.name || garment.label || garment.editorial_title || "Untitled",
-                        searchQuery
-                      )}
-                    </h2>
-                    <p className="text-sm text-zinc-400 font-light">
-                      {garment.decade || garment.date || ''} {garment.work_type ? `• ${garment.work_type}` : ''}
-                    </p>
-                  </div>
-                  
-                  {/* Description Excerpt with highlighting */}
-                  {(garment.tagline || garment.description || garment.aesthetic_description) && (
-                    <p className="text-xs md:text-sm text-zinc-500 font-light leading-relaxed line-clamp-2">
-                      {highlightMatch(
-                        getFirstLine(garment.tagline || garment.description || garment.aesthetic_description),
-                        searchQuery
-                      )}
-                    </p>
+                {/* Thumbnail */}
+                <div className="w-12 h-16 shrink-0 bg-archive-surface overflow-hidden">
+                  {(garment.thumbnailUrl || garment.imageUrl) ? (
+                    <img
+                      src={garment.thumbnailUrl || garment.imageUrl}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <svg className="w-4 h-4 text-archive-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
                   )}
                 </div>
+
+                {/* Title + accession */}
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm text-archive-fg font-light truncate">
+                    {highlightMatch(
+                      (garment as any).name || garment.label || garment.editorial_title || "Untitled",
+                      searchQuery
+                    )}
+                  </div>
+                  {garment.accessionNumber && (
+                    <div className="font-mono text-[10px] text-archive-muted mt-0.5">
+                      {garment.accessionNumber}
+                    </div>
+                  )}
+                </div>
+
+                {/* Era + type badges */}
+                <div className="hidden sm:flex gap-2 shrink-0">
+                  {garment.era && (
+                    <span className="text-[10px] uppercase tracking-widest border border-archive-border text-archive-muted px-2 py-0.5">
+                      {garment.era}
+                    </span>
+                  )}
+                  {garment.work_type && (
+                    <span className="text-[10px] uppercase tracking-widest border border-archive-border text-archive-muted px-2 py-0.5">
+                      {garment.work_type}
+                    </span>
+                  )}
+                </div>
+
+                {/* Arrow */}
+                <span className="text-archive-muted group-hover:text-archive-fg transition-colors text-sm shrink-0">→</span>
               </Link>
             ))}
           </div>
@@ -267,7 +294,7 @@ function SearchPageContent() {
           <EmptyState
             icon={Search}
             title="No results found"
-            description="No garments match your search. Try different keywords or clear filters."
+            description="No garments match your search. Try different keywords."
             actionLabel="Clear search"
             onAction={handleClearSearch}
           />
@@ -275,7 +302,7 @@ function SearchPageContent() {
           <EmptyState
             icon={FileQuestion}
             title="Search the collection"
-            description="Search by name, material, color, decade, description, or any other attribute."
+            description="Search by name, accession number, material, color, or decade."
             actionLabel="Browse collection"
             actionHref="/collection"
           />
@@ -291,7 +318,7 @@ export default function SearchPage() {
       <PageLayout>
         <div className="max-w-7xl mx-auto px-4 py-12 md:py-20">
           <div className="text-center">
-            <p className="text-zinc-400">Loading search...</p>
+            <p className="text-archive-muted">Loading search...</p>
           </div>
         </div>
       </PageLayout>
