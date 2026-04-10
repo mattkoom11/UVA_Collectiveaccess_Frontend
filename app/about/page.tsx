@@ -36,8 +36,15 @@ export default function AboutPage() {
             </div>
           </section>
 
+          {/* Ornament Divider */}
+          <div className="flex items-center justify-center gap-3 py-10 md:py-14">
+            <div className="h-px w-12 bg-archive-border" />
+            <div className="w-1 h-1 rounded-full bg-archive-border" />
+            <div className="h-px w-12 bg-archive-border" />
+          </div>
+
           {/* Historic Clothing Collection */}
-          <section className="space-y-4 border-t border-archive-border pt-8 md:pt-12">
+          <section className="space-y-4">
             <h2 className="text-2xl md:text-3xl font-light tracking-tight text-archive-fg">
               The Historic Clothing Collection
             </h2>
@@ -57,8 +64,15 @@ export default function AboutPage() {
             </div>
           </section>
 
+          {/* Ornament Divider */}
+          <div className="flex items-center justify-center gap-3 py-10 md:py-14">
+            <div className="h-px w-12 bg-archive-border" />
+            <div className="w-1 h-1 rounded-full bg-archive-border" />
+            <div className="h-px w-12 bg-archive-border" />
+          </div>
+
           {/* Photogrammetry and 3D Capture */}
-          <section className="space-y-4 border-t border-archive-border pt-8 md:pt-12">
+          <section className="space-y-4">
             <h2 className="text-2xl md:text-3xl font-light tracking-tight text-archive-fg">
               Photogrammetry and 3D Capture
             </h2>
@@ -82,8 +96,15 @@ export default function AboutPage() {
             </div>
           </section>
 
+          {/* Ornament Divider */}
+          <div className="flex items-center justify-center gap-3 py-10 md:py-14">
+            <div className="h-px w-12 bg-archive-border" />
+            <div className="w-1 h-1 rounded-full bg-archive-border" />
+            <div className="h-px w-12 bg-archive-border" />
+          </div>
+
           {/* Technology and Future */}
-          <section className="space-y-4 border-t border-archive-border pt-8 md:pt-12">
+          <section className="space-y-4">
             <h2 className="text-2xl md:text-3xl font-light tracking-tight text-archive-fg">
               Looking Forward
             </h2>
@@ -102,15 +123,21 @@ export default function AboutPage() {
             </div>
           </section>
 
+          {/* Ornament Divider */}
+          <div className="flex items-center justify-center gap-3 py-10 md:py-14">
+            <div className="h-px w-12 bg-archive-border" />
+            <div className="w-1 h-1 rounded-full bg-archive-border" />
+            <div className="h-px w-12 bg-archive-border" />
+          </div>
+
           {/* Contact/Additional Info */}
-          <section className="border-t border-archive-border pt-8 md:pt-12 mt-12">
-            <div className="text-sm text-archive-muted font-light space-y-2 leading-[1.7]">
-              <p>
-                For more information about the UVA Historic Clothing Collection, please contact the collection
-                curators through the University of Virginia&apos;s special collections department.
-              </p>
-            </div>
-          </section>
+          <aside className="bg-archive-surface border border-archive-border px-6 py-5">
+            <p className="text-xs uppercase tracking-[0.2em] text-archive-muted mb-3">Get in Touch</p>
+            <p className="text-sm text-archive-muted font-light leading-[1.7]">
+              For more information about the UVA Historic Clothing Collection, please contact the collection
+              curators through the University of Virginia&apos;s special collections department.
+            </p>
+          </aside>
         </div>
       </div>
     </PageLayout>
