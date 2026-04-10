@@ -132,12 +132,10 @@ export default function TimelineView({ garments }: TimelineViewProps) {
   // Get all unique decades/years for navigation
   const timelineMarkers = useMemo(() => {
     const markers: Array<{ label: string; era: string; count: number; key: string }> = [];
-    timelineData.forEach(({ era, key, count }) => {
-      const label = zoomLevel === "era" 
-        ? getEraLabel(era) 
-        : zoomLevel === "year" 
-        ? key.split('-')[1] 
-        : key.split('-')[1];
+    timelineData.forEach(({ era, key, timeValue, count }) => {
+      const label = zoomLevel === "era"
+        ? getEraLabel(era)
+        : String(timeValue || era);
       markers.push({ label, era, count, key });
     });
     return markers;
@@ -286,13 +284,13 @@ export default function TimelineView({ garments }: TimelineViewProps) {
 
       <div className="relative">
         {timelineData.map((group) => (
-          <section key={group.key} className="relative">
+          <section key={group.key} data-timeline-key={group.key} className="relative">
             <div
               className="sticky z-10 bg-archive-bg py-2 border-b border-archive-border mb-4"
               style={{ top: "var(--header-h, 73px)" }}
             >
               <h3 className="text-xs uppercase tracking-[0.2em] text-archive-muted">
-                {(zoomLevel !== "era" ? group.key.split('-')[1] : undefined) || group.era}
+                {group.timeValue || group.era}
               </h3>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-8">
