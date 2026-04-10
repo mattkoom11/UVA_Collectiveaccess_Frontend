@@ -65,7 +65,7 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
           {/* Background image overlay */}
           {garment.images && garment.images.length > 0 && (
             <div className="absolute inset-0 opacity-20">
-              <div className="w-full h-full bg-gradient-to-b from-zinc-950 via-zinc-950/80 to-zinc-950" />
+              <div className="w-full h-full bg-gradient-to-b from-archive-bg via-archive-bg/80 to-archive-bg" />
             </div>
           )}
           
@@ -73,7 +73,7 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
           <div className="relative z-10 max-w-6xl mx-auto px-4 py-20 text-center">
             {/* Category badge */}
             <div className="inline-block mb-8">
-              <span className="text-xs uppercase tracking-[0.3em] text-zinc-400 border border-zinc-700 px-6 py-2">
+              <span className="text-xs uppercase tracking-[0.3em] text-archive-muted border border-archive-border px-6 py-2">
                 {garment.work_type || "Garment"}
               </span>
             </div>
@@ -84,13 +84,13 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
             </h1>
             
             {/* Editorial subtitle - elegant tagline */}
-            <p className="text-lg md:text-xl text-zinc-300 font-light tracking-wide mb-6 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-archive-fg font-light tracking-wide mb-6 max-w-2xl mx-auto">
               {editorialSubtitle}
             </p>
             
             {/* Tagline - 1-2 sentence editorial hook */}
             {tagline && (
-              <p className="text-base md:text-lg text-zinc-400 font-light italic tracking-wide mb-12 max-w-xl mx-auto">
+              <p className="text-base md:text-lg text-archive-muted font-light italic tracking-wide mb-12 max-w-xl mx-auto">
                 {tagline}
               </p>
             )}
@@ -106,7 +106,7 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
               />
               <button
                 onClick={() => window.print()}
-                className="text-xs uppercase tracking-[0.2em] text-zinc-400 hover:text-zinc-200 transition-colors border border-zinc-700 px-4 py-2 hover:border-zinc-500 flex items-center gap-2 print-hide"
+                className="text-xs uppercase tracking-[0.2em] text-archive-muted hover:text-archive-fg transition-colors border border-archive-border px-4 py-2 hover:border-archive-border-hover flex items-center gap-2 print-hide"
                 aria-label="Print page"
               >
                 <Printer className="w-4 h-4" />
@@ -116,9 +116,9 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
             
             {/* Decorative divider */}
             <div className="flex items-center justify-center gap-4 mb-12 mt-12">
-              <div className="h-px w-16 bg-zinc-700" />
-              <div className="w-2 h-2 border border-zinc-700 rotate-45" />
-              <div className="h-px w-16 bg-zinc-700" />
+              <div className="h-px w-16 bg-archive-border" />
+              <div className="w-2 h-2 border border-archive-border rotate-45" />
+              <div className="h-px w-16 bg-archive-border" />
             </div>
           </div>
         </section>
