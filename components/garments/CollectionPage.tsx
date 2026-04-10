@@ -20,8 +20,9 @@ import { getFilterPresets, saveFilterPreset, deleteFilterPreset, getPresetURL, F
 import { getSavedSearches, saveSearch, deleteSavedSearch, getSavedSearchURL, updateSavedSearchLastUsed, SavedSearch } from "@/lib/savedSearches";
 import { getAnalytics } from "@/lib/analytics";
 import GarmentImage from "./GarmentImage";
+import GarmentCard from "./GarmentCard";
 
-const PAGE_SIZE = 24;
+const PAGE_SIZE = 36;
 
 type SortOption = "relevance" | "date-asc" | "date-desc" | "name-asc" | "name-desc" | "era-asc" | "era-desc";
 
@@ -144,6 +145,18 @@ export default function CollectionPage() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [selectMode, showPresets, showSavedSearches, showExportMenu]);
+
+  // Track header height for sticky chip strip
+  useEffect(() => {
+    const header = document.querySelector("header");
+    if (!header) return;
+    const update = () => {
+      document.documentElement.style.setProperty("--header-h", `${header.offsetHeight}px`);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
 
   // Combined search and filter (must be before any hook that references filteredGarments)
@@ -803,7 +816,10 @@ export default function CollectionPage() {
 
           {/* Active filter chip strip */}
           {activeFilterChips.length > 0 && (
-            <div className="flex flex-wrap gap-2 items-center pt-2">
+            <div
+              className="sticky z-20 -mx-4 px-4 py-2 bg-archive-bg border-b border-archive-border flex flex-wrap gap-2 items-center"
+              style={{ top: "var(--header-h, 73px)" }}
+            >
               {activeFilterChips.map((chip) => (
                 <button
                   key={chip.id}
@@ -1078,7 +1094,7 @@ export default function CollectionPage() {
         {/* Garment Cards Grid/List */}
         {isLoading ? (
           viewMode === "grid" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5 lg:gap-6">
               {Array.from({ length: 6 }).map((_, i) => (
                 <SkeletonCard key={i} />
               ))}
@@ -1088,17 +1104,32 @@ export default function CollectionPage() {
           )
         ) : filteredGarments.length > 0 ? (
           <>
-            <div className={viewMode === "grid" 
-              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10"
+            <div className={viewMode === "grid"
+              ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5 lg:gap-6"
               : "space-y-4"
             }>
               {paginatedGarments.map((garment) => (
+                viewMode === "grid" ? (
+                  <div key={garment.id} className="relative group">
+                    {selectMode && (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleSelect(garment.id); }}
+                        className="print-hide absolute top-2 left-2 z-20 flex items-center justify-center w-7 h-7 border border-archive-border bg-archive-bg/90 hover:border-archive-border-hover transition-colors"
+                        aria-label={selectedIds.includes(garment.id) ? "Deselect" : "Select"}
+                      >
+                        {selectedIds.includes(garment.id)
+                          ? <CheckSquare className="w-4 h-4 text-archive-fg" />
+                          : <Square className="w-4 h-4 text-archive-muted" />}
+                      </button>
+                    )}
+                    <FavoriteButton garmentId={garment.id} className="print-hide absolute top-2 right-2 z-20" />
+                    <GarmentCard garment={garment} variant="research" />
+                  </div>
+                ) : (
                   <div
                     key={garment.id}
-                    className={viewMode === "grid"
-                      ? "group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300 hover:bg-zinc-900 relative"
-                      : "group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300 hover:bg-zinc-900 relative flex gap-6"
-                    }
+                    className="group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300 hover:bg-zinc-900 relative flex gap-6"
                   >
                     {selectMode && (
                       <button
@@ -1125,16 +1156,16 @@ export default function CollectionPage() {
 
                     <Link
                       href={`/garments/${garment.slug}`}
-                      className={viewMode === "list" ? "flex-1 flex gap-6" : "block"}
+                      className="flex-1 flex gap-6"
                     >
                       <GarmentImage
                         garment={garment}
-                        aspectClass={viewMode === "grid" ? "aspect-[3/4]" : "h-48 w-48"}
-                        sizes={viewMode === "grid" ? "(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" : "192px"}
+                        aspectClass="h-48 w-48"
+                        sizes="192px"
                       />
 
                       {/* Card Content */}
-                      <div className={`p-6 space-y-3 ${viewMode === "list" ? "flex-1" : ""}`}>
+                      <div className="p-6 space-y-3 flex-1">
                         <div>
                           <h2 className="text-lg md:text-xl font-light tracking-tight mb-2 group-hover:text-zinc-200 transition-colors">
                             {garment.name || garment.label || garment.editorial_title}
@@ -1149,16 +1180,22 @@ export default function CollectionPage() {
                             </p>
                           )}
                         </div>
-                        
+
                         {/* Description Excerpt */}
                         {(garment.tagline || garment.description || garment.aesthetic_description) && (
-                          <p className={`text-xs md:text-sm text-zinc-500 font-light leading-relaxed ${viewMode === "grid" ? "line-clamp-2" : "line-clamp-3"}`}>
+                          <p className="text-xs md:text-sm text-zinc-500 font-light leading-relaxed line-clamp-3">
                             {getFirstLine(garment.tagline || garment.description || garment.aesthetic_description)}
                           </p>
                         )}
                       </div>
+                      {garment.accessionNumber && (
+                        <div className="hidden md:block font-mono text-xs text-archive-muted shrink-0 w-32 text-right self-center pr-4">
+                          {garment.accessionNumber}
+                        </div>
+                      )}
                     </Link>
                   </div>
+                )
               ))}
             </div>
 
