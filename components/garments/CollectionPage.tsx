@@ -539,6 +539,57 @@ export default function CollectionPage() {
           {/* Main content area */}
           <div className="flex-1 min-w-0">
 
+          {/* Active filter chip strip — visible on all breakpoints */}
+          {activeFilterChips.length > 0 && (
+            <div
+              className="sticky z-20 -mx-4 px-4 py-2 bg-archive-bg border-b border-archive-border flex flex-wrap gap-2 items-center"
+              style={{ top: "var(--header-h, 73px)" }}
+            >
+              {activeFilterChips.map((chip) => (
+                <button
+                  key={chip.id}
+                  onClick={chip.clear}
+                  aria-label={`Remove filter: ${chip.label}`}
+                  className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 transition-colors duration-150"
+                  style={{
+                    fontFamily: "var(--font-body), Georgia, serif",
+                    color: "#e8e4de",
+                    border: "1px solid #555",
+                    background: "#161512",
+                  }}
+                >
+                  {chip.label}
+                  <span style={{ color: "#888", fontSize: "10px" }} aria-hidden>×</span>
+                </button>
+              ))}
+              {activeFilterChips.length >= 2 && (
+                <button
+                  onClick={() => {
+                    setSelectedEra("all");
+                    setSelectedType("all");
+                    setSelectedColor("all");
+                    setSelectedMaterial("all");
+                    setSelectedDecade("all");
+                    setDateRange({});
+                  }}
+                  aria-label="Clear all active filters"
+                  className="text-xs transition-colors duration-150"
+                  style={{
+                    fontFamily: "var(--font-body), Georgia, serif",
+                    color: "var(--muted)",
+                    background: "transparent",
+                    border: "none",
+                    borderBottom: "1px solid #2a2a2a",
+                    padding: "2px 0",
+                    cursor: "pointer",
+                  }}
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+          )}
+
         {/* Filter and Sort Bar */}
         <div className="print-hide lg:hidden mb-12 space-y-4">
           {/* Main Filters */}
@@ -813,57 +864,6 @@ export default function CollectionPage() {
               </button>
             )}
           </div>
-
-          {/* Active filter chip strip */}
-          {activeFilterChips.length > 0 && (
-            <div
-              className="sticky z-20 -mx-4 px-4 py-2 bg-archive-bg border-b border-archive-border flex flex-wrap gap-2 items-center"
-              style={{ top: "var(--header-h, 73px)" }}
-            >
-              {activeFilterChips.map((chip) => (
-                <button
-                  key={chip.id}
-                  onClick={chip.clear}
-                  aria-label={`Remove filter: ${chip.label}`}
-                  className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 transition-colors duration-150"
-                  style={{
-                    fontFamily: "var(--font-body), Georgia, serif",
-                    color: "#e8e4de",
-                    border: "1px solid #555",
-                    background: "#161512",
-                  }}
-                >
-                  {chip.label}
-                  <span style={{ color: "#888", fontSize: "10px" }} aria-hidden>×</span>
-                </button>
-              ))}
-              {activeFilterChips.length >= 2 && (
-                <button
-                  onClick={() => {
-                    setSelectedEra("all");
-                    setSelectedType("all");
-                    setSelectedColor("all");
-                    setSelectedMaterial("all");
-                    setSelectedDecade("all");
-                    setDateRange({});
-                  }}
-                  aria-label="Clear all active filters"
-                  className="text-xs transition-colors duration-150"
-                  style={{
-                    fontFamily: "var(--font-body), Georgia, serif",
-                    color: "var(--muted)",
-                    background: "transparent",
-                    border: "none",
-                    borderBottom: "1px solid #2a2a2a",
-                    padding: "2px 0",
-                    cursor: "pointer",
-                  }}
-                >
-                  Clear all
-                </button>
-              )}
-            </div>
-          )}
 
           {/* Advanced Filters Panel */}
           {showAdvancedFilters && (
@@ -1174,11 +1174,6 @@ export default function CollectionPage() {
                             {garment.date || (garment.decade ? `c. ${garment.decade}` : 'Date unknown')}
                             {garment.work_type ? ` · ${garment.work_type}` : ''}
                           </p>
-                          {garment.accessionNumber && (
-                            <p className="text-xs text-zinc-600 font-light mt-0.5 tabular-nums">
-                              {garment.accessionNumber}
-                            </p>
-                          )}
                         </div>
 
                         {/* Description Excerpt */}
