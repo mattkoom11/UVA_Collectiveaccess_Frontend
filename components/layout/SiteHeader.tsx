@@ -31,6 +31,26 @@ export default function SiteHeader() {
     return () => { document.body.style.overflow = ""; };
   }, [mobileOpen]);
 
+  // Focus search bar when "/" is pressed (and no input is focused)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      const isInputFocused =
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable;
+      if (e.key === "/" && !isInputFocused) {
+        e.preventDefault();
+        const searchInput = document.querySelector<HTMLInputElement>(
+          'header input[type="text"]'
+        );
+        searchInput?.focus();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const isActive = (path: string) => {
     if (path === "/") return pathname === "/";
     return pathname?.startsWith(path);
@@ -78,7 +98,7 @@ export default function SiteHeader() {
 
         {/* Desktop search bar */}
         <div className="hidden md:block max-w-2xl">
-          <SearchBar variant="header" placeholder="Search by name, material, color, decade..." />
+          <SearchBar variant="header" placeholder="Search garments… (press / to focus)" />
         </div>
       </div>
 
@@ -101,7 +121,7 @@ export default function SiteHeader() {
 
           {/* Mobile search bar */}
           <div className="px-6 pt-2 pb-8">
-            <SearchBar variant="header" placeholder="Search by name, material, color, decade..." />
+            <SearchBar variant="header" placeholder="Search garments… (press / to focus)" />
           </div>
         </div>
       )}
