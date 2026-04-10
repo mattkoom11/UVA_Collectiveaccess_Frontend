@@ -3,6 +3,7 @@ import { Garment, Era, GarmentType, getEraFromDecade, getGarmentTypeFromWorkType
 import { syncGarmentsFromCA, isCAConfigured } from "@/lib/collectiveAccess";
 
 let caGarmentsCache: Garment[] | null = null;
+let hydrateInFlight: Promise<void> | null = null;
 
 function getCacheFilePath(): string {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -55,24 +56,33 @@ export async function hydrateGarmentsFromCA(): Promise<void> {
   if (!isCAConfigured()) return;
   if (caGarmentsCache != null) return;
 
-  // Try disk cache first — this has real dates/eras from the last admin sync
-  const disk = loadDiskCache();
-  if (disk) {
-    caGarmentsCache = disk;
-    return;
-  }
+  // If a hydration is already in progress, wait for it instead of firing a second one.
+  if (hydrateInFlight) return hydrateInFlight;
 
-  try {
-    console.log("[CA] Hydrating garments from CollectiveAccess...");
-    const raw = await syncGarmentsFromCA(0, true);
-    caGarmentsCache = raw.map((g) => ({
-      ...g,
-      images: Array.isArray(g.images) ? g.images : g.images ? [g.images] : [],
-    })) as Garment[];
-    console.log(`[CA] Hydrated ${caGarmentsCache.length} garments.`);
-  } catch (e) {
-    console.error("[CA] Hydrate failed, using static data:", e);
-  }
+  hydrateInFlight = (async () => {
+    // Try disk cache first — this has real dates/eras from the last admin sync
+    const disk = loadDiskCache();
+    if (disk) {
+      caGarmentsCache = disk;
+      return;
+    }
+
+    try {
+      console.log("[CA] Hydrating garments from CollectiveAccess...");
+      const raw = await syncGarmentsFromCA(0, true);
+      caGarmentsCache = raw.map((g) => ({
+        ...g,
+        images: Array.isArray(g.images) ? g.images : g.images ? [g.images] : [],
+      })) as Garment[];
+      console.log(`[CA] Hydrated ${caGarmentsCache.length} garments.`);
+    } catch (e) {
+      console.error("[CA] Hydrate failed, using static data:", e);
+    }
+  })().finally(() => {
+    hydrateInFlight = null;
+  });
+
+  return hydrateInFlight;
 }
 
 /** Used by server-only API (e.g. admin sync) to update cache after a CA sync. */

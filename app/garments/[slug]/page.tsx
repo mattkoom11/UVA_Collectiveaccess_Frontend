@@ -90,7 +90,7 @@ export default async function GarmentDetailPage({ params }: Props) {
               { "@type": "PropertyValue", name: "Type", value: garment.work_type || garment.type },
               { "@type": "PropertyValue", name: "Accession Number", value: garment.accessionNumber },
             ].filter(p => p.value),
-          }),
+          }).replace(/</g, "\\u003c").replace(/>/g, "\\u003e"),
         }}
       />
       <GarmentDetailWithTabs garment={garment} relatedGarments={relatedGarments} />

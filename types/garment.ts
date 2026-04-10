@@ -63,6 +63,7 @@ export interface Garment {
   modelUrl?: string; // GLTF/GLB URL (alias for model3d_url)
   thumbnailUrl?: string; // Thumbnail image URL
   relatedIds?: string[]; // IDs of related garments
+  storageLocation?: string; // Physical storage location in the archive
   
   // Helper method to get era from decade or year
   // This will be used to map existing data to new era format
@@ -162,7 +163,6 @@ export function getGarmentTypeFromWorkType(work_type?: string): GarmentType {
     'accessory': 'accessory',
     'notion': 'accessory',
     'ribbon': 'accessory',
-    'bustle support': 'undergarment',
     'garment': 'other',
     'pajama': 'undergarment',
     'swimsuit': 'swimwear',

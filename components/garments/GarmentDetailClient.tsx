@@ -434,13 +434,17 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
                       className="group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300"
                     >
                       <div className="relative w-full aspect-[3/4] bg-zinc-900 overflow-hidden">
-                        {related.thumbnailUrl || (related.images && related.images[0]) ? (
-                          <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-xs">
-                            <p>Thumbnail</p>
-                          </div>
+                        {(related.thumbnailUrl || (related.images && related.images[0])) ? (
+                          <Image
+                            src={related.thumbnailUrl || related.images[0]}
+                            alt={related.name || related.label || related.editorial_title || "Related garment"}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            sizes="(max-width: 768px) 50vw, 25vw"
+                          />
                         ) : (
                           <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-xs">
-                            <p>Image</p>
+                            <p>No image</p>
                           </div>
                         )}
                         <div className="absolute inset-0 bg-zinc-950/0 group-hover:bg-zinc-950/20 transition-colors duration-300" />

@@ -3,24 +3,24 @@
 import { useMemo } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { Garment } from "@/types/garment";
-import { getGarmentById } from "@/lib/garments";
 import Link from "next/link";
 import Image from "next/image";
 import { Heart, Trash2 } from "lucide-react";
 import EmptyState from "./EmptyState";
+import FavoriteButton from "./FavoriteButton";
 
 interface FavoritesPageClientProps {
   allGarments: Garment[];
 }
 
 export default function FavoritesPageClient({ allGarments }: FavoritesPageClientProps) {
-  const { favorites, removeFavorite, clearFavorites, isLoading } = useFavorites();
+  const { favorites, clearFavorites, isLoading } = useFavorites();
 
   const favoriteGarments = useMemo(() => {
     return favorites
-      .map((id) => getGarmentById(id))
+      .map((id) => allGarments.find((g) => g.id === id))
       .filter((g): g is Garment => g !== undefined);
-  }, [favorites]);
+  }, [favorites, allGarments]);
 
   if (isLoading) {
     return (
@@ -76,34 +76,23 @@ export default function FavoritesPageClient({ allGarments }: FavoritesPageClient
               >
                 {/* Remove from favorites button */}
                 <div className="absolute top-4 right-4 z-10">
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      removeFavorite(garment.id);
-                    }}
-                    className="p-2 rounded-full bg-black/60 backdrop-blur-sm border border-zinc-700 text-zinc-400 hover:text-red-400 hover:border-red-700/50 transition-all"
-                    aria-label="Remove from favorites"
-                  >
-                    <Heart className="w-4 h-4 fill-current" />
-                  </button>
+                  <FavoriteButton garmentId={garment.id} />
                 </div>
 
                 <Link href={`/garments/${garment.slug}`}>
                   {/* Card Image */}
                   <div className="relative w-full aspect-[3/4] bg-zinc-900 overflow-hidden">
-                    {garment.thumbnailUrl || (garment.images && garment.images[0]) ? (
-                      <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-sm">
-                        <div className="text-center">
-                          <p className="mb-2">Thumbnail</p>
-                          <p className="text-xs text-zinc-700">
-                            {garment.thumbnailUrl || garment.images[0]}
-                          </p>
-                        </div>
-                      </div>
+                    {(garment.thumbnailUrl || (garment.images && garment.images[0])) ? (
+                      <Image
+                        src={garment.thumbnailUrl || garment.images[0]}
+                        alt={garment.name || garment.label || garment.editorial_title || "Favorite garment"}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center text-zinc-600 text-sm">
-                        <p>Image Placeholder</p>
+                        <p>No image</p>
                       </div>
                     )}
                     <div className="absolute inset-0 bg-zinc-950/0 group-hover:bg-zinc-950/20 transition-colors duration-300" />

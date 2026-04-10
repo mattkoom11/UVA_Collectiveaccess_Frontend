@@ -21,8 +21,9 @@ export function parseAdvancedQuery(query: string): SearchQuery {
   if (fieldMatch) {
     const [, fieldName, value] = fieldMatch;
     const validFields: SearchField[] = ["title", "description", "materials", "colors", "decade", "era", "type"];
-    if (validFields.includes(fieldName as SearchField)) {
-      field = fieldName as SearchField;
+    const normalizedField = fieldName.toLowerCase();
+    if (validFields.includes(normalizedField as SearchField)) {
+      field = normalizedField as SearchField;
       query = value;
     }
   }
