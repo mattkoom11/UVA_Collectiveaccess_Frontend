@@ -7,7 +7,7 @@ import { Garment } from "@/types/garment";
 
 interface Props {
   garment: Garment;
-  variant?: "runway" | "grid";
+  variant?: "runway" | "grid" | "research";
 }
 
 function getImageSrc(garment: Garment): string | undefined {
@@ -73,10 +73,14 @@ export default function GarmentCard({ garment, variant = "grid" }: Props) {
           </div>
         )}
 
-        {/* Era label: inset ring + subtle fill (no side-stripe accent) */}
+        {/* Era label */}
         {eraBadge && (
           <div
-            className="absolute top-2.5 left-2.5 z-10 rounded-sm px-2 py-0.5 text-[10px] uppercase tracking-widest ring-1 ring-inset ring-archive-accent/35 bg-[color-mix(in_oklch,var(--background)_78%,transparent)] text-archive-fg"
+            className={`absolute top-2.5 left-2.5 z-10 rounded-sm px-2 py-0.5 text-[10px] uppercase tracking-widest ${
+              variant === "research"
+                ? "bg-black/70 text-white ring-1 ring-inset ring-white/20"
+                : "ring-1 ring-inset ring-archive-accent/35 bg-[color-mix(in_oklch,var(--background)_78%,transparent)] text-archive-fg"
+            }`}
             style={{ fontFamily: "var(--font-display), Georgia, serif", letterSpacing: "0.15em" }}
           >
             {eraBadge}
@@ -94,42 +98,38 @@ export default function GarmentCard({ garment, variant = "grid" }: Props) {
       )}
 
       {/* Card body */}
-      <div className="p-3 space-y-1.5">
-        {/* Type + accession row */}
-        <div className="flex items-center justify-between gap-2">
-          <div
-            className="text-[9px] uppercase text-archive-muted"
-            style={{
-              fontFamily: "var(--font-display), Georgia, serif",
-              letterSpacing: "0.25em",
-            }}
-          >
-            {garment.work_type || "Garment"}
-          </div>
-          {garment.accessionNumber && (
-            <div className="text-[9px] tabular-nums text-archive-muted opacity-60">
-              {garment.accessionNumber}
-            </div>
-          )}
+      <div className={`${variant === "research" ? "p-2.5" : "p-3"} space-y-1.5`}>
+        {/* Type row */}
+        <div
+          className="text-[9px] uppercase text-archive-muted"
+          style={{
+            fontFamily: "var(--font-display), Georgia, serif",
+            letterSpacing: "0.25em",
+          }}
+        >
+          {garment.work_type || "Garment"}
         </div>
 
         {/* Title */}
         <div
           className="text-lg leading-tight text-archive-fg"
-          style={{
-            fontFamily: "var(--font-display), Georgia, serif",
-          }}
+          style={{ fontFamily: "var(--font-display), Georgia, serif" }}
         >
           {garment.label}
         </div>
 
-        {/* Subtitle */}
-        {subtitle && (
+        {/* Accession number — research variant only */}
+        {variant === "research" && garment.accessionNumber && (
+          <div className="font-mono text-[10px] text-archive-muted">
+            {garment.accessionNumber}
+          </div>
+        )}
+
+        {/* Subtitle — non-research only */}
+        {variant !== "research" && subtitle && (
           <div
             className="text-sm italic text-archive-muted leading-relaxed"
-            style={{
-              fontFamily: "var(--font-body), Georgia, serif",
-            }}
+            style={{ fontFamily: "var(--font-body), Georgia, serif" }}
           >
             {subtitle}
           </div>
@@ -138,17 +138,23 @@ export default function GarmentCard({ garment, variant = "grid" }: Props) {
         {/* Material tags */}
         {materials.length > 0 && (
           <div className="flex flex-wrap gap-1 pt-0.5">
-            {materials.map((mat, i) => (
+            {(variant === "research" ? materials.slice(0, 2) : materials).map((mat, i) => (
               <span
                 key={i}
                 className="text-[11px] px-1.5 py-0.5 border border-archive-border text-archive-muted"
-                style={{
-                  fontFamily: "var(--font-body), Georgia, serif",
-                }}
+                style={{ fontFamily: "var(--font-body), Georgia, serif" }}
               >
                 {mat}
               </span>
             ))}
+            {variant === "research" && materials.length > 2 && (
+              <span
+                className="text-[11px] px-1.5 py-0.5 border border-archive-border text-archive-muted"
+                style={{ fontFamily: "var(--font-body), Georgia, serif" }}
+              >
+                +{materials.length - 2} more
+              </span>
+            )}
           </div>
         )}
       </div>
