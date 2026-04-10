@@ -237,12 +237,12 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
               </div>
 
               {/* Title */}
-              <h1
+              <p
                 className="text-2xl font-light text-archive-fg mb-1 leading-snug"
                 style={{ fontFamily: "var(--font-display), Georgia, serif" }}
               >
                 {editorialTitle}
-              </h1>
+              </p>
 
               {/* Accession number */}
               {garment.accessionNumber && (
@@ -254,7 +254,6 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
               {/* Metadata definition list */}
               <dl className="space-y-0 mb-8">
                 {[
-                  { label: "Accession No.", value: garment.accessionNumber },
                   { label: "Era", value: era },
                   { label: "Type", value: garment.work_type },
                   { label: "Date", value: garment.date },
@@ -262,9 +261,10 @@ export default function GarmentDetailClient({ garment, relatedGarments: initialR
                   { label: "Materials", value: Array.isArray(garment.materials) ? garment.materials.join(", ") : garment.materials },
                   { label: "Colors", value: garment.colors?.join(", ") },
                   { label: "Dimensions", value: garment.dimensions },
+                  { label: "Condition", value: garment.condition },
                   { label: "Provenance", value: garment.provenance },
                   { label: "Collection", value: garment.collection },
-                  { label: "Storage Location", value: (garment as any).storageLocation },
+                  { label: "Storage Location", value: garment.storageLocation },
                 ]
                   .filter(({ value }) => value)
                   .map(({ label, value }) => (
