@@ -11,6 +11,7 @@ import AccessibilityControls from "@/components/layout/AccessibilityControls";
 import PWAScript from "@/components/layout/PWAScript";
 import AnalyticsProvider from "@/components/layout/AnalyticsProvider";
 import ErrorBoundary from "@/components/garments/ErrorBoundary";
+import FadeIn from "@/components/layout/FadeIn";
 import { hydrateGarmentsFromCA } from "@/lib/garments";
 
 const dmSerifDisplay = DM_Serif_Display({
@@ -69,7 +70,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                   <Breadcrumbs />
                 </Suspense>
                 <main id="main-content" className="flex-1">
-                  {children}
+                  <FadeIn>{children}</FadeIn>
                 </main>
                 <SiteFooter />
                 <PWAInstallPrompt />
