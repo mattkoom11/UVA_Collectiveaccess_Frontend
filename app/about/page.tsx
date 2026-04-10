@@ -43,8 +43,8 @@ export default function AboutPage() {
             </h2>
             <div className="space-y-4 text-archive-muted font-light leading-[1.7]">
               <p>
-                The University of Virginia&apos;s Historic Clothing Collection preserves garments spanning over a century
-                of American fashion history. From elegant evening gowns of the 1920s to structured suits of the 1950s,
+                The University of Virginia&apos;s Historic Clothing Collection preserves garments spanning several centuries
+                of American and non-American fashion history. From elegant evening gowns of the 1920s to structured suits of the 1950s,
                 each piece represents a moment in time, capturing the evolving aesthetics, materials, and techniques
                 of fashion design.
               </p>
