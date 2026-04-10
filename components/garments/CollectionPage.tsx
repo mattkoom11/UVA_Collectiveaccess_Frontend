@@ -79,6 +79,9 @@ export default function CollectionPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [bulkMessage, setBulkMessage] = useState<string | null>(null);
+  const [selectedDecade, setSelectedDecade] = useState<string>(
+    searchParams.get("decade") || "all"
+  );
   const [currentPage, setCurrentPage] = useState(1);
 
   // Active filter chips — derived from current filter state
@@ -113,10 +116,11 @@ export default function CollectionPage() {
     if (searchQuery) params.set("q", searchQuery);
     if (sortBy !== "relevance") params.set("sort", sortBy);
     if (viewMode !== "grid") params.set("view", viewMode);
+    if (selectedDecade !== "all") params.set("decade", selectedDecade);
 
     const newUrl = params.toString() ? `/collection?${params.toString()}` : "/collection";
     router.replace(newUrl, { scroll: false });
-  }, [selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy, viewMode, router]);
+  }, [selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy, viewMode, selectedDecade, router]);
 
   // Escape exits select mode / closes dropdowns
   useEffect(() => {
@@ -164,6 +168,14 @@ export default function CollectionPage() {
       });
     }
 
+    // Apply decade filter
+    if (selectedDecade !== "all") {
+      results = results.filter(g => {
+        const dec = g.decade ? String(g.decade) : undefined;
+        return dec === selectedDecade || dec === selectedDecade.replace("s", "");
+      });
+    }
+
     // Apply sorting
     results = [...results].sort((a, b) => {
       switch (sortBy) {
@@ -197,12 +209,12 @@ export default function CollectionPage() {
     });
 
     return results;
-  }, [allGarments, selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy]);
+  }, [allGarments, selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy, selectedDecade]);
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy]);
+  }, [selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy, selectedDecade]);
 
   const totalPages = Math.max(1, Math.ceil(filteredGarments.length / PAGE_SIZE));
   const paginatedGarments = useMemo(
@@ -356,8 +368,157 @@ export default function CollectionPage() {
           />
         </div>
 
+        {/* Two-column layout: sidebar (lg+) + main */}
+        <div className="flex gap-8 items-start">
+          {/* Desktop filter sidebar — hidden below lg */}
+          <aside className="hidden lg:flex flex-col gap-5 w-56 shrink-0 pt-2">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-archive-muted mb-3">Filters</p>
+              {activeFilterChips.length > 0 && (
+                <button
+                  onClick={() => {
+                    setSelectedEra("all");
+                    setSelectedType("all");
+                    setSelectedColor("all");
+                    setSelectedMaterial("all");
+                    setDateRange({});
+                    setSelectedDecade("all");
+                  }}
+                  className="text-xs text-archive-muted hover:text-archive-fg transition-colors mb-4 underline underline-offset-2"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+
+            {/* Era — radio group */}
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-archive-muted mb-2">Era</p>
+              {(["all", "pre-1920", "1920-1950", "1950-1980", "1980+"] as const).map((era) => (
+                <label key={era} className="flex items-center gap-2 py-1 cursor-pointer group">
+                  <input
+                    type="radio"
+                    name="sidebar-era"
+                    value={era}
+                    checked={selectedEra === era}
+                    onChange={() => setSelectedEra(era as Era | "all")}
+                    className="accent-archive-fg"
+                  />
+                  <span className="text-xs text-archive-muted group-hover:text-archive-fg transition-colors capitalize">
+                    {era === "all" ? "All eras" : era}
+                  </span>
+                </label>
+              ))}
+            </div>
+
+            {/* Type — checkbox list */}
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-archive-muted mb-2">Type</p>
+              <div className="max-h-48 overflow-y-auto space-y-1 scrollbar-hide">
+                {(["dress","coat","jacket","suit","shirt-blouse","skirt","pants-trousers","outerwear","undergarment","headwear","footwear","accessory","jewelry","ensemble","swimwear","uniform","non-western","other"] as const).map((t) => (
+                  <label key={t} className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={selectedType === t}
+                      onChange={() => setSelectedType(selectedType === t ? "all" : t as GarmentType)}
+                      className="accent-archive-fg"
+                    />
+                    <span className="text-xs text-archive-muted group-hover:text-archive-fg transition-colors capitalize">
+                      {t.replace(/-/g, " ")}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Color — checkbox list */}
+            {availableColors.length > 0 && (
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-archive-muted mb-2">Color</p>
+                <div className="max-h-36 overflow-y-auto space-y-1 scrollbar-hide">
+                  {availableColors.map((color) => (
+                    <label key={color} className="flex items-center gap-2 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={selectedColor === color}
+                        onChange={() => setSelectedColor(selectedColor === color ? "all" : color)}
+                        className="accent-archive-fg"
+                      />
+                      <span className="text-xs text-archive-muted group-hover:text-archive-fg transition-colors capitalize">
+                        {color}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Material — checkbox list */}
+            {availableMaterials.length > 0 && (
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-archive-muted mb-2">Material</p>
+                <div className="max-h-36 overflow-y-auto space-y-1 scrollbar-hide">
+                  {availableMaterials.map((material) => (
+                    <label key={material} className="flex items-center gap-2 cursor-pointer group">
+                      <input
+                        type="checkbox"
+                        checked={selectedMaterial === material}
+                        onChange={() => setSelectedMaterial(selectedMaterial === material ? "all" : material)}
+                        className="accent-archive-fg"
+                      />
+                      <span className="text-xs text-archive-muted group-hover:text-archive-fg transition-colors capitalize">
+                        {material}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Date Range */}
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-archive-muted mb-2">Date Range</p>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  placeholder="From"
+                  value={dateRange.start || ""}
+                  onChange={(e) => setDateRange({ ...dateRange, start: e.target.value ? parseInt(e.target.value, 10) : undefined })}
+                  className="w-full bg-archive-surface border border-archive-border px-2 py-1.5 text-xs text-archive-fg focus:outline-none focus:border-archive-border-hover"
+                  min="1800" max="2100"
+                />
+                <input
+                  type="number"
+                  placeholder="To"
+                  value={dateRange.end || ""}
+                  onChange={(e) => setDateRange({ ...dateRange, end: e.target.value ? parseInt(e.target.value, 10) : undefined })}
+                  className="w-full bg-archive-surface border border-archive-border px-2 py-1.5 text-xs text-archive-fg focus:outline-none focus:border-archive-border-hover"
+                  min="1800" max="2100"
+                />
+              </div>
+            </div>
+
+            {/* Decade */}
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-archive-muted mb-2">Decade</p>
+              <select
+                value={selectedDecade}
+                onChange={(e) => setSelectedDecade(e.target.value)}
+                className="w-full bg-archive-surface border border-archive-border px-2 py-1.5 text-xs text-archive-fg focus:outline-none focus:border-archive-border-hover"
+              >
+                <option value="all">All decades</option>
+                {["1900s","1910s","1920s","1930s","1940s","1950s","1960s","1970s","1980s","1990s","2000s"].map(d => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+          </aside>
+
+          {/* Main content area */}
+          <div className="flex-1 min-w-0">
+
         {/* Filter and Sort Bar */}
-        <div className="print-hide mb-12 space-y-4">
+        <div className="print-hide lg:hidden mb-12 space-y-4">
           {/* Main Filters */}
           <div className="flex flex-wrap gap-4 items-center justify-center">
             <div className="bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded">
@@ -1056,6 +1217,8 @@ export default function CollectionPage() {
             }}
           />
         )}
+          </div>{/* end main content area */}
+        </div>{/* end two-column layout */}
       </div>
     </PageLayout>
   );
