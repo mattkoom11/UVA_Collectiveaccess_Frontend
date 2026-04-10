@@ -52,7 +52,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body className="bg-background text-foreground" style={{ fontFamily: "var(--font-body), Georgia, serif" }}>
-        <a href="#main-content" className="absolute -left-[9999px] top-4 z-[100] px-4 py-2 text-xs uppercase tracking-widest outline-none focus:left-4 focus:top-4 focus:ring-2" style={{ background: "#1e1e1e", color: "#f0ede8", fontFamily: "var(--font-display), Georgia, serif" }}>
+        <a
+          href="#main-content"
+          className="absolute -left-[9999px] top-4 z-[100] px-4 py-2 text-xs uppercase tracking-widest outline-none focus:left-4 focus:top-4 bg-archive-surface text-archive-fg border border-archive-border"
+          style={{ fontFamily: "var(--font-display), Georgia, serif" }}
+        >
           Skip to main content
         </a>
         <PWAScript />

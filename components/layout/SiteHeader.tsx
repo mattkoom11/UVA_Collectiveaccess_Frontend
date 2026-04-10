@@ -37,13 +37,13 @@ export default function SiteHeader() {
   };
 
   return (
-    <header className="border-b border-zinc-800 sticky top-0 bg-zinc-950/95 backdrop-blur-sm z-50">
+    <header className="border-b border-archive-border sticky top-0 z-50 bg-[color-mix(in_oklch,var(--background)_92%,transparent)] backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
         {/* Top row: Logo, Desktop Nav, and Mobile Toggle */}
         <div className="flex items-center justify-between mb-0 md:mb-4">
           <Link
             href="/"
-            className="text-sm md:text-base tracking-[0.25em] uppercase font-light text-zinc-100 hover:text-zinc-50 transition-colors"
+            className="text-sm md:text-base tracking-[0.25em] uppercase font-light text-archive-fg hover:opacity-90 transition-opacity"
           >
             UVA Fashion Archive
           </Link>
@@ -56,8 +56,8 @@ export default function SiteHeader() {
                 href={href}
                 className={`transition-colors ${
                   isActive(href)
-                    ? "text-zinc-50 border-b border-zinc-50 pb-1"
-                    : "text-zinc-200 hover:text-zinc-50"
+                    ? "text-archive-fg border-b border-archive-fg pb-1"
+                    : "text-archive-fg/85 hover:text-archive-fg"
                 }`}
               >
                 {label}
@@ -68,7 +68,7 @@ export default function SiteHeader() {
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileOpen((v) => !v)}
-            className="md:hidden p-2 -mr-2 text-zinc-300 hover:text-zinc-100 transition-colors"
+            className="md:hidden p-2 -mr-2 text-archive-muted hover:text-archive-fg transition-colors"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
           >
@@ -84,14 +84,14 @@ export default function SiteHeader() {
 
       {/* Mobile drawer */}
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 top-[57px] z-50 bg-zinc-950/98 backdrop-blur-md overflow-y-auto">
+        <div className="md:hidden fixed inset-0 top-[57px] z-50 bg-[color-mix(in_oklch,var(--background)_96%,transparent)] backdrop-blur-md overflow-y-auto">
           <nav className="flex flex-col px-6 py-6 gap-1">
             {NAV_LINKS.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
-                className={`py-3 text-base uppercase tracking-[0.2em] font-light border-b border-zinc-800/60 transition-colors ${
-                  isActive(href) ? "text-zinc-50" : "text-zinc-400 hover:text-zinc-200"
+                className={`py-3 text-base uppercase tracking-[0.2em] font-light border-b border-archive-border/60 transition-colors ${
+                  isActive(href) ? "text-archive-fg" : "text-archive-muted hover:text-archive-fg/90"
                 }`}
               >
                 {label}
