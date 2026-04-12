@@ -47,7 +47,7 @@ const nextConfig: NextConfig = {
     ];
   },
   experimental: {
-    optimizePackageImports: ['lucide-react', '@react-three/fiber', '@react-three/drei'],
+    optimizePackageImports: ['lucide-react'],
   },
 };
 
