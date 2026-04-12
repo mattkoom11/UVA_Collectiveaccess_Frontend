@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Garment, getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/garment";
 import Link from "next/link";
 import Image from "next/image";
 import Garment3DViewer from "./Garment3DViewer";
 import ImageGallery from "./ImageGallery";
 import { Share2, Download, ExternalLink, Printer, BookOpen } from "lucide-react";
-import { getEnhancedRelatedGarments } from "@/lib/relatedGarments";
-import { getAllGarments } from "@/lib/garments";
 import FavoriteButton from "./FavoriteButton";
 import CompareButton from "./CompareButton";
 import SocialShare from "./SocialShare";
@@ -20,20 +18,10 @@ interface GarmentDetailClientProps {
   relatedGarments: Garment[];
 }
 
-export default function GarmentDetailClient({ garment, relatedGarments: initialRelatedGarments }: GarmentDetailClientProps) {
+export default function GarmentDetailClient({ garment, relatedGarments }: GarmentDetailClientProps) {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<"images" | "3d">("images");
-
-  // Enhance related garments with algorithm-based recommendations
-  const allGarments = useMemo(() => getAllGarments(), []);
-  const relatedGarments = useMemo(() => {
-    if (initialRelatedGarments.length > 0) {
-      return initialRelatedGarments;
-    }
-    // If no explicit relations, use algorithm
-    return getEnhancedRelatedGarments(garment, allGarments, 4);
-  }, [garment, allGarments, initialRelatedGarments]);
 
   const editorialTitle = garment.editorial_title || garment.label;
   const editorialSubtitle = garment.editorial_subtitle || `${garment.work_type || "Garment"} · ${garment.decade || garment.date || ""}`;

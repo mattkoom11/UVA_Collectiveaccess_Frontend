@@ -6,7 +6,6 @@ import GarmentDetailClient from "./GarmentDetailClient";
 import Runway3D from "./Runway3D";
 import Backstage3D from "@/components/backstage/Backstage3D";
 import { ErrorBoundary } from "@/components/backstage/ErrorBoundary";
-import { getAllGarments } from "@/lib/garments";
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import PageLayout from "@/components/layout/PageLayout";
@@ -14,14 +13,14 @@ import PageLayout from "@/components/layout/PageLayout";
 interface GarmentDetailWithTabsProps {
   garment: Garment;
   relatedGarments: Garment[];
+  allGarments: Garment[];
 }
 
 type TabType = "detail" | "runway" | "backstage";
 
-export default function GarmentDetailWithTabs({ garment, relatedGarments }: GarmentDetailWithTabsProps) {
+export default function GarmentDetailWithTabs({ garment, relatedGarments, allGarments }: GarmentDetailWithTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("detail");
   const router = useRouter();
-  const allGarments = useMemo(() => getAllGarments(), []);
 
   const handleGarmentSelected = (garmentId: string) => {
     const selectedGarment = allGarments.find(g => g.id === garmentId);

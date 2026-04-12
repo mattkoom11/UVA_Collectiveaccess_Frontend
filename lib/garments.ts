@@ -70,8 +70,8 @@ export async function hydrateGarmentsFromCA(): Promise<void> {
     }
 
     try {
-      if (isDev) console.log("[CA] Hydrating garments from CollectiveAccess...");
-      const TIMEOUT_MS = 10_000;
+      console.log(`[CA] Hydrating garments from CollectiveAccess at ${process.env.CA_BASE_URL}...`);
+      const TIMEOUT_MS = 5_000;
       const timeout = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error(`CA hydration timed out after ${TIMEOUT_MS / 1000}s`)), TIMEOUT_MS)
       );
@@ -81,10 +81,10 @@ export async function hydrateGarmentsFromCA(): Promise<void> {
         images: Array.isArray(g.images) ? g.images : g.images ? [g.images] : [],
         materials: normalizeMaterials(g.materials),
       })) as Garment[];
-      if (isDev) console.log(`[CA] Hydrated ${caGarmentsCache.length} garments.`);
+      console.log(`[CA] Hydrated ${caGarmentsCache.length} garments successfully.`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      console.error(`[CA] Hydrate failed, using static data: ${msg}`);
+      console.error(`[CA] Hydrate failed, falling back to static data. Reason: ${msg}`);
     }
   })().finally(() => {
     hydrateInFlight = null;

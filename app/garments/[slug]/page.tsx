@@ -1,13 +1,11 @@
 import { notFound } from "next/navigation";
-import { getAllGarments, getGarmentBySlug, getGarmentById } from "@/lib/garments";
+import { hydrateGarmentsFromCA, getAllGarments, getGarmentBySlug } from "@/lib/garments";
 import { Garment } from "@/types/garment";
 import GarmentDetailWithTabs from "@/components/garments/GarmentDetailWithTabs";
+import { getEnhancedRelatedGarments } from "@/lib/relatedGarments";
 import { Metadata } from "next";
 
-export async function generateStaticParams() {
-  const garments = getAllGarments();
-  return garments.map((g) => ({ slug: g.slug }));
-}
+export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -15,6 +13,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  await hydrateGarmentsFromCA();
   const garment = getGarmentBySlug(slug);
 
   if (!garment) {
@@ -54,18 +53,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function GarmentDetailPage({ params }: Props) {
   const { slug } = await params;
+  await hydrateGarmentsFromCA();
   const garment = getGarmentBySlug(slug);
 
   if (!garment) {
     notFound();
   }
 
-  // Get related garments
-  const relatedGarments: Garment[] = garment.relatedIds
-    ? garment.relatedIds
-        .map(id => getGarmentById(id))
-        .filter((g): g is Garment => g !== undefined)
-    : [];
+  // Compute related garments server-side so client components get stable data
+  const allGarments = getAllGarments();
+  const relatedGarments: Garment[] = getEnhancedRelatedGarments(garment, allGarments, 4);
 
   return (
     <>
@@ -94,7 +91,7 @@ export default async function GarmentDetailPage({ params }: Props) {
           }).replace(/</g, "\\u003c").replace(/>/g, "\\u003e"),
         }}
       />
-      <GarmentDetailWithTabs garment={garment} relatedGarments={relatedGarments} />
+      <GarmentDetailWithTabs garment={garment} relatedGarments={relatedGarments} allGarments={allGarments} />
     </>
   );
 }

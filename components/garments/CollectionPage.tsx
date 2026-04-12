@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { filterGarments } from "@/lib/garmentFilters";
 import { Garment, Era, GarmentType } from "@/types/garment";
 import PageLayout from "@/components/layout/PageLayout";
@@ -26,39 +26,34 @@ const PAGE_SIZE = 36;
 
 type SortOption = "relevance" | "date-asc" | "date-desc" | "name-asc" | "name-desc" | "era-asc" | "era-desc";
 
-export default function CollectionPage({ garments: allGarments }: { garments: Garment[] }) {
-  const searchParams = useSearchParams();
+export default function CollectionPage({
+  garments: allGarments,
+  initialSearchParams: sp = {},
+}: {
+  garments: Garment[];
+  initialSearchParams?: Record<string, string | undefined>;
+}) {
   const router = useRouter();
   const isLoading = false;
-  
-  // Initialize state from URL params
+
+  // Initialize state from server-provided search params
   const [selectedEra, setSelectedEra] = useState<Era | "all">(
-    (searchParams.get("era") as Era | null) || "all"
+    (sp.era as Era | undefined) || "all"
   );
   const [selectedType, setSelectedType] = useState<GarmentType | "all">(
-    (searchParams.get("type") as GarmentType | null) || "all"
+    (sp.type as GarmentType | undefined) || "all"
   );
-  const [selectedColor, setSelectedColor] = useState<string>(
-    searchParams.get("color") || "all"
-  );
-  const [selectedMaterial, setSelectedMaterial] = useState<string>(
-    searchParams.get("material") || "all"
-  );
-  const [dateRange, setDateRange] = useState<{ start?: number; end?: number }>(() => {
-    const start = searchParams.get("dateStart");
-    const end = searchParams.get("dateEnd");
-    return {
-      start: start ? parseInt(start, 10) : undefined,
-      end: end ? parseInt(end, 10) : undefined,
-    };
-  });
-  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
-  const [sortBy, setSortBy] = useState<SortOption>(
-    (searchParams.get("sort") as SortOption) || "relevance"
-  );
+  const [selectedColor, setSelectedColor] = useState<string>(sp.color || "all");
+  const [selectedMaterial, setSelectedMaterial] = useState<string>(sp.material || "all");
+  const [dateRange, setDateRange] = useState<{ start?: number; end?: number }>(() => ({
+    start: sp.dateStart ? parseInt(sp.dateStart, 10) : undefined,
+    end: sp.dateEnd ? parseInt(sp.dateEnd, 10) : undefined,
+  }));
+  const [searchQuery, setSearchQuery] = useState(sp.q || "");
+  const [sortBy, setSortBy] = useState<SortOption>((sp.sort as SortOption) || "relevance");
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">(
-    (searchParams.get("view") as "grid" | "list") || "grid"
+    (sp.view as "grid" | "list") || "grid"
   );
   const [showPresets, setShowPresets] = useState(false);
   const [presetName, setPresetName] = useState("");
@@ -71,9 +66,7 @@ export default function CollectionPage({ garments: allGarments }: { garments: Ga
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [bulkMessage, setBulkMessage] = useState<string | null>(null);
-  const [selectedDecade, setSelectedDecade] = useState<string>(
-    searchParams.get("decade") || "all"
-  );
+  const [selectedDecade, setSelectedDecade] = useState<string>(sp.decade || "all");
   const [currentPage, setCurrentPage] = useState(1);
 
   // Active filter chips — derived from current filter state

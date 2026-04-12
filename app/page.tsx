@@ -1,9 +1,10 @@
 import HomePage from "@/components/home/HomePage";
-import { getAllGarments } from "@/lib/garments";
+import { hydrateGarmentsFromCA, getAllGarments } from "@/lib/garments";
 
 export const dynamic = "force-dynamic";
 
-export default function HomeRoute() {
+export default async function HomeRoute() {
+  await hydrateGarmentsFromCA();
   const garments = getAllGarments();
   return <HomePage garments={garments} />;
 }
