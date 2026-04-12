@@ -422,17 +422,33 @@ export function isCAConfigured(): boolean {
 /**
  * Fetch all CA objects by paginating through results.
  * CA's /find endpoint caps results per page, so we loop until exhausted.
+ * Deduplicates by object_id to guard against CA servers that ignore the
+ * `start` offset parameter (which would otherwise cause infinite duplication).
  */
 async function fetchAllObjects(client: CollectiveAccessClient): Promise<CAObject[]> {
   const PAGE_SIZE = 100;
+  const MAX_PAGES = 50; // safety cap — 5,000 objects max
+  const seen = new Set<string>();
   const all: CAObject[] = [];
   let start = 0;
-  while (true) {
+  let pages = 0;
+  while (pages < MAX_PAGES) {
     const page = await client.fetchObjects({ limit: PAGE_SIZE, start });
     if (!page.length) break;
-    all.push(...page);
+    let newItems = 0;
+    for (const obj of page) {
+      const id = String(obj.object_id ?? obj.id ?? "");
+      if (id && !seen.has(id)) {
+        seen.add(id);
+        all.push(obj);
+        newItems++;
+      }
+    }
+    // If no new unique items were returned, CA is repeating the same page — stop.
+    if (newItems === 0) break;
     if (page.length < PAGE_SIZE) break;
     start += PAGE_SIZE;
+    pages++;
   }
   return all;
 }
