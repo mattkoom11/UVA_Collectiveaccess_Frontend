@@ -7,7 +7,8 @@ import { getAllGarments, getGarmentById } from "@/lib/garments";
 import { Garment } from "@/types/garment";
 import { shows, getShowById, getGarmentsForShow } from "@/data/shows";
 import PageLayout from "@/components/layout/PageLayout";
-import Backstage3D from "@/components/backstage/Backstage3D";
+import dynamic from "next/dynamic";
+const Backstage3D = dynamic(() => import("@/components/backstage/Backstage3D"), { ssr: false });
 import { ErrorBoundary } from "@/components/backstage/ErrorBoundary";
 
 interface BackstagePageProps {

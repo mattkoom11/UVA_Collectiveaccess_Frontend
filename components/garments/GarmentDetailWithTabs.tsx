@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { Garment } from "@/types/garment";
 import GarmentDetailClient from "./GarmentDetailClient";
-import Runway3D from "./Runway3D";
-import Backstage3D from "@/components/backstage/Backstage3D";
+import dynamic from "next/dynamic";
 import { ErrorBoundary } from "@/components/backstage/ErrorBoundary";
-import { useMemo } from "react";
 import { useRouter } from "next/navigation";
+
+const Runway3D = dynamic(() => import("./Runway3D"), { ssr: false });
+const Backstage3D = dynamic(() => import("@/components/backstage/Backstage3D"), { ssr: false });
 import PageLayout from "@/components/layout/PageLayout";
 
 interface GarmentDetailWithTabsProps {
