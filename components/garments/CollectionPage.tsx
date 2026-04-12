@@ -26,19 +26,10 @@ const PAGE_SIZE = 36;
 
 type SortOption = "relevance" | "date-asc" | "date-desc" | "name-asc" | "name-desc" | "era-asc" | "era-desc";
 
-export default function CollectionPage() {
+export default function CollectionPage({ garments: allGarments }: { garments: Garment[] }) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [allGarments, setAllGarments] = useState<Garment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/garments")
-      .then((r) => r.json())
-      .then((data) => setAllGarments(Array.isArray(data) ? data : []))
-      .catch(() => setAllGarments([]))
-      .finally(() => setIsLoading(false));
-  }, []);
+  const isLoading = false;
   
   // Initialize state from URL params
   const [selectedEra, setSelectedEra] = useState<Era | "all">(
