@@ -1,0 +1,514 @@
+@import "tailwindcss";
+
+:root {
+  /* Warm neutrals (OKLCH) — hue tilted toward ivory/stone, not flat gray */
+  --background: oklch(0.142 0.007 72);
+  --foreground: oklch(0.948 0.006 82);
+  --accent: oklch(0.91 0.012 82);
+  --surface: oklch(0.168 0.008 72);
+  --surface-muted: oklch(0.195 0.008 72);
+  --footer-bg: oklch(0.118 0.006 72);
+  --border: oklch(0.28 0.012 72);
+  --border-hover: oklch(0.38 0.014 72);
+  --muted: oklch(0.55 0.018 75);
+  --muted-subtle: oklch(0.62 0.018 75);
+
+  /* 4pt-based rhythm (semantic names) */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.5rem;
+  --space-2xl: 2rem;
+  --space-3xl: 3rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+
+  --color-archive-bg: var(--background);
+  --color-archive-fg: var(--foreground);
+  --color-archive-accent: var(--accent);
+  --color-archive-surface: var(--surface);
+  --color-archive-surface-muted: var(--surface-muted);
+  --color-archive-footer: var(--footer-bg);
+  --color-archive-border: var(--border);
+  --color-archive-border-hover: var(--border-hover);
+  --color-archive-muted: var(--muted);
+  --color-archive-muted-subtle: var(--muted-subtle);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), Georgia, "Times New Roman", serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Slightly open leading for light text on dark (readability) */
+  line-height: 1.65;
+}
+
+/* Marketing / hero display — fluid size, clear hierarchy */
+.hero-display {
+  font-family: var(--font-display), Georgia, serif;
+  color: var(--foreground);
+  font-size: clamp(2.125rem, 4.5vw + 0.85rem, 3.75rem);
+  font-weight: 300;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+
+/* Long-form measure (~65–70ch) */
+.prose-measure {
+  max-width: min(100%, 70ch);
+}
+
+/* Hide scrollbar for horizontal scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes fadein {
+    from { opacity: 0; transform: none; }
+    to   { opacity: 1; transform: none; }
+  }
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-hover);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklch, var(--border-hover) 85%, var(--foreground));
+}
+
+/* Selection color */
+::selection {
+  background-color: var(--accent);
+  color: oklch(0.12 0.02 72);
+}
+
+::-moz-selection {
+  background-color: var(--accent);
+  color: oklch(0.12 0.02 72);
+}
+
+/* Animation utilities */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--surface) 0%,
+    var(--surface-muted) 50%,
+    var(--surface) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite linear;
+}
+
+.fade-in {
+  animation: fade-in 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.fade-up {
+  animation: fade-up 0.45s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+/* Mask image compatibility */
+.mask-image {
+  mask-image: var(--mask-image);
+  -webkit-mask-image: var(--mask-image);
+}
+
+.mask-mode {
+  mask-mode: var(--mask-mode);
+  -webkit-mask-mode: var(--mask-mode);
+}
+
+/* Print Styles */
+@media print {
+  @page {
+    margin: 0.75in;
+    size: letter;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  html,
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    line-height: 1.5;
+  }
+
+  /* Hide navigation and UI elements */
+  header,
+  nav,
+  footer,
+  button:not(.print-button),
+  .no-print,
+  .print-hide,
+  .site-header,
+  .site-footer,
+  .accessibility-controls,
+  .pwa-install-prompt,
+  .social-share,
+  .favorite-button,
+  .compare-button,
+  .image-gallery,
+  .garment-3d-viewer,
+  canvas {
+    display: none !important;
+  }
+
+  /* Show print-only content */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Typography */
+  h1 {
+    font-size: 24pt;
+    font-weight: bold;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    page-break-after: avoid;
+  }
+
+  h2 {
+    font-size: 18pt;
+    font-weight: bold;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    page-break-after: avoid;
+  }
+
+  h3 {
+    font-size: 14pt;
+    font-weight: bold;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    page-break-after: avoid;
+  }
+
+  p {
+    margin-bottom: 0.75em;
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Links */
+  a {
+    color: black;
+    text-decoration: underline;
+  }
+
+  a[href^="http"]:after {
+    content: " (" attr(href) ")";
+    font-size: 0.9em;
+    color: #666;
+    font-weight: normal;
+  }
+
+  a[href^="/"]:after {
+    content: " (https://example.com" attr(href) ")";
+    font-size: 0.9em;
+    color: #666;
+  }
+
+  /* Images */
+  img {
+    max-width: 100%;
+    height: auto;
+    page-break-inside: avoid;
+    display: block;
+    margin: 1em auto;
+  }
+
+  /* Tables */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+    page-break-inside: avoid;
+  }
+
+  th,
+  td {
+    border: 1px solid #ddd;
+    padding: 0.5em;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+  }
+
+  /* Lists */
+  ul,
+  ol {
+    margin: 0.75em 0;
+    padding-left: 2em;
+  }
+
+  li {
+    margin-bottom: 0.5em;
+  }
+
+  /* Page breaks */
+  .page-break {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  .avoid-break {
+    page-break-inside: avoid;
+  }
+
+  /* Garment detail specific */
+  .garment-metadata {
+    border-top: 2px solid #000;
+    border-bottom: 2px solid #000;
+    padding: 1em 0;
+    margin: 1em 0;
+  }
+
+  .garment-metadata dt {
+    font-weight: bold;
+    margin-top: 0.5em;
+  }
+
+  .garment-metadata dd {
+    margin-left: 1.5em;
+    margin-bottom: 0.5em;
+  }
+
+  /* Remove backgrounds and borders */
+  .bg-zinc-950,
+  .bg-zinc-900,
+  .bg-zinc-800,
+  .border-zinc-700,
+  .border-zinc-800,
+  .bg-archive-bg,
+  .bg-archive-surface,
+  .bg-archive-surface-muted,
+  .border-archive-border {
+    background: white !important;
+    border: 1px solid #ddd !important;
+  }
+
+  /* Text colors */
+  .text-zinc-400,
+  .text-zinc-500,
+  .text-zinc-300,
+  .text-archive-muted,
+  .text-archive-muted-subtle {
+    color: #333 !important;
+  }
+
+  /* Spacing */
+  .mb-12,
+  .mb-16,
+  .mb-20 {
+    margin-bottom: 1em !important;
+  }
+
+  .mt-12,
+  .mt-16,
+  .mt-20 {
+    margin-top: 1em !important;
+  }
+
+  /* Print header/footer */
+  @page {
+    @top-center {
+      content: "UVA Historic Fashion Archive";
+      font-size: 10pt;
+      color: #666;
+    }
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 10pt;
+      color: #666;
+    }
+  }
+}
+
+/* Accessibility: High Contrast Mode */
+.high-contrast {
+  --background: oklch(0 0 0);
+  --foreground: oklch(0.99 0 0);
+  --accent: oklch(0.98 0 0);
+  --surface: oklch(0.12 0 0);
+  --surface-muted: oklch(0.18 0 0);
+  --footer-bg: oklch(0 0 0);
+  --border: oklch(0.38 0 0);
+  --border-hover: oklch(0.55 0 0);
+  --muted: oklch(0.78 0 0);
+  --muted-subtle: oklch(0.88 0 0);
+}
+
+.high-contrast body {
+  background: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+.high-contrast .bg-zinc-950,
+.high-contrast .bg-zinc-900,
+.high-contrast .bg-archive-bg,
+.high-contrast .bg-archive-surface {
+  background: var(--background) !important;
+}
+
+.high-contrast .bg-zinc-800,
+.high-contrast .bg-archive-surface-muted {
+  background: var(--surface-muted) !important;
+}
+
+.high-contrast .text-zinc-400,
+.high-contrast .text-zinc-500,
+.high-contrast .text-archive-muted,
+.high-contrast .text-archive-muted-subtle {
+  color: var(--muted) !important;
+}
+
+.high-contrast .border-zinc-700,
+.high-contrast .border-zinc-800,
+.high-contrast .border-archive-border {
+  border-color: var(--foreground) !important;
+}
+
+/* Accessibility: Font Size Options */
+.font-normal {
+  font-size: 100%;
+}
+
+.font-large {
+  font-size: 120%;
+}
+
+.font-large h1 { font-size: 1.2em; }
+.font-large h2 { font-size: 1.15em; }
+.font-large h3 { font-size: 1.1em; }
+.font-large p, .font-large span { font-size: 1.05em; }
+
+.font-xlarge {
+  font-size: 150%;
+}
+
+.font-xlarge h1 { font-size: 1.5em; }
+.font-xlarge h2 { font-size: 1.4em; }
+.font-xlarge h3 { font-size: 1.3em; }
+.font-xlarge p, .font-xlarge span { font-size: 1.2em; }
+
+/* Focus indicators — align with archive accent, not generic blue */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.high-contrast *:focus-visible {
+  outline: 3px solid var(--foreground);
+  outline-offset: 3px;
+}
+
+/* Button component variants */
+.btn-primary {
+  background: var(--accent);
+  color: oklch(0.12 0.02 72);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 9px 20px;
+  border: none;
+  cursor: pointer;
+  display: inline-block;
+  transition: background 0.15s cubic-bezier(0.33, 1, 0.68, 1);
+}
+.btn-primary:hover { background: var(--foreground); }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 9px 20px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  display: inline-block;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.btn-secondary:hover { border-color: var(--border-hover); color: color-mix(in oklch, var(--foreground) 75%, var(--muted)); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  padding: 6px 0;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  display: inline-block;
+  transition: color 0.15s ease;
+}
+.btn-ghost:hover { color: color-mix(in oklch, var(--foreground) 70%, var(--muted)); }

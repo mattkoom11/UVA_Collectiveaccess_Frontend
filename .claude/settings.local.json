@@ -5,7 +5,7 @@
       "Bash(curl -s http://localhost:64733)",
       "Bash(netstat -ano)",
       "Bash(curl -s http://localhost:58471)",
-      "Bash(npx --prefix uvafashion-frontend tsc --noEmit)",
+      "Bash(npx tsc --noEmit)",
       "Bash(npx tsc:*)",
       "Bash(curl -s http://localhost:3000)"
     ]
