@@ -335,11 +335,7 @@ export default function CollectionPage() {
   const availableMaterials = useMemo(() => {
     const materials = new Set<string>();
     allGarments.forEach(g => {
-      if (Array.isArray(g.materials)) {
-        g.materials.forEach(m => materials.add(m.toLowerCase()));
-      } else if (g.materials) {
-        materials.add(g.materials.toLowerCase());
-      }
+      g.materials?.forEach(m => materials.add(m.toLowerCase()));
     });
     return Array.from(materials).sort();
   }, [allGarments]);

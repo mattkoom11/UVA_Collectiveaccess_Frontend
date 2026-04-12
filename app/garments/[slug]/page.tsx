@@ -26,7 +26,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = garment.editorial_title || garment.name || garment.label || "Garment";
   const description = garment.tagline || garment.description || garment.aesthetic_description || `Historic garment from the UVA Fashion Archive${garment.decade ? ` (${garment.decade})` : ""}`;
   const image = garment.thumbnailUrl || garment.imageUrl || (garment.images && garment.images[0]) || "";
-  const url = `https://uvafashionarchive.com/garments/${slug}`;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://uvafashionarchive.com";
+  const url = `${baseUrl}/garments/${slug}`;
 
   return {
     title: `${title} | UVA Fashion Archive`,

@@ -35,7 +35,7 @@ export interface Garment {
   work_type?: string;
   type?: GarmentType; // New: garment type from prompt
   colors?: string[];
-  materials?: string | string[]; // Support both string and array for backward compatibility
+  materials?: string[];
   function?: string[];
   gender?: string;
   age?: string;
@@ -93,6 +93,13 @@ export function getEraFromDecade(decade?: string, yearApprox?: number, date?: st
   if (year < 1950) return '1920-1950';
   if (year < 1980) return '1950-1980';
   return '1980+';
+}
+
+/** Normalize the materials field to always be string[]. */
+export function normalizeMaterials(materials: string | string[] | undefined): string[] {
+  if (!materials) return [];
+  if (Array.isArray(materials)) return materials;
+  return [materials];
 }
 
 // Helper function to convert CA type label to GarmentType

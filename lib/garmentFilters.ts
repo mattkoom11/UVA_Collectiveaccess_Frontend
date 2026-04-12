@@ -21,9 +21,7 @@ export function filterGarments(
       return false;
 
     if (filters.material) {
-      const garmentMaterials = Array.isArray(g.materials)
-        ? g.materials.map((m) => m.toLowerCase())
-        : g.materials ? [g.materials.toLowerCase()] : [];
+      const garmentMaterials = (g.materials ?? []).map((m) => m.toLowerCase());
       if (!garmentMaterials.includes(filters.material.toLowerCase())) return false;
     }
 

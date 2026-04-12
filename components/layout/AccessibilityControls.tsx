@@ -7,19 +7,9 @@ export default function AccessibilityControls() {
   const [highContrast, setHighContrast] = useState(false);
   const [fontSize, setFontSize] = useState<"normal" | "large" | "xlarge">("normal");
 
-  useEffect(() => {
-    // Load preferences from localStorage
-    const savedContrast = localStorage.getItem("high-contrast") === "true";
-    const savedFontSize = (localStorage.getItem("font-size") || "normal") as typeof fontSize;
-    
-    setHighContrast(savedContrast);
-    setFontSize(savedFontSize);
-    applyAccessibilitySettings(savedContrast, savedFontSize);
-  }, []);
-
   const applyAccessibilitySettings = (contrast: boolean, size: typeof fontSize) => {
     const root = document.documentElement;
-    
+
     if (contrast) {
       root.classList.add("high-contrast");
     } else {
@@ -29,6 +19,16 @@ export default function AccessibilityControls() {
     root.classList.remove("font-normal", "font-large", "font-xlarge");
     root.classList.add(`font-${size}`);
   };
+
+  useEffect(() => {
+    const savedContrast = localStorage.getItem("high-contrast") === "true";
+    const savedFontSize = (localStorage.getItem("font-size") || "normal") as typeof fontSize;
+
+    setHighContrast(savedContrast);
+    setFontSize(savedFontSize);
+    applyAccessibilitySettings(savedContrast, savedFontSize);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const toggleHighContrast = () => {
     const newValue = !highContrast;

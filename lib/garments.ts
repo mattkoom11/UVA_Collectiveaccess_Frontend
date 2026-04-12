@@ -1,5 +1,5 @@
 import garmentsData from "@/data/garments.json";
-import { Garment, Era, GarmentType, getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/garment";
+import { Garment, Era, GarmentType, getEraFromDecade, getGarmentTypeFromWorkType, normalizeMaterials } from "@/types/garment";
 import { syncGarmentsFromCA, isCAConfigured } from "@/lib/collectiveAccess";
 
 let caGarmentsCache: Garment[] | null = null;
@@ -11,6 +11,8 @@ function getCacheFilePath(): string {
   return path.join(process.cwd(), "data", "ca-garments-cache.json");
 }
 
+const isDev = process.env.NODE_ENV !== "production";
+
 function loadDiskCache(): Garment[] | null {
   if (typeof window !== "undefined") return null;
   try {
@@ -21,12 +23,12 @@ function loadDiskCache(): Garment[] | null {
       const raw = fs.readFileSync(cacheFile, "utf-8");
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        console.log(`[CA] Loaded ${parsed.length} garments from disk cache.`);
+        if (isDev) console.log(`[CA] Loaded ${parsed.length} garments from disk cache.`);
         return parsed as Garment[];
       }
     }
   } catch (e) {
-    console.warn("[CA] Could not read disk cache:", e);
+    if (isDev) console.warn("[CA] Could not read disk cache:", e);
   }
   return null;
 }
@@ -41,9 +43,9 @@ function saveDiskCache(garments: Garment[]): void {
     const cacheFile = getCacheFilePath();
     fs.mkdirSync(path.dirname(cacheFile), { recursive: true });
     fs.writeFileSync(cacheFile, JSON.stringify(garments), "utf-8");
-    console.log(`[CA] Saved ${garments.length} garments to disk cache.`);
+    if (isDev) console.log(`[CA] Saved ${garments.length} garments to disk cache.`);
   } catch (e) {
-    console.warn("[CA] Could not write disk cache:", e);
+    if (isDev) console.warn("[CA] Could not write disk cache:", e);
   }
 }
 
@@ -68,15 +70,21 @@ export async function hydrateGarmentsFromCA(): Promise<void> {
     }
 
     try {
-      console.log("[CA] Hydrating garments from CollectiveAccess...");
-      const raw = await syncGarmentsFromCA(0, true);
+      if (isDev) console.log("[CA] Hydrating garments from CollectiveAccess...");
+      const TIMEOUT_MS = 10_000;
+      const timeout = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error(`CA hydration timed out after ${TIMEOUT_MS / 1000}s`)), TIMEOUT_MS)
+      );
+      const raw = await Promise.race([syncGarmentsFromCA(0, true), timeout]);
       caGarmentsCache = raw.map((g) => ({
         ...g,
         images: Array.isArray(g.images) ? g.images : g.images ? [g.images] : [],
+        materials: normalizeMaterials(g.materials),
       })) as Garment[];
-      console.log(`[CA] Hydrated ${caGarmentsCache.length} garments.`);
+      if (isDev) console.log(`[CA] Hydrated ${caGarmentsCache.length} garments.`);
     } catch (e) {
-      console.error("[CA] Hydrate failed, using static data:", e);
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error(`[CA] Hydrate failed, using static data: ${msg}`);
     }
   })().finally(() => {
     hydrateInFlight = null;
@@ -87,15 +95,21 @@ export async function hydrateGarmentsFromCA(): Promise<void> {
 
 /** Used by server-only API (e.g. admin sync) to update cache after a CA sync. */
 export function setCAGarmentsCache(garments: Garment[] | null): void {
-  caGarmentsCache = garments;
-  if (garments) saveDiskCache(garments);
+  caGarmentsCache = garments
+    ? garments.map((g) => ({ ...g, materials: normalizeMaterials(g.materials) }))
+    : null;
+  if (caGarmentsCache) saveDiskCache(caGarmentsCache);
 }
 
 export function getAllGarments(): Garment[] {
   if (isCAConfigured() && caGarmentsCache != null) {
     return caGarmentsCache;
   }
-  return garmentsData as Garment[];
+  // Normalize static JSON data on the way out so consumers always get string[]
+  return (garmentsData as Garment[]).map((g) => ({
+    ...g,
+    materials: normalizeMaterials(g.materials),
+  }));
 }
 
 export function getGarmentBySlug(slug: string): Garment | undefined {
@@ -130,9 +144,7 @@ export function filterGarments(
     
     // Material filter
     if (filters.material) {
-      const garmentMaterials = Array.isArray(g.materials) 
-        ? g.materials.map(m => m.toLowerCase())
-        : g.materials ? [g.materials.toLowerCase()] : [];
+      const garmentMaterials = (g.materials ?? []).map(m => m.toLowerCase());
       if (!garmentMaterials.includes(filters.material.toLowerCase())) return false;
     }
     
@@ -190,7 +202,7 @@ export function searchGarments(
       g.gender,
       g.age,
       g.condition,
-      Array.isArray(g.materials) ? g.materials.join(" ") : g.materials,
+      g.materials?.join(" "),
       g.colors?.join(" "),
     ];
 

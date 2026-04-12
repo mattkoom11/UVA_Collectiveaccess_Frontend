@@ -38,12 +38,8 @@ function calculateSimilarity(garment1: Garment, garment2: Garment): number {
 
   // Material similarity (weight: 0.15)
   maxScore += 0.15;
-  const materials1 = Array.isArray(garment1.materials) 
-    ? garment1.materials.map(m => m.toLowerCase())
-    : garment1.materials ? [garment1.materials.toLowerCase()] : [];
-  const materials2 = Array.isArray(garment2.materials)
-    ? garment2.materials.map(m => m.toLowerCase())
-    : garment2.materials ? [garment2.materials.toLowerCase()] : [];
+  const materials1 = (garment1.materials ?? []).map(m => m.toLowerCase());
+  const materials2 = (garment2.materials ?? []).map(m => m.toLowerCase());
   if (materials1.length > 0 && materials2.length > 0) {
     const materials1Set = new Set(materials1);
     const materials2Set = new Set(materials2);

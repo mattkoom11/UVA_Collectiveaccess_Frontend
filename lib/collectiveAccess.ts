@@ -54,8 +54,9 @@ class CollectiveAccessClient {
   }
 
   private async getSessionCookie(): Promise<string> {
-    const origin = new URL(this.config.baseUrl).origin;
-    const loginPageUrl = `${origin}/index.php/LoginReg/loginForm`;
+    // Use baseUrl (not just origin) so CA installed in a subdirectory works correctly,
+    // e.g. https://host/providence/index.php/... not https://host/index.php/...
+    const loginPageUrl = `${this.config.baseUrl}/index.php/LoginReg/loginForm`;
 
     // Step 1: GET login form to grab session cookie + CSRF token
     const pageRes = await fetch(loginPageUrl, { redirect: 'follow' });
@@ -69,7 +70,7 @@ class CollectiveAccessClient {
     const formTimestamp = pageHtml.match(/name=.form_timestamp.\s+value=.([^'"]+)/)?.[1] ?? '';
 
     // Step 2: POST credentials
-    const doLoginUrl = `${origin}/index.php/system/Auth/DoLogin`;
+    const doLoginUrl = `${this.config.baseUrl}/index.php/system/Auth/DoLogin`;
     const body = new URLSearchParams({
       _formName: 'login', form_timestamp: formTimestamp, csrfToken,
       username: this.config.username, password: this.config.password,
