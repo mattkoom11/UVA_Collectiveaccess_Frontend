@@ -1,21 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Garment } from "@/types/garment";
 
-export default function HomePage() {
-  const [garments, setGarments] = useState<Garment[]>([]);
-
-  useEffect(() => {
-    fetch("/api/garments")
-      .then((r) => r.json())
-      .then((data) => setGarments(Array.isArray(data) ? data : []))
-      .catch(() => {});
-  }, []);
-
+export default function HomePage({ garments }: { garments: Garment[] }) {
   const total = garments.length;
   const types = [...new Set(garments.map((g) => g.work_type).filter(Boolean))];
   const eras = [...new Set(garments.map((g) => g.era).filter(Boolean))];

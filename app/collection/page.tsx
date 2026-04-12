@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import CollectionPage from "@/components/garments/CollectionPage";
 import { getAllGarments } from "@/lib/garments";
 
+export const dynamic = "force-dynamic";
+
 export default function CollectionRoute() {
   const garments = getAllGarments();
   return (
