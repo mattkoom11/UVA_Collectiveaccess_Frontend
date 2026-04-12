@@ -32,7 +32,7 @@ function AdminDashboard() {
     setIsSyncing(true);
     setSyncStatus("Syncing from CollectiveAccess...");
     try {
-      const res = await fetch("/api/admin/sync", { method: "POST" });
+      const res = await fetch("/api/admin/sync", { method: "POST", credentials: "same-origin" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Sync failed");
       setSyncStatus(`Synced ${data.count ?? 0} garments. Refresh the page to see updated counts.`);

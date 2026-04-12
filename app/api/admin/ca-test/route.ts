@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyAdminSession } from "@/lib/adminAuth";
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "uva-fashion-admin";
 const CA_BASE = (process.env.CA_BASE_URL ?? "http://localhost/ca").replace(/\/$/, "");
 const CA_ROOT = new URL(CA_BASE).origin; // e.g. http://localhost
 const CA_USER = process.env.CA_USERNAME ?? "administrator";
@@ -96,8 +96,7 @@ async function caFetchObjects(authToken: string, cookie: string): Promise<any> {
 }
 
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get("x-admin-password");
-  if (authHeader !== ADMIN_PASSWORD) {
+  if (!verifyAdminSession(req)) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 

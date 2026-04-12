@@ -2,13 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { syncGarmentsFromCA } from "@/lib/collectiveAccess";
 import { setCAGarmentsCache } from "@/lib/garments";
 import { Garment } from "@/types/garment";
-
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "uva-fashion-admin";
+import { verifyAdminSession } from "@/lib/adminAuth";
 
 export async function POST(req: NextRequest) {
-  // Simple authorization check via header or body
-  const authHeader = req.headers.get("x-admin-password");
-  if (authHeader !== ADMIN_PASSWORD) {
+  if (!verifyAdminSession(req)) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 

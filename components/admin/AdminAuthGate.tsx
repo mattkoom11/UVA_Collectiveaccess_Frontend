@@ -3,40 +3,28 @@
 import { useState, useEffect, ReactNode } from "react";
 import { Lock } from "lucide-react";
 
-const STORAGE_KEY = "uva-admin-authed";
-const SESSION_DURATION = 4 * 60 * 60 * 1000; // 4 hours
-
 interface AdminAuthGateProps {
   children: ReactNode;
+  /** Called when the user signs out, so the parent can reset state if needed. */
+  onSignOut?: () => void;
 }
 
-export default function AdminAuthGate({ children }: AdminAuthGateProps) {
+export default function AdminAuthGate({ children, onSignOut }: AdminAuthGateProps) {
   const [authed, setAuthed] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [checking, setChecking] = useState(true);
 
+  // On mount, ask the server whether the session cookie is still valid.
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const { ts } = JSON.parse(stored);
-        if (Date.now() - ts < SESSION_DURATION) {
-          setAuthed(true);
-        } else {
-          localStorage.removeItem(STORAGE_KEY);
-        }
-      }
-    } catch {
-      // ignore
-    }
-    setChecking(false);
+    fetch("/api/admin/auth")
+      .then((r) => r.ok && setAuthed(true))
+      .finally(() => setChecking(false));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
     try {
       const res = await fetch("/api/admin/auth", {
         method: "POST",
@@ -44,7 +32,7 @@ export default function AdminAuthGate({ children }: AdminAuthGateProps) {
         body: JSON.stringify({ password }),
       });
       if (res.ok) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ts: Date.now() }));
+        setPassword("");
         setAuthed(true);
       } else {
         setError("Invalid password");
@@ -52,6 +40,12 @@ export default function AdminAuthGate({ children }: AdminAuthGateProps) {
     } catch {
       setError("Could not verify. Try again.");
     }
+  };
+
+  const handleSignOut = async () => {
+    await fetch("/api/admin/auth", { method: "DELETE" });
+    setAuthed(false);
+    onSignOut?.();
   };
 
   if (checking) {
@@ -62,7 +56,22 @@ export default function AdminAuthGate({ children }: AdminAuthGateProps) {
     );
   }
 
-  if (authed) return <>{children}</>;
+  if (authed) {
+    return (
+      <>
+        {/* Sign-out bar */}
+        <div className="fixed top-0 right-0 z-50 p-3">
+          <button
+            onClick={handleSignOut}
+            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded"
+          >
+            Sign out
+          </button>
+        </div>
+        {children}
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center px-4">

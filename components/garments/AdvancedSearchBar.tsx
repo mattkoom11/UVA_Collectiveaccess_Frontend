@@ -9,7 +9,7 @@ interface AdvancedSearchBarProps {
   placeholder?: string;
   variant?: "header" | "full";
   showAdvanced?: boolean;
-  inputRef?: React.RefObject<HTMLInputElement>;
+  inputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
 export default function AdvancedSearchBar({
@@ -59,11 +59,6 @@ export default function AdvancedSearchBar({
   const handleHistoryClick = (historyQuery: string) => {
     setQuery(historyQuery);
     handleSearch(historyQuery);
-  };
-
-  const getFieldPrefix = () => {
-    if (field === "all") return "";
-    return `${field}:`;
   };
 
   const baseClasses = variant === "header" 
