@@ -8,8 +8,9 @@ import { Garment } from "@/types/garment";
 import { shows, getShowById, getGarmentsForShow } from "@/data/shows";
 import PageLayout from "@/components/layout/PageLayout";
 import dynamic from "next/dynamic";
-const Backstage3D = dynamic(() => import("@/components/backstage/Backstage3D"), { ssr: false });
 import { ErrorBoundary } from "@/components/backstage/ErrorBoundary";
+
+const Backstage3D = dynamic(() => import("@/components/backstage/Backstage3D"), { ssr: false });
 
 interface BackstagePageProps {
   garmentId: string;

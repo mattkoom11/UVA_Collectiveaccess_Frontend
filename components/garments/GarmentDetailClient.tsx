@@ -5,7 +5,6 @@ import { Garment, getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/g
 import Link from "next/link";
 import Image from "next/image";
 import dynamic from "next/dynamic";
-const Garment3DViewer = dynamic(() => import("./Garment3DViewer"), { ssr: false });
 import ImageGallery from "./ImageGallery";
 import { Share2, Download, ExternalLink, Printer, BookOpen } from "lucide-react";
 import FavoriteButton from "./FavoriteButton";
@@ -13,6 +12,8 @@ import CompareButton from "./CompareButton";
 import SocialShare from "./SocialShare";
 import { getEducationalContentByEra, getEducationalContentByMaterial } from "@/data/educationalContent";
 import { getAnalytics } from "@/lib/analytics";
+
+const Garment3DViewer = dynamic(() => import("./Garment3DViewer"), { ssr: false });
 
 interface GarmentDetailClientProps {
   garment: Garment;
