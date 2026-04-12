@@ -5,7 +5,6 @@ import { PerspectiveCamera, Environment, OrbitControls } from "@react-three/drei
 import { useRef, useState, useMemo } from "react";
 import { Group } from "three";
 import { Garment, Era, GarmentType, getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/garment";
-import { useRouter } from "next/navigation";
 import { filterGarments } from "@/lib/garments";
 import { getPrimaryColor, getSecondaryColor } from "@/lib/colorUtils";
 
@@ -233,7 +232,6 @@ function RunwayLighting() {
 }
 
 export default function Runway3D({ garments }: Props) {
-  const router = useRouter();
   const [hoveredGarment, setHoveredGarment] = useState<Garment | null>(null);
   const [selectedEra, setSelectedEra] = useState<Era | "all">("all");
   const [selectedType, setSelectedType] = useState<GarmentType | "all">("all");
@@ -260,7 +258,7 @@ export default function Runway3D({ garments }: Props) {
     // Navigate to garment detail view
     const garment = garments.find(g => g.id === id);
     if (garment) {
-      router.push(`/garments/${garment.slug}`);
+      window.location.href = `/garments/${garment.slug}`;
     }
   };
 

@@ -307,7 +307,7 @@ export default function GarmentDetailClient({ garment, relatedGarments }: Garmen
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {relatedGarments.map((related) => (
-                  <Link
+                  <a
                     key={related.id}
                     href={`/garments/${related.slug}`}
                     className="group border border-archive-border bg-archive-surface hover:border-archive-muted transition-all duration-300"
@@ -335,7 +335,7 @@ export default function GarmentDetailClient({ garment, relatedGarments }: Garmen
                         {related.decade || related.date || ''}
                       </p>
                     </div>
-                  </Link>
+                  </a>
                 ))}
               </div>
             </section>

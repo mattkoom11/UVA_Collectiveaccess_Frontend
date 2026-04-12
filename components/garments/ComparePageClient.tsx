@@ -181,7 +181,7 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
                           >
                             <X className="w-4 h-4" />
                           </button>
-                          <Link
+                          <a
                             href={`/garments/${garment.slug}`}
                             className="block group"
                           >
@@ -191,7 +191,7 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
                             <h3 className="text-sm font-light mb-1 group-hover:text-zinc-200 transition-colors">
                               {garment.name || garment.label || garment.editorial_title}
                             </h3>
-                          </Link>
+                          </a>
                         </div>
                       </th>
                     ))}

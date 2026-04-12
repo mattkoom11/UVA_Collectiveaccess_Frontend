@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { Garment } from "@/types/garment";
@@ -43,7 +42,7 @@ export default function GarmentCard({ garment, variant = "grid" }: Props) {
   const subtitle = getSubtitle(garment);
 
   return (
-    <Link
+    <a
       href={`/garments/${garment.slug}`}
       className={`${base} flex flex-col border border-archive-border bg-archive-bg transition-[border-color,transform] duration-200 ease-out motion-safe:hover:border-archive-border-hover motion-safe:hover:-translate-y-0.5`}
     >
@@ -158,6 +157,6 @@ export default function GarmentCard({ garment, variant = "grid" }: Props) {
           </div>
         )}
       </div>
-    </Link>
+    </a>
   );
 }

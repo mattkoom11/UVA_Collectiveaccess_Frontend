@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Garment } from "@/types/garment";
-import Link from "next/link";
 
 interface SearchBarProps {
   variant?: "header" | "full";
@@ -62,7 +61,6 @@ export default function SearchBar({
     setIsOpen(false);
     setQuery("");
     setFocusedIndex(-1);
-    router.push(`/garments/${garment.slug}`);
   };
 
   const handleSubmit = (e?: React.FormEvent) => {
@@ -216,7 +214,7 @@ export default function SearchBar({
         <div className="absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto">
           <div className="p-2">
             {searchResults.map((garment, index) => (
-              <Link
+              <a
                 key={garment.id}
                 href={`/garments/${garment.slug}`}
                 onClick={() => handleSelectResult(garment)}
@@ -254,9 +252,9 @@ export default function SearchBar({
                     )}
                   </div>
                 </div>
-              </Link>
+              </a>
             ))}
-            
+
             {/* Show more results link */}
             {totalResults > searchResults.length && (
               <button

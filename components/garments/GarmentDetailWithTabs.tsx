@@ -5,7 +5,6 @@ import { Garment } from "@/types/garment";
 import GarmentDetailClient from "./GarmentDetailClient";
 import dynamic from "next/dynamic";
 import { ErrorBoundary } from "@/components/backstage/ErrorBoundary";
-import { useRouter } from "next/navigation";
 import PageLayout from "@/components/layout/PageLayout";
 
 const Runway3D = dynamic(() => import("./Runway3D"), { ssr: false });
@@ -21,12 +20,11 @@ type TabType = "detail" | "runway" | "backstage";
 
 export default function GarmentDetailWithTabs({ garment, relatedGarments, allGarments }: GarmentDetailWithTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("detail");
-  const router = useRouter();
 
   const handleGarmentSelected = (garmentId: string) => {
     const selectedGarment = allGarments.find(g => g.id === garmentId);
     if (selectedGarment) {
-      router.push(`/garments/${selectedGarment.slug}`);
+      window.location.href = `/garments/${selectedGarment.slug}`;
     }
   };
 

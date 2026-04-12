@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import { useFavorites } from "@/hooks/useFavorites";
 import { Garment } from "@/types/garment";
-import Link from "next/link";
 import Image from "next/image";
 import { Heart, Trash2 } from "lucide-react";
 import EmptyState from "./EmptyState";
@@ -79,7 +78,7 @@ export default function FavoritesPageClient({ allGarments }: FavoritesPageClient
                   <FavoriteButton garmentId={garment.id} />
                 </div>
 
-                <Link href={`/garments/${garment.slug}`}>
+                <a href={`/garments/${garment.slug}`}>
                   {/* Card Image */}
                   <div className="relative w-full aspect-[3/4] bg-zinc-900 overflow-hidden">
                     {(garment.thumbnailUrl || (garment.images && garment.images[0])) ? (
@@ -116,7 +115,7 @@ export default function FavoritesPageClient({ allGarments }: FavoritesPageClient
                       </p>
                     )}
                   </div>
-                </Link>
+                </a>
               </div>
             ))}
           </div>

@@ -95,7 +95,7 @@ export default function HomePage({ garments }: { garments: Garment[] }) {
             </div>
             <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
               {garments.slice(0, 8).map((garment) => (
-                <Link
+                <a
                   key={garment.id}
                   href={`/garments/${garment.slug}`}
                   className="flex-none group border border-archive-border hover:border-archive-border-hover transition-colors duration-150"
@@ -128,7 +128,7 @@ export default function HomePage({ garments }: { garments: Garment[] }) {
                       </div>
                     )}
                   </div>
-                </Link>
+                </a>
               ))}
             </div>
           </div>

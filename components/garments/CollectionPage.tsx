@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { filterGarments } from "@/lib/garmentFilters";
@@ -1134,7 +1133,7 @@ export default function CollectionPage({
                       <FavoriteButton garmentId={garment.id} />
                     </div>
 
-                    <Link
+                    <a
                       href={`/garments/${garment.slug}`}
                       className="flex-1 flex gap-6"
                     >
@@ -1168,7 +1167,7 @@ export default function CollectionPage({
                           {garment.accessionNumber}
                         </div>
                       )}
-                    </Link>
+                    </a>
                   </div>
                 )
               ))}
