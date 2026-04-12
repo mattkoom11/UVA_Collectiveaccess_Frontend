@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Serif_Display, Crimson_Pro } from "next/font/google";
 import "./globals.css";
 import { ReactNode, Suspense } from "react";
+import { headers } from "next/headers";
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/SiteFooter";
 import KeyboardShortcutsProvider from "@/components/layout/KeyboardShortcutsProvider";
@@ -41,6 +42,10 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   await hydrateGarmentsFromCA();
+  // Reading headers() here opts this layout into dynamic rendering, which
+  // causes Next.js to propagate the x-nonce set by middleware to all inline
+  // <script> tags it generates — enabling the strict nonce-based CSP.
+  const _nonce = (await headers()).get('x-nonce');
   return (
     <html lang="en" className={`${dmSerifDisplay.variable} ${crimsonPro.variable}`}>
       <head>
