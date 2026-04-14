@@ -512,6 +512,16 @@ const DETAIL_BUNDLES =
   'ca_objects.color_location,ca_objects.material_location,ca_objects.function,' +
   'ca_objects.description,ca_objects.web_narrative,ca_objects.provenance';
 
+/**
+ * Returns the CA search query to use when fetching objects.
+ * When CA_SET_CODE is set, restricts results to members of that named set.
+ * Curators manage set membership entirely inside the CA admin UI.
+ */
+function caBaseQuery(): string {
+  const setCode = process.env.CA_SET_CODE?.trim();
+  return setCode ? `ca_sets.set_code:${setCode}` : '*';
+}
+
 async function fetchAllObjects(client: CollectiveAccessClient): Promise<CAObject[]> {
   const PAGE_SIZE = 100;
   const MAX_PAGES = 50; // safety cap — 5,000 objects max
@@ -519,8 +529,9 @@ async function fetchAllObjects(client: CollectiveAccessClient): Promise<CAObject
   const all: CAObject[] = [];
   let start = 0;
   let pages = 0;
+  const q = caBaseQuery();
   while (pages < MAX_PAGES) {
-    const page = await client.fetchObjects({ limit: PAGE_SIZE, start, bundles: FIND_BUNDLES });
+    const page = await client.fetchObjects({ q, limit: PAGE_SIZE, start, bundles: FIND_BUNDLES });
     if (!page.length) break;
     let newItems = 0;
     for (const obj of page) {
@@ -568,7 +579,7 @@ export async function syncGarmentsFromCA(limit = 0, skipImages = false): Promise
 
   // Step 1: get the list of object IDs via /find (bundle data is ignored by this CA installation)
   const stubs = limit > 0
-    ? await client.fetchObjects({ limit, bundles: FIND_BUNDLES })
+    ? await client.fetchObjects({ q: caBaseQuery(), limit, bundles: FIND_BUNDLES })
     : await fetchAllObjects(client);
 
   // Step 2: fetch full metadata for every object via /item (the only endpoint that returns bundles)
