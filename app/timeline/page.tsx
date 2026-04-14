@@ -1,8 +1,11 @@
-import { getAllGarments } from "@/lib/garments";
+import { hydrateGarmentsFromCA, getAllGarments } from "@/lib/garments";
 import PageLayout from "@/components/layout/PageLayout";
 import TimelineView from "@/components/garments/TimelineView";
 
-export default function TimelinePage() {
+export const dynamic = "force-dynamic";
+
+export default async function TimelinePage() {
+  await hydrateGarmentsFromCA();
   const allGarments = getAllGarments();
 
   return (
@@ -11,4 +14,3 @@ export default function TimelinePage() {
     </PageLayout>
   );
 }
-

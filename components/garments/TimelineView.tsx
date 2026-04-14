@@ -115,6 +115,12 @@ export default function TimelineView({ garments }: TimelineViewProps) {
 
   const eras: Era[] = ['pre-1920', '1920-1950', '1950-1980', '1980+'];
 
+  // Count garments with no resolvable date/era — shown separately so they aren't silently dropped
+  const undatedCount = useMemo(() => filteredGarments.filter(g => {
+    const era = g.era || getEraFromDecade(g.decade, g.yearApprox, g.date);
+    return !era;
+  }).length, [filteredGarments]);
+
   // Smooth scroll to top
   const scrollToTop = () => {
     timelineRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -221,6 +227,12 @@ export default function TimelineView({ garments }: TimelineViewProps) {
                       </span>
                     </label>
                   ))}
+                  {undatedCount > 0 && (
+                    <div className="flex items-center gap-2 text-sm text-zinc-500 pt-1 border-t border-zinc-800">
+                      <span>Undated</span>
+                      <span className="text-xs ml-auto">({undatedCount})</span>
+                    </div>
+                  )}
                   {selectedEras.size > 0 && (
                     <button
                       onClick={() => setSelectedEras(new Set())}
@@ -243,7 +255,7 @@ export default function TimelineView({ garments }: TimelineViewProps) {
             <div className="flex items-end gap-2 h-24">
               {eras.map((era) => {
                 const count = densityData[era] || 0;
-                const maxCount = Math.max(...Object.values(densityData));
+                const maxCount = Math.max(...Object.values(densityData), undatedCount);
                 const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
                 return (
                   <div key={era} className="flex-1 flex flex-col items-center gap-2">
@@ -255,6 +267,15 @@ export default function TimelineView({ garments }: TimelineViewProps) {
                   </div>
                 );
               })}
+              {undatedCount > 0 && (
+                <div className="flex-1 flex flex-col items-center gap-2">
+                  <div className="relative w-full bg-zinc-800 rounded-t" style={{ height: `${(undatedCount / Math.max(...Object.values(densityData), undatedCount)) * 100}%` }}>
+                    <div className="absolute inset-0 rounded-t bg-zinc-700/40" />
+                  </div>
+                  <span className="text-xs text-zinc-600">Undated</span>
+                  <span className="text-xs font-light text-zinc-500">{undatedCount}</span>
+                </div>
+              )}
             </div>
           </div>
         )}

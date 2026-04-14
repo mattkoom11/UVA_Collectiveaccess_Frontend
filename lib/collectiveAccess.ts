@@ -177,12 +177,14 @@ class CollectiveAccessClient {
     type_id?: string;
     limit?: number;
     start?: number;
+    bundles?: string;
   } = {}): Promise<CAObject[]> {
     const data = await this.get<{ ok: number; results?: CAObject[] }>('/find/ca_objects', {
       q: params.q ?? '*',
       ...(params.type_id ? { type_id: params.type_id } : {}),
       ...(params.limit  !== undefined ? { limit: params.limit }   : {}),
       ...(params.start  !== undefined ? { start: params.start }   : {}),
+      ...(params.bundles ? { bundles: params.bundles } : {}),
     });
     return data.results ?? [];
   }
@@ -425,6 +427,11 @@ export function isCAConfigured(): boolean {
  * Deduplicates by object_id to guard against CA servers that ignore the
  * `start` offset parameter (which would otherwise cause infinite duplication).
  */
+// Bundles requested in fast-path hydration — gives us date and condition without
+// fetching each object individually.
+const HYDRATION_BUNDLES =
+  'ca_objects.preferred_labels,type_id,idno,ca_objects.date_range,ca_objects.condition,ca_objects.storage_location';
+
 async function fetchAllObjects(client: CollectiveAccessClient): Promise<CAObject[]> {
   const PAGE_SIZE = 100;
   const MAX_PAGES = 50; // safety cap — 5,000 objects max
@@ -433,7 +440,7 @@ async function fetchAllObjects(client: CollectiveAccessClient): Promise<CAObject
   let start = 0;
   let pages = 0;
   while (pages < MAX_PAGES) {
-    const page = await client.fetchObjects({ limit: PAGE_SIZE, start });
+    const page = await client.fetchObjects({ limit: PAGE_SIZE, start, bundles: HYDRATION_BUNDLES });
     if (!page.length) break;
     let newItems = 0;
     for (const obj of page) {
@@ -480,7 +487,7 @@ export async function syncGarmentsFromCA(limit = 0, skipImages = false): Promise
   const client = getCollectiveAccessClient();
 
   const stubs = limit > 0
-    ? await client.fetchObjects({ limit })
+    ? await client.fetchObjects({ limit, bundles: HYDRATION_BUNDLES })
     : await fetchAllObjects(client);
 
   if (skipImages) {
