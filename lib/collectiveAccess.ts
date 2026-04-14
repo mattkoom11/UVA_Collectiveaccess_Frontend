@@ -564,7 +564,18 @@ export async function syncGarmentsFromCA(limit = 0, skipImages = false): Promise
 
   if (skipImages) {
     // Fast path: derive type/era from idno prefix, no extra requests
-    return stubs.map(stub => client.convertToGarment(stub, []));
+    const garments = stubs.map(stub => client.convertToGarment(stub, []));
+    // Debug: log raw bundle data for first garment so we can inspect CA response shape
+    if (stubs.length > 0) {
+      const first = stubs[0];
+      console.log('[CA DEBUG] First stub keys:', Object.keys(first));
+      console.log('[CA DEBUG] date_range:', JSON.stringify(first['ca_objects.date_range']));
+      console.log('[CA DEBUG] gender:', JSON.stringify(first['ca_objects.gender']));
+      console.log('[CA DEBUG] condition:', JSON.stringify(first['ca_objects.condition']));
+      console.log('[CA DEBUG] color_location:', JSON.stringify(first['ca_objects.color_location']));
+      console.log('[CA DEBUG] converted era:', garments[0]?.era, 'date:', garments[0]?.date, 'gender:', garments[0]?.gender);
+    }
+    return garments;
   }
 
   // Full sync: fetch detail (type_id, dates) + images concurrently
