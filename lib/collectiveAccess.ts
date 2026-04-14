@@ -298,17 +298,31 @@ class CollectiveAccessClient {
       : CollectiveAccessClient.IDNO_PREFIX_TYPE[idnoPrefix] ?? '';
 
     const dateRange  = this.extractBundleValue(caObject, 'ca_objects.date_range');
-    const earliest   = dateRange?.earliest_date as string | undefined;
-    const latest     = dateRange?.latest_date   as string | undefined;
-    const dateStr    = earliest && latest && earliest !== latest
+    // CA installations differ in the key names used for date range endpoints.
+    // Try all known variants: earliest_date/latest_date, start/end, year_start/year_end.
+    const earliest   = (
+      dateRange?.earliest_date ??
+      dateRange?.start ??
+      dateRange?.year_start ??
+      dateRange?.date_start
+    ) as string | undefined;
+    const latest     = (
+      dateRange?.latest_date ??
+      dateRange?.end ??
+      dateRange?.year_end ??
+      dateRange?.date_end
+    ) as string | undefined;
+    // Some CA versions return the whole display string (e.g. "circa 1960") under `display`
+    const displayDate = dateRange?.display as string | undefined;
+    const dateStr    = earliest && latest && String(earliest) !== String(latest)
       ? `${earliest}–${latest}`
-      : (earliest ?? latest);
+      : (earliest ?? latest ?? displayDate);
 
-    // Infer year from idno (e.g. "DR.1965.001" → 1965) as era fallback when
-    // no date_range is present. Only use if year < 2010 to avoid treating
-    // acquisition years (e.g. ACS.2023.974) as manufacture dates.
+    // Infer year from idno as era fallback when no date_range is present.
+    // Handles both "DR.1965.001" (letter prefix) and "1965.001.1" (year-first) patterns.
+    // Excludes years >= 2010 to avoid treating acquisition years as manufacture dates.
     const idnoYear = (() => {
-      const parts = String(idno).split('.');
+      const parts = String(idno).split(/[.\-_]/);
       for (const p of parts) {
         const y = parseInt(p, 10);
         if (p.length === 4 && y >= 1800 && y < 2010) return String(y);

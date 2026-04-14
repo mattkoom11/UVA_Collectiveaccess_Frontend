@@ -139,6 +139,45 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ ok: true, objectId, idno, repData });
     }
 
+    // Debug: show raw /find results WITH the hydration bundles so we can inspect
+    // what CA actually returns for date_range, gender, condition, color_location, etc.
+    if (req.nextUrl.searchParams.get("debug") === "raw-bundles") {
+      const bundles =
+        'ca_objects.preferred_labels,type_id,idno,' +
+        'ca_objects.date_range,ca_objects.condition,ca_objects.storage_location,' +
+        'ca_objects.gender,ca_objects.age_group,' +
+        'ca_objects.color_location,ca_objects.material_location,ca_objects.function,' +
+        'ca_objects.description,ca_objects.web_narrative,ca_objects.provenance';
+      const basicAuth = Buffer.from(`${CA_USER}:${CA_PASS}`).toString('base64');
+      const url = `${CA_BASE}/service.php/json/find/ca_objects?q=*&limit=2&bundles=${encodeURIComponent(bundles)}&authToken=${encodeURIComponent(authToken)}`;
+      const res = await fetch(url, {
+        headers: { Cookie: cookie, Authorization: `Basic ${basicAuth}` },
+      });
+      const raw = await res.json();
+      return NextResponse.json({ ok: true, url, raw });
+    }
+
+    // Debug: show raw /item response for a single object WITH bundles
+    if (req.nextUrl.searchParams.get("debug") === "raw-item") {
+      const bundles =
+        'ca_objects.preferred_labels,type_id,idno,' +
+        'ca_objects.date_range,ca_objects.condition,' +
+        'ca_objects.gender,ca_objects.color_location,ca_objects.material_location';
+      const basicAuth = Buffer.from(`${CA_USER}:${CA_PASS}`).toString('base64');
+      // First get any object id
+      const findUrl = `${CA_BASE}/service.php/json/find/ca_objects?q=*&limit=1&authToken=${encodeURIComponent(authToken)}`;
+      const findRes = await fetch(findUrl, { headers: { Cookie: cookie, Authorization: `Basic ${basicAuth}` } });
+      const findData = await findRes.json();
+      const objectId = findData?.results?.[0]?.object_id?.value ?? findData?.results?.[0]?.object_id;
+      if (!objectId) return NextResponse.json({ ok: false, error: "No objects found", findData });
+      const itemUrl = `${CA_BASE}/service.php/json/item/ca_objects/id/${objectId}?bundles=${encodeURIComponent(bundles)}&authToken=${encodeURIComponent(authToken)}`;
+      const itemRes = await fetch(itemUrl, {
+        headers: { Cookie: cookie, Authorization: `Basic ${basicAuth}` },
+      });
+      const raw = await itemRes.json();
+      return NextResponse.json({ ok: true, objectId, url: itemUrl, raw });
+    }
+
     const objects = await caFetchObjects(authToken, cookie);
     return NextResponse.json({ ok: true, authToken: authToken.slice(0, 12) + "…", objects, loginDebug });
   } catch (err: any) {
