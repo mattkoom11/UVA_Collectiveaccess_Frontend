@@ -3,11 +3,15 @@
 import PageLayout from "@/components/layout/PageLayout";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { Garment } from "@/types/garment";
+import { Garment, getGarmentTypeFromWorkType } from "@/types/garment";
 
 export default function HomePage({ garments }: { garments: Garment[] }) {
   const total = garments.length;
-  const types = [...new Set(garments.map((g) => g.work_type).filter(Boolean))];
+  const types = [...new Set(
+    garments
+      .map((g) => g.type || getGarmentTypeFromWorkType(g.work_type))
+      .filter((t) => Boolean(t) && t !== "other") as string[]
+  )];
   const eras = [...new Set(garments.map((g) => g.era).filter(Boolean))];
 
   return (
@@ -147,7 +151,7 @@ export default function HomePage({ garments }: { garments: Garment[] }) {
                   href={`/collection?type=${encodeURIComponent(type!)}`}
                   className="px-4 py-2 border border-archive-border text-sm text-archive-muted hover:border-archive-border-hover hover:text-archive-fg transition-colors duration-200 uppercase tracking-[0.1em] font-light"
                 >
-                  {type}
+                  {type.replace(/-/g, " ")}
                 </Link>
               ))}
             </div>
