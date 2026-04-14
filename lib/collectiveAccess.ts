@@ -267,24 +267,49 @@ class CollectiveAccessClient {
    * rest of the application.  Field paths (e.g. preferred_labels.name) may
    * need adjustment to match your specific CA metadata configuration.
    */
-  // Map idno prefix to a CA type label for fast stub hydration
+  // Map idno prefix to a CA type label for fast stub hydration.
+  // Keys match the uppercase object type idno codes defined in the CA profile (uva_fashion.xml).
   private static readonly IDNO_PREFIX_TYPE: Record<string, string> = {
+    // Dresses
     DR: 'Dress', WDR: 'Dress', DRW: 'Dress',
-    JKT: 'Jacket', SK: 'Skirt', SKT: 'Skirt',
-    SH: 'Shirt or Blouse', BD: 'Bodice',
-    OTW: 'Outerwear', OC: 'Overcoat',
-    ENS: 'Ensemble', CENS: 'Ensemble',
-    UND: 'Undergarment',
-    RB: 'Robe',
-    ST: 'Trouser', TR: 'Trouser',
-    VT: 'Vest',
-    PJ: 'Pajama',
+    // Jackets
+    JKT: 'Jacket',
+    // Outerwear
+    OTW: 'Outerwear',
+    // Suits (profile idno: st)
+    ST: 'Suit',
+    // Ensembles (profile idno: end; legacy aliases kept for older records)
+    END: 'Ensemble', ENS: 'Ensemble', CENS: 'Ensemble', WENS: 'Ensemble',
+    // Military
     MT: 'Military Garment',
-    CST: 'Suit',
-    CDR: 'Combination Garment',
-    CETH: 'Non-Western Garment', ETH: 'Non-Western Garment',
-    WENS: 'Ensemble',
+    // Occupational (profile idno: oc)
+    OC: 'Occupational Garment',
+    // Vests
+    VT: 'Vest',
+    // Trousers (profile idno: tr)
+    TR: 'Trouser',
+    // Shirts & Blouses
+    SH: 'Shirt or Blouse',
+    // Sweaters (profile idno: sw)
+    SW: 'Sweater',
+    // Robes
+    RB: 'Robe',
+    // Pajamas
+    PJ: 'Pajama',
+    // Skirts
+    SK: 'Skirt', SKT: 'Skirt',
+    // Bodices
+    BD: 'Bodice',
+    // Undergarments
+    UND: 'Undergarment',
+    // Non-Western Garments (profile idno: nw; legacy aliases kept)
+    NW: 'Non-Western Garment', CETH: 'Non-Western Garment', ETH: 'Non-Western Garment',
+    // Accessories & sub-types
     ACS: 'Accessory',
+    HW: 'Headwear',
+    SHO: 'Shoe',
+    JWL: 'Jewelry',
+    TEX: 'Textile Piece',
   };
 
   convertToGarment(caObject: CAObject, images: CAImage[] = []): any {
