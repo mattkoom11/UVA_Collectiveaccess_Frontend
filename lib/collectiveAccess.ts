@@ -497,9 +497,15 @@ export function isCAConfigured(): boolean {
  * Deduplicates by object_id to guard against CA servers that ignore the
  * `start` offset parameter (which would otherwise cause infinite duplication).
  */
-// Bundles requested in fast-path hydration.
-// Includes all display-relevant fields so cards render with correct data immediately.
-const HYDRATION_BUNDLES =
+// NOTE: CA's /find endpoint ignores the bundles parameter for this installation —
+// it returns only object_id, idno, and display_label regardless.
+// Bundle data is only available via the /item endpoint.
+// FIND_BUNDLES is kept here as a best-effort request in case a future CA upgrade
+// starts honouring it, but the real metadata comes from per-object /item fetches.
+const FIND_BUNDLES = 'ca_objects.preferred_labels,type_id,idno';
+
+// Full set of bundles fetched via /item for every garment.
+const DETAIL_BUNDLES =
   'ca_objects.preferred_labels,type_id,idno,' +
   'ca_objects.date_range,ca_objects.condition,ca_objects.storage_location,' +
   'ca_objects.gender,ca_objects.age_group,' +
@@ -514,7 +520,7 @@ async function fetchAllObjects(client: CollectiveAccessClient): Promise<CAObject
   let start = 0;
   let pages = 0;
   while (pages < MAX_PAGES) {
-    const page = await client.fetchObjects({ limit: PAGE_SIZE, start, bundles: HYDRATION_BUNDLES });
+    const page = await client.fetchObjects({ limit: PAGE_SIZE, start, bundles: FIND_BUNDLES });
     if (!page.length) break;
     let newItems = 0;
     for (const obj of page) {
@@ -560,39 +566,26 @@ async function pLimit<T>(tasks: (() => Promise<T>)[], concurrency: number): Prom
 export async function syncGarmentsFromCA(limit = 0, skipImages = false): Promise<any[]> {
   const client = getCollectiveAccessClient();
 
+  // Step 1: get the list of object IDs via /find (bundle data is ignored by this CA installation)
   const stubs = limit > 0
-    ? await client.fetchObjects({ limit, bundles: HYDRATION_BUNDLES })
+    ? await client.fetchObjects({ limit, bundles: FIND_BUNDLES })
     : await fetchAllObjects(client);
 
-  if (skipImages) {
-    // Fast path: derive type/era from idno prefix, no extra requests
-    const garments = stubs.map(stub => client.convertToGarment(stub, []));
-    // Debug: log raw bundle data for first garment so we can inspect CA response shape
-    if (stubs.length > 0) {
-      const first = stubs[0];
-      console.log('[CA DEBUG] First stub keys:', Object.keys(first));
-      console.log('[CA DEBUG] date_range:', JSON.stringify(first['ca_objects.date_range']));
-      console.log('[CA DEBUG] gender:', JSON.stringify(first['ca_objects.gender']));
-      console.log('[CA DEBUG] condition:', JSON.stringify(first['ca_objects.condition']));
-      console.log('[CA DEBUG] color_location:', JSON.stringify(first['ca_objects.color_location']));
-      console.log('[CA DEBUG] converted era:', garments[0]?.era, 'date:', garments[0]?.date, 'gender:', garments[0]?.gender);
-    }
-    return garments;
-  }
-
-  // Full sync: fetch detail (type_id, dates) + images concurrently
+  // Step 2: fetch full metadata for every object via /item (the only endpoint that returns bundles)
   const detailTasks = stubs.map(stub => () =>
     client.fetchObjectById(
       String(stub.object_id ?? stub.id),
-      'ca_objects.preferred_labels,type_id,idno,' +
-      'ca_objects.date_range,ca_objects.condition,ca_objects.storage_location,' +
-      'ca_objects.gender,ca_objects.age_group,' +
-      'ca_objects.color_location,ca_objects.material_location,ca_objects.function,' +
-      'ca_objects.description,ca_objects.web_narrative,ca_objects.provenance'
+      DETAIL_BUNDLES,
     ).then(detail => detail ?? stub)
   );
   const detailedObjects = await pLimit(detailTasks, 10);
 
+  if (skipImages) {
+    // Fast hydration: metadata only, no image requests
+    return detailedObjects.map(obj => client.convertToGarment(obj, []));
+  }
+
+  // Full sync: also fetch images
   const imageTasks = detailedObjects.map(obj => () =>
     client.fetchObjectImages(String((obj as any).object_id?.value ?? (obj as any).object_id ?? (obj as any).id))
   );

@@ -71,7 +71,7 @@ export async function hydrateGarmentsFromCA(): Promise<void> {
 
     try {
       console.log(`[CA] Hydrating garments from CollectiveAccess at ${process.env.CA_BASE_URL}...`);
-      const TIMEOUT_MS = 5_000;
+      const TIMEOUT_MS = 30_000;
       const timeout = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error(`CA hydration timed out after ${TIMEOUT_MS / 1000}s`)), TIMEOUT_MS)
       );
