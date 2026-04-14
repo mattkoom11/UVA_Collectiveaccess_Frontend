@@ -26,7 +26,7 @@ export default function GarmentDetailClient({ garment, relatedGarments }: Garmen
   const [activeTab, setActiveTab] = useState<"images" | "3d">("images");
 
   const editorialTitle = garment.editorial_title || garment.label;
-  const editorialSubtitle = garment.editorial_subtitle || `${garment.work_type || "Garment"} · ${garment.decade || garment.date || ""}`;
+  const editorialSubtitle = garment.editorial_subtitle || garment.work_type || "Garment";
   const tagline = garment.tagline || garment.editorial_subtitle;
   const aestheticDescription = garment.aesthetic_description || garment.description || "No description yet.";
   const story = garment.story;
@@ -258,8 +258,6 @@ export default function GarmentDetailClient({ garment, relatedGarments }: Garmen
                 {[
                   { label: "Era", value: era },
                   { label: "Type", value: garment.work_type },
-                  { label: "Date", value: garment.date },
-                  { label: "Decade", value: garment.decade },
                   { label: "Materials", value: Array.isArray(garment.materials) ? garment.materials.join(", ") : garment.materials },
                   { label: "Colors", value: garment.colors?.join(", ") },
                   { label: "Dimensions", value: garment.dimensions },
@@ -332,7 +330,7 @@ export default function GarmentDetailClient({ garment, relatedGarments }: Garmen
                         {related.name || related.label || related.editorial_title}
                       </h3>
                       <p className="text-xs text-archive-muted font-light">
-                        {related.decade || related.date || ''}
+                        {related.era || ''}
                       </p>
                     </div>
                   </a>
