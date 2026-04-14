@@ -302,12 +302,14 @@ class CollectiveAccessClient {
     // Try all known variants: earliest_date/latest_date, start/end, year_start/year_end.
     const earliest   = (
       dateRange?.earliest_date ??
+      dateRange?.start_date ??
       dateRange?.start ??
       dateRange?.year_start ??
       dateRange?.date_start
     ) as string | undefined;
     const latest     = (
       dateRange?.latest_date ??
+      dateRange?.end_date ??
       dateRange?.end ??
       dateRange?.year_end ??
       dateRange?.date_end
