@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAdminSession } from "@/lib/adminAuth";
+import { verifyAdminSession, verifyAdminPassword } from "@/lib/adminAuth";
 
 const CA_BASE = (process.env.CA_BASE_URL ?? "http://localhost/ca").replace(/\/$/, "");
 const CA_ROOT = new URL(CA_BASE).origin; // e.g. http://localhost
@@ -96,7 +96,10 @@ async function caFetchObjects(authToken: string, cookie: string): Promise<any> {
 }
 
 export async function GET(req: NextRequest) {
-  if (!verifyAdminSession(req)) {
+  // Allow password as query param so this endpoint works without a session cookie
+  const qPassword = req.nextUrl.searchParams.get("password");
+  const authed = verifyAdminSession(req) || (qPassword != null && verifyAdminPassword(qPassword));
+  if (!authed) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
