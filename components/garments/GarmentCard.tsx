@@ -124,6 +124,22 @@ export default function GarmentCard({ garment, variant = "grid" }: Props) {
           </div>
         )}
 
+        {/* Date / gender / condition — research variant only */}
+        {variant === "research" && (
+          (() => {
+            const meta = [
+              garment.date || (garment.decade ? `c. ${garment.decade}` : null),
+              garment.gender,
+              garment.condition,
+            ].filter(Boolean);
+            return meta.length > 0 ? (
+              <div className="text-[10px] text-archive-muted leading-tight">
+                {meta.join(" · ")}
+              </div>
+            ) : null;
+          })()
+        )}
+
         {/* Subtitle — non-research only */}
         {variant !== "research" && subtitle && (
           <div

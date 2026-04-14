@@ -59,7 +59,7 @@ export default function HomePage({ garments }: { garments: Garment[] }) {
                 </div>
                 <div className="text-xs uppercase tracking-[0.2em] text-archive-muted">Garments Catalogued</div>
               </div>
-              <div className="bg-archive-bg px-8 py-10 text-center space-y-1">
+              <div className="bg-archive-bg px-8 py-12 md:py-14 text-center space-y-2">
                 <div
                   className="text-4xl md:text-5xl font-light tabular-nums text-archive-fg"
                   style={{ fontFamily: "var(--font-display), Georgia, serif" }}
@@ -68,7 +68,7 @@ export default function HomePage({ garments }: { garments: Garment[] }) {
                 </div>
                 <div className="text-xs uppercase tracking-[0.2em] text-archive-muted">Garment Types</div>
               </div>
-              <div className="bg-archive-bg px-8 py-10 text-center space-y-1">
+              <div className="bg-archive-bg px-8 py-12 md:py-14 text-center space-y-2">
                 <div
                   className="text-4xl md:text-5xl font-light tabular-nums text-archive-fg"
                   style={{ fontFamily: "var(--font-display), Georgia, serif" }}
