@@ -52,7 +52,7 @@ export default function HomePage({ garments }: { garments: Garment[] }) {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-archive-border">
               <div className="bg-archive-bg px-8 py-12 md:py-14 text-center space-y-2">
                 <div
-                  className="text-5xl md:text-6xl font-light tabular-nums text-archive-fg"
+                  className="text-4xl md:text-5xl font-light tabular-nums text-archive-fg"
                   style={{ fontFamily: "var(--font-display), Georgia, serif" }}
                 >
                   {total.toLocaleString()}
