@@ -317,8 +317,28 @@ class CollectiveAccessClient {
     })();
 
     const condition       = this.extractBundleValue(caObject, 'ca_objects.condition')?.condition as string | undefined;
-    const provenance      = this.extractBundleValue(caObject, 'ca_objects.provenance')?.provenance as string | undefined;
+    const provenance      = this.extractTextBundle(caObject, 'ca_objects.provenance')
+                            ?? this.extractBundleValue(caObject, 'ca_objects.provenance')?.provenance as string | undefined;
     const storageLocation = this.extractBundleValue(caObject, 'ca_objects.storage_location')?.storage_location as string | undefined;
+
+    const gender = this.extractBundleValue(caObject, 'ca_objects.gender')?.gender as string | undefined;
+    const age    = this.extractBundleValue(caObject, 'ca_objects.age_group')?.age_group as string | undefined;
+
+    const colorEntries    = this.extractBundleValues(caObject, 'ca_objects.color_location');
+    const colors          = colorEntries.map(v => v.color as string).filter(Boolean);
+
+    const materialEntries = this.extractBundleValues(caObject, 'ca_objects.material_location');
+    const materials       = materialEntries.map(v => v.material as string).filter(Boolean);
+
+    const functionEntries = this.extractBundleValues(caObject, 'ca_objects.function');
+    const functions       = functionEntries.map(v => v.function as string).filter(Boolean);
+
+    const description = this.extractTextBundle(caObject, 'ca_objects.description');
+
+    const webNarrative       = this.extractBundleValue(caObject, 'ca_objects.web_narrative');
+    const story              = webNarrative?.web_story as string | undefined;
+    const tagline            = webNarrative?.pull_quote as string | undefined;
+    const aestheticDesc      = webNarrative?.style_notes as string | undefined;
 
     return {
       id:              String(caObject.object_id?.value ?? caObject.intrinsic?.object_id ?? idno),
@@ -326,13 +346,19 @@ class CollectiveAccessClient {
       label:           name,
       name,
       decade:          this.extractDecade(earliest ?? idnoYear),
-      date:            dateStr,   // manufacture date from CA date_range only; undefined until admin sync
+      date:            dateStr,
       era:             this.extractEra(earliest ?? idnoYear),
       work_type:       typeStr,
       type:            getGarmentTypeFromWorkType(typeStr),
-      colors:          [],   // not present in this CA config
-      materials:       [],   // not present in this CA config
-      description:     undefined,
+      colors,
+      materials,
+      function:        functions.length ? functions : undefined,
+      gender,
+      age,
+      description,
+      story,
+      tagline,
+      aesthetic_description: aestheticDesc,
       images:          images.map(img => img.url).filter(Boolean),
       imageUrl:        images[0]?.url,
       thumbnailUrl:    images[0]?.thumbnail_url ?? images[0]?.url,
@@ -357,6 +383,34 @@ class CollectiveAccessClient {
     if (!b || typeof b !== 'object') return undefined;
     const first = Object.values(b)[0] as any;
     return first?.en_US ?? first;
+  }
+
+  /**
+   * Returns ALL entries for a repeatable bundle as an array of locale objects.
+   * Used for multi-value attributes like color_location, material_location, function.
+   */
+  private extractBundleValues(obj: CAObject, bundle: string): Record<string, unknown>[] {
+    const b = obj[bundle];
+    if (!b || typeof b !== 'object') return [];
+    return Object.values(b)
+      .map((entry: any) => entry?.en_US ?? entry)
+      .filter((v): v is Record<string, unknown> => v != null && typeof v === 'object');
+  }
+
+  /**
+   * Extracts a plain Text attribute value.
+   * CA may return en_US as a bare string (Text type) rather than a keyed object (Container/List).
+   */
+  private extractTextBundle(obj: CAObject, bundle: string): string | undefined {
+    const b = obj[bundle];
+    if (!b || typeof b !== 'object') return undefined;
+    const first = Object.values(b)[0] as any;
+    const val = first?.en_US ?? first;
+    if (typeof val === 'string') return val || undefined;
+    if (val && typeof val === 'object') {
+      return (Object.values(val).find(v => typeof v === 'string') as string | undefined) || undefined;
+    }
+    return undefined;
   }
 
   private generateSlug(idno: string): string {
@@ -427,10 +481,14 @@ export function isCAConfigured(): boolean {
  * Deduplicates by object_id to guard against CA servers that ignore the
  * `start` offset parameter (which would otherwise cause infinite duplication).
  */
-// Bundles requested in fast-path hydration — gives us date and condition without
-// fetching each object individually.
+// Bundles requested in fast-path hydration.
+// Includes all display-relevant fields so cards render with correct data immediately.
 const HYDRATION_BUNDLES =
-  'ca_objects.preferred_labels,type_id,idno,ca_objects.date_range,ca_objects.condition,ca_objects.storage_location';
+  'ca_objects.preferred_labels,type_id,idno,' +
+  'ca_objects.date_range,ca_objects.condition,ca_objects.storage_location,' +
+  'ca_objects.gender,ca_objects.age_group,' +
+  'ca_objects.color_location,ca_objects.material_location,ca_objects.function,' +
+  'ca_objects.description,ca_objects.web_narrative,ca_objects.provenance';
 
 async function fetchAllObjects(client: CollectiveAccessClient): Promise<CAObject[]> {
   const PAGE_SIZE = 100;
@@ -499,7 +557,11 @@ export async function syncGarmentsFromCA(limit = 0, skipImages = false): Promise
   const detailTasks = stubs.map(stub => () =>
     client.fetchObjectById(
       String(stub.object_id ?? stub.id),
-      'ca_objects.preferred_labels,type_id,idno,ca_objects.date_range,ca_objects.condition,ca_objects.provenance,ca_objects.storage_location'
+      'ca_objects.preferred_labels,type_id,idno,' +
+      'ca_objects.date_range,ca_objects.condition,ca_objects.storage_location,' +
+      'ca_objects.gender,ca_objects.age_group,' +
+      'ca_objects.color_location,ca_objects.material_location,ca_objects.function,' +
+      'ca_objects.description,ca_objects.web_narrative,ca_objects.provenance'
     ).then(detail => detail ?? stub)
   );
   const detailedObjects = await pLimit(detailTasks, 10);
