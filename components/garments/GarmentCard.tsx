@@ -14,9 +14,7 @@ function getImageSrc(garment: Garment): string | undefined {
 }
 
 function getEraBadgeText(garment: Garment): string | undefined {
-  if (garment.era) return garment.era;
-  if (garment.decade) return garment.decade;
-  return undefined;
+  return garment.era;
 }
 
 function getMaterials(garment: Garment): string[] {
@@ -26,10 +24,7 @@ function getMaterials(garment: Garment): string[] {
 }
 
 function getSubtitle(garment: Garment): string {
-  const date = garment.date || (garment.decade ? `circa ${garment.decade}` : null);
-  if (!date) return garment.collection || "";
-  if (garment.collection) return `${date} · ${garment.collection}`;
-  return date;
+  return garment.collection || "";
 }
 
 export default function GarmentCard({ garment, variant = "grid" }: Props) {
@@ -124,14 +119,10 @@ export default function GarmentCard({ garment, variant = "grid" }: Props) {
           </div>
         )}
 
-        {/* Date / gender / condition — research variant only */}
+        {/* Gender / condition — research variant only */}
         {variant === "research" && (
           (() => {
-            const meta = [
-              garment.date || (garment.decade ? `c. ${garment.decade}` : null),
-              garment.gender,
-              garment.condition,
-            ].filter(Boolean);
+            const meta = [garment.gender, garment.condition].filter(Boolean);
             return meta.length > 0 ? (
               <div className="text-[10px] text-archive-muted leading-tight">
                 {meta.join(" · ")}
