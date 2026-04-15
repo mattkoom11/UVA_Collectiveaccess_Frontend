@@ -275,9 +275,13 @@ class CollectiveAccessClient {
       const sets = findResult.results ?? [];
       console.log(`[CA] All sets (${sets.length}):`, JSON.stringify(sets));
 
+      // /find/ca_sets returns only set_id and display_label — no set_code field.
+      // Match by display_label (which CA sets to the set code/name) or set_code if present.
       const setStub = sets.find((s: any) => {
         const code = s.set_code?.value ?? s.set_code ?? s.code ?? '';
-        return String(code).toLowerCase() === setCode.toLowerCase();
+        const label = s.display_label ?? '';
+        return String(code).toLowerCase() === setCode.toLowerCase()
+          || String(label).toLowerCase() === setCode.toLowerCase();
       });
 
       if (!setStub) {
@@ -292,15 +296,16 @@ class CollectiveAccessClient {
       const setData = await this.get<any>(`/item/ca_sets/id/${setId}`, {
         bundles: 'ca_set_items',
       });
-      console.log(`[CA] Set "${setCode}" item data:`, JSON.stringify(setData));
 
-      // Step 3: extract object row IDs — CA returns set items as a keyed object
-      const items: Record<string, any> = setData?.ca_set_items ?? setData?.set_items ?? {};
+      // Step 3: extract object row IDs.
+      // CA returns set items under setData.related.ca_set_items as an array.
+      const items: any[] = setData?.related?.ca_set_items
+        ?? setData?.ca_set_items
+        ?? setData?.set_items
+        ?? [];
       const ids: string[] = [];
-      for (const item of Object.values(items)) {
-        const rowId = (item as any)?.row_id?.value ?? (item as any)?.row_id
-          ?? (item as any)?.object_id?.value ?? (item as any)?.object_id
-          ?? (item as any)?.item_id?.value ?? (item as any)?.item_id;
+      for (const item of items) {
+        const rowId = item?.row_id ?? item?.object_id;
         if (rowId) ids.push(String(rowId));
       }
       console.log(`[CA] Set "${setCode}" (id=${setId}) resolved to ${ids.length} object ID(s): ${ids.join(', ')}`);
