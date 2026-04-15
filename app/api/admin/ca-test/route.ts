@@ -187,23 +187,28 @@ export async function GET(req: NextRequest) {
       const basicAuth = Buffer.from(`${CA_USER}:${CA_PASS}`).toString('base64');
       const headers = { Cookie: cookie, Authorization: `Basic ${basicAuth}` };
 
-      // Step 1: find the set by code
-      const findUrl = `${CA_BASE}/service.php/json/find/ca_sets?q=${encodeURIComponent(`set_code:${setCode}`)}&limit=5&authToken=${encodeURIComponent(authToken)}`;
-      const findRes = await fetch(findUrl, { headers });
-      const findData = await findRes.json();
+      // Step 1: list ALL sets
+      const findAllUrl = `${CA_BASE}/service.php/json/find/ca_sets?q=*&limit=20&authToken=${encodeURIComponent(authToken)}`;
+      const findAllRes = await fetch(findAllUrl, { headers });
+      const findAllData = await findAllRes.json();
 
-      const setStub = findData?.results?.[0];
+      // Step 2: find the target set by code client-side
+      const sets = findAllData?.results ?? [];
+      const setStub = sets.find((s: any) => {
+        const code = s.set_code?.value ?? s.set_code ?? s.code ?? '';
+        return String(code).toLowerCase() === setCode.toLowerCase();
+      }) ?? sets[0]; // fall back to first set for inspection
+
       if (!setStub) {
-        return NextResponse.json({ ok: false, step: "find_set", setCode, findUrl, findData });
+        return NextResponse.json({ ok: false, step: "no_sets_found", setCode, findAllUrl, findAllData });
       }
 
-      // Step 2: fetch the set item with set_items bundle
       const setId = setStub.set_id?.value ?? setStub.set_id ?? setStub.id;
       const itemUrl = `${CA_BASE}/service.php/json/item/ca_sets/id/${setId}?bundles=ca_set_items&authToken=${encodeURIComponent(authToken)}`;
       const itemRes = await fetch(itemUrl, { headers });
       const itemData = await itemRes.json();
 
-      return NextResponse.json({ ok: true, setCode, setId, findData, itemUrl, itemData });
+      return NextResponse.json({ ok: true, setCode, allSets: findAllData, matchedSet: setStub, setId, itemUrl, itemData });
     }
 
     const objects = await caFetchObjects(authToken, cookie);

@@ -265,32 +265,45 @@ class CollectiveAccessClient {
    */
   async fetchSetObjectIds(setCode: string): Promise<string[]> {
     try {
-      // Step 1: find the set by its code
+      // Step 1: list all sets and match by code client-side.
+      // CA's /find endpoint does not reliably support field-specific queries
+      // (e.g. set_code:web-collection) on all installations.
       const findResult = await this.get<{ ok: number; results?: any[] }>('/find/ca_sets', {
-        q: `set_code:${setCode}`,
-        limit: 1,
+        q: '*',
+        limit: 100,
       });
-      const setStub = findResult.results?.[0];
+      const sets = findResult.results ?? [];
+      console.log(`[CA] All sets (${sets.length}):`, JSON.stringify(sets));
+
+      const setStub = sets.find((s: any) => {
+        const code = s.set_code?.value ?? s.set_code ?? s.code ?? '';
+        return String(code).toLowerCase() === setCode.toLowerCase();
+      });
+
       if (!setStub) {
-        console.warn(`[CA] Set with code "${setCode}" not found.`);
+        console.warn(`[CA] Set "${setCode}" not found. Available sets:`, sets);
         return [];
       }
-      const setId = String(setStub.set_id ?? setStub.id ?? '');
+
+      const setId = String(setStub.set_id?.value ?? setStub.set_id ?? setStub.id ?? '');
       if (!setId) return [];
 
       // Step 2: fetch the set record with its items bundle
       const setData = await this.get<any>(`/item/ca_sets/id/${setId}`, {
         bundles: 'ca_set_items',
       });
+      console.log(`[CA] Set "${setCode}" item data:`, JSON.stringify(setData));
 
       // Step 3: extract object row IDs — CA returns set items as a keyed object
       const items: Record<string, any> = setData?.ca_set_items ?? setData?.set_items ?? {};
       const ids: string[] = [];
       for (const item of Object.values(items)) {
-        const rowId = item?.row_id ?? item?.object_id ?? item?.item_id;
+        const rowId = (item as any)?.row_id?.value ?? (item as any)?.row_id
+          ?? (item as any)?.object_id?.value ?? (item as any)?.object_id
+          ?? (item as any)?.item_id?.value ?? (item as any)?.item_id;
         if (rowId) ids.push(String(rowId));
       }
-      console.log(`[CA] Set "${setCode}" contains ${ids.length} object(s).`);
+      console.log(`[CA] Set "${setCode}" (id=${setId}) resolved to ${ids.length} object ID(s): ${ids.join(', ')}`);
       return ids;
     } catch (err) {
       console.error('[CA] fetchSetObjectIds error:', err);
