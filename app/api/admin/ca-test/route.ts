@@ -181,6 +181,31 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ ok: true, objectId, url: itemUrl, raw });
     }
 
+    // Debug: inspect the raw CA sets API response so we can fix fetchSetObjectIds parsing
+    if (req.nextUrl.searchParams.get("debug") === "sets") {
+      const setCode = req.nextUrl.searchParams.get("code") ?? process.env.CA_SET_CODE ?? "web-collection";
+      const basicAuth = Buffer.from(`${CA_USER}:${CA_PASS}`).toString('base64');
+      const headers = { Cookie: cookie, Authorization: `Basic ${basicAuth}` };
+
+      // Step 1: find the set by code
+      const findUrl = `${CA_BASE}/service.php/json/find/ca_sets?q=${encodeURIComponent(`set_code:${setCode}`)}&limit=5&authToken=${encodeURIComponent(authToken)}`;
+      const findRes = await fetch(findUrl, { headers });
+      const findData = await findRes.json();
+
+      const setStub = findData?.results?.[0];
+      if (!setStub) {
+        return NextResponse.json({ ok: false, step: "find_set", setCode, findUrl, findData });
+      }
+
+      // Step 2: fetch the set item with set_items bundle
+      const setId = setStub.set_id?.value ?? setStub.set_id ?? setStub.id;
+      const itemUrl = `${CA_BASE}/service.php/json/item/ca_sets/id/${setId}?bundles=ca_set_items&authToken=${encodeURIComponent(authToken)}`;
+      const itemRes = await fetch(itemUrl, { headers });
+      const itemData = await itemRes.json();
+
+      return NextResponse.json({ ok: true, setCode, setId, findData, itemUrl, itemData });
+    }
+
     const objects = await caFetchObjects(authToken, cookie);
     return NextResponse.json({ ok: true, authToken: authToken.slice(0, 12) + "…", objects, loginDebug });
   } catch (err: any) {
