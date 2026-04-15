@@ -258,6 +258,46 @@ class CollectiveAccessClient {
     }
   }
 
+  /**
+   * Fetch the object IDs belonging to a named CA set.
+   * CA's /find endpoint does not reliably support set membership queries, so
+   * we go directly to the sets API: find the set by code, then read its items.
+   */
+  async fetchSetObjectIds(setCode: string): Promise<string[]> {
+    try {
+      // Step 1: find the set by its code
+      const findResult = await this.get<{ ok: number; results?: any[] }>('/find/ca_sets', {
+        q: `set_code:${setCode}`,
+        limit: 1,
+      });
+      const setStub = findResult.results?.[0];
+      if (!setStub) {
+        console.warn(`[CA] Set with code "${setCode}" not found.`);
+        return [];
+      }
+      const setId = String(setStub.set_id ?? setStub.id ?? '');
+      if (!setId) return [];
+
+      // Step 2: fetch the set record with its items bundle
+      const setData = await this.get<any>(`/item/ca_sets/id/${setId}`, {
+        bundles: 'ca_set_items',
+      });
+
+      // Step 3: extract object row IDs — CA returns set items as a keyed object
+      const items: Record<string, any> = setData?.ca_set_items ?? setData?.set_items ?? {};
+      const ids: string[] = [];
+      for (const item of Object.values(items)) {
+        const rowId = item?.row_id ?? item?.object_id ?? item?.item_id;
+        if (rowId) ids.push(String(rowId));
+      }
+      console.log(`[CA] Set "${setCode}" contains ${ids.length} object(s).`);
+      return ids;
+    } catch (err) {
+      console.error('[CA] fetchSetObjectIds error:', err);
+      return [];
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Mapping
   // ---------------------------------------------------------------------------
@@ -537,16 +577,6 @@ const DETAIL_BUNDLES =
   'ca_objects.color_location,ca_objects.material_location,ca_objects.function,' +
   'ca_objects.description,ca_objects.web_narrative,ca_objects.provenance';
 
-/**
- * Returns the CA search query to use when fetching objects.
- * When CA_SET_CODE is set, restricts results to members of that named set.
- * Curators manage set membership entirely inside the CA admin UI.
- */
-function caBaseQuery(): string {
-  const setCode = process.env.CA_SET_CODE?.trim();
-  return setCode ? `ca_sets.set_code:${setCode}` : '*';
-}
-
 async function fetchAllObjects(client: CollectiveAccessClient): Promise<CAObject[]> {
   const PAGE_SIZE = 100;
   const MAX_PAGES = 50; // safety cap — 5,000 objects max
@@ -554,9 +584,8 @@ async function fetchAllObjects(client: CollectiveAccessClient): Promise<CAObject
   const all: CAObject[] = [];
   let start = 0;
   let pages = 0;
-  const q = caBaseQuery();
   while (pages < MAX_PAGES) {
-    const page = await client.fetchObjects({ q, limit: PAGE_SIZE, start, bundles: FIND_BUNDLES });
+    const page = await client.fetchObjects({ q: '*', limit: PAGE_SIZE, start, bundles: FIND_BUNDLES });
     if (!page.length) break;
     let newItems = 0;
     for (const obj of page) {
@@ -602,10 +631,24 @@ async function pLimit<T>(tasks: (() => Promise<T>)[], concurrency: number): Prom
 export async function syncGarmentsFromCA(limit = 0, skipImages = false): Promise<any[]> {
   const client = getCollectiveAccessClient();
 
-  // Step 1: get the list of object IDs via /find (bundle data is ignored by this CA installation)
-  const stubs = limit > 0
-    ? await client.fetchObjects({ q: caBaseQuery(), limit, bundles: FIND_BUNDLES })
-    : await fetchAllObjects(client);
+  // Step 1: get object stubs.
+  // If CA_SET_CODE is set, fetch object IDs directly from that set via the sets API —
+  // querying /find by set membership is unreliable on this installation.
+  // Otherwise paginate through all objects via /find.
+  const setCode = process.env.CA_SET_CODE?.trim();
+  let stubs: CAObject[];
+
+  if (setCode) {
+    const ids = await client.fetchSetObjectIds(setCode);
+    if (ids.length === 0) {
+      console.warn(`[CA] Set "${setCode}" returned 0 objects. Check the set code and that items have been added.`);
+    }
+    stubs = ids.map((id: string) => ({ object_id: id } as CAObject));
+  } else if (limit > 0) {
+    stubs = await client.fetchObjects({ q: '*', limit, bundles: FIND_BUNDLES });
+  } else {
+    stubs = await fetchAllObjects(client);
+  }
 
   // Step 2: fetch full metadata for every object via /item (the only endpoint that returns bundles)
   const detailTasks = stubs.map(stub => () =>
