@@ -41,7 +41,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  await hydrateGarmentsFromCA();
+  void hydrateGarmentsFromCA();
   // Reading headers() here opts this layout into dynamic rendering, which
   // causes Next.js to propagate the x-nonce set by middleware to all inline
   // <script> tags it generates — enabling the strict nonce-based CSP.
