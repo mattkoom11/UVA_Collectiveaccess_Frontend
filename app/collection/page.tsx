@@ -4,7 +4,10 @@ import { hydrateGarmentsFromCA, getAllGarments } from "@/lib/garments";
 
 export const dynamic = "force-dynamic";
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://uvafashionarchive.com";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
   title: "Collection | UVA Fashion Archive",
   description: "Browse the full UVA Historic Clothing Collection — filter by era, type, color, and material.",
   openGraph: {
@@ -12,11 +15,16 @@ export const metadata: Metadata = {
     description: "Browse the full UVA Historic Clothing Collection — filter by era, type, color, and material.",
     siteName: "UVA Fashion Archive",
     type: "website",
+    images: [{ url: "/og-default.jpg" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Collection | UVA Fashion Archive",
     description: "Browse the full UVA Historic Clothing Collection — filter by era, type, color, and material.",
+    images: ["/og-default.jpg"],
+  },
+  alternates: {
+    canonical: `${baseUrl}/collection`,
   },
 };
 
