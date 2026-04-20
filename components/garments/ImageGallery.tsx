@@ -24,6 +24,7 @@ export default function ImageGallery({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [pinchStart, setPinchStart] = useState<number | null>(null);
+  const [swipeHintVisible, setSwipeHintVisible] = useState(true);
 
   const currentImage = images[currentIndex];
 
@@ -106,8 +107,15 @@ export default function ImageGallery({
     setIsDragging(false);
   };
 
+  // Auto-dismiss swipe hint after 2 seconds
+  useEffect(() => {
+    const t = setTimeout(() => setSwipeHintVisible(false), 2000);
+    return () => clearTimeout(t);
+  }, []);
+
   // Touch handlers for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
+    setSwipeHintVisible(false);
     if (e.touches.length === 1) {
       setTouchStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
     } else if (e.touches.length === 2) {
@@ -247,6 +255,15 @@ export default function ImageGallery({
           </button>
         )}
       </div>
+
+      {/* Swipe hint — mobile only, auto-dismisses after 2s or on first touch */}
+      {swipeHintVisible && (
+        <div className="pointer-events-none absolute bottom-16 inset-x-0 flex justify-center z-10">
+          <span className="bg-black/60 text-white/80 text-xs px-4 py-1.5 rounded-full tracking-widest uppercase">
+            ← swipe →
+          </span>
+        </div>
+      )}
 
       {/* Controls bar */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-black/70 backdrop-blur-sm px-6 py-3 rounded-lg flex items-center gap-4">
