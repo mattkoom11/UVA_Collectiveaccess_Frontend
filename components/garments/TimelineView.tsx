@@ -148,7 +148,7 @@ export default function TimelineView({ garments }: TimelineViewProps) {
   }, [timelineData, zoomLevel]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12" ref={timelineRef}>
+    <div className="max-w-7xl mx-auto px-4 py-12 md:py-20" ref={timelineRef}>
       <div className="mb-12">
         <div className="text-center mb-8">
           <h2 className="text-3xl md:text-4xl font-light tracking-tight mb-4">

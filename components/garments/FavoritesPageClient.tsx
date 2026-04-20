@@ -34,7 +34,7 @@ export default function FavoritesPageClient({ allGarments }: FavoritesPageClient
       <div className="max-w-7xl mx-auto px-4 py-12 md:py-20">
         {/* Header */}
         <div className="mb-12 md:mb-16 text-center">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight mb-4">
+          <h1 className="text-3xl md:text-4xl font-light tracking-tight mb-4">
             My Favorites
           </h1>
           <p className="text-sm md:text-base text-zinc-400 font-light max-w-2xl mx-auto">
