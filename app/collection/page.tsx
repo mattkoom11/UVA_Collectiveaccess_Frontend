@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Collection | UVA Fashion Archive",
-    description: "Browse the full UVA Historic Clothing Collection.",
+    description: "Browse the full UVA Historic Clothing Collection — filter by era, type, color, and material.",
   },
 };
 
