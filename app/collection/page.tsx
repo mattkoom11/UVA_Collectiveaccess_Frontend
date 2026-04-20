@@ -33,7 +33,7 @@ interface Props {
 }
 
 export default async function CollectionRoute({ searchParams }: Props) {
-  await hydrateGarmentsFromCA();
+  hydrateGarmentsFromCA().catch(() => {});
   const garments = getAllGarments();
   const params = await searchParams;
   // Normalise: Next.js can return string | string[] — take first value if array

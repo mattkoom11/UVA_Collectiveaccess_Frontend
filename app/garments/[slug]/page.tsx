@@ -13,7 +13,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  await hydrateGarmentsFromCA();
+  hydrateGarmentsFromCA().catch(() => {});
   const garment = getGarmentBySlug(slug);
 
   if (!garment) {
@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function GarmentDetailPage({ params }: Props) {
   const { slug } = await params;
-  await hydrateGarmentsFromCA();
+  hydrateGarmentsFromCA().catch(() => {});
   const garment = getGarmentBySlug(slug);
 
   if (!garment) {

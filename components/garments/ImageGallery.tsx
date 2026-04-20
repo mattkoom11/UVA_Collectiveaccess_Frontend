@@ -24,7 +24,7 @@ export default function ImageGallery({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [pinchStart, setPinchStart] = useState<number | null>(null);
-  const [swipeHintVisible, setSwipeHintVisible] = useState(true);
+  const [swipeHintVisible, setSwipeHintVisible] = useState(false);
 
   const currentImage = images[currentIndex];
 
@@ -107,10 +107,13 @@ export default function ImageGallery({
     setIsDragging(false);
   };
 
-  // Auto-dismiss swipe hint after 2 seconds
+  // Show swipe hint only on touch devices; auto-dismiss after 2 seconds
   useEffect(() => {
-    const t = setTimeout(() => setSwipeHintVisible(false), 2000);
-    return () => clearTimeout(t);
+    if (window.matchMedia('(pointer: coarse)').matches) {
+      setSwipeHintVisible(true);
+      const t = setTimeout(() => setSwipeHintVisible(false), 2000);
+      return () => clearTimeout(t);
+    }
   }, []);
 
   // Touch handlers for mobile
