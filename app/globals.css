@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  /* Warm neutrals (OKLCH) — hue tilted toward ivory/stone, not flat gray */
-  --background: oklch(0.142 0.007 72);
-  --foreground: oklch(0.948 0.006 82);
-  --accent: oklch(0.91 0.012 82);
-  --surface: oklch(0.168 0.008 72);
-  --surface-muted: oklch(0.195 0.008 72);
-  --footer-bg: oklch(0.118 0.006 72);
-  --border: oklch(0.28 0.012 72);
-  --border-hover: oklch(0.38 0.014 72);
-  --muted: oklch(0.55 0.018 75);
-  --muted-subtle: oklch(0.62 0.018 75);
+  /* Monochromatic — pure achromatic black/white/gray */
+  --background: oklch(0.10 0 0);
+  --foreground: oklch(0.96 0 0);
+  --accent: oklch(0.92 0 0);
+  --surface: oklch(0.16 0 0);
+  --surface-muted: oklch(0.20 0 0);
+  --footer-bg: oklch(0.08 0 0);
+  --border: oklch(0.28 0 0);
+  --border-hover: oklch(0.40 0 0);
+  --muted: oklch(0.56 0 0);
+  --muted-subtle: oklch(0.64 0 0);
 
   /* 4pt-based rhythm (semantic names) */
   --space-xs: 0.25rem;
@@ -110,12 +110,12 @@ body {
 /* Selection color */
 ::selection {
   background-color: var(--accent);
-  color: oklch(0.12 0.02 72);
+  color: oklch(0.10 0 0);
 }
 
 ::-moz-selection {
   background-color: var(--accent);
-  color: oklch(0.12 0.02 72);
+  color: oklch(0.10 0 0);
 }
 
 /* Animation utilities */
@@ -473,7 +473,7 @@ body {
 /* Button component variants */
 .btn-primary {
   background: var(--accent);
-  color: oklch(0.12 0.02 72);
+  color: oklch(0.10 0 0);
   font-size: 10px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
