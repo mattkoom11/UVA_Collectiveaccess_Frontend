@@ -1,7 +1,19 @@
 import { NextRequest } from "next/server";
 import { createHmac, timingSafeEqual } from "crypto";
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "uva-fashion-admin";
+const DEFAULT_ADMIN_PASSWORD = "uva-fashion-admin";
+
+// Refuse to serve admin requests in production with the default password —
+// silently accepting it would leave every deployment guessable from the
+// public source/docs. Local dev and preview builds still get the default
+// for convenience.
+if (process.env.NODE_ENV === "production" && !process.env.ADMIN_PASSWORD) {
+  throw new Error(
+    "ADMIN_PASSWORD must be set in production — refusing to start with the default admin password."
+  );
+}
+
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
 
 export const ADMIN_COOKIE = "uva_admin_session";
 

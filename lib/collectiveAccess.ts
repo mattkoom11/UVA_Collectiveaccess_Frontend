@@ -533,6 +533,34 @@ class CollectiveAccessClient {
     return '1980+';
   }
 
+  /**
+   * Whether a CA object is flagged for public display. Reads the "Web
+   * Display Settings" container's `public_display` field (Costume Core
+   * profile, uva_fashion.xml) — the field the archive's data model uses to
+   * gate mid-cataloguing records from the public "runway" site.
+   *
+   * Fail-closed: a missing/unset value is treated as NOT public. Records
+   * with no explicit public_display=Yes should not appear on the public
+   * site by default.
+   *
+   * NOTE: the bundle name below (`ca_objects.web_display_settings`) follows
+   * this file's existing naming convention for the sibling "Web Narrative"
+   * container (`ca_objects.web_narrative`) but has not been verified
+   * against a live CA installation — confirm it matches your profile's
+   * actual bundle code, adjusting if needed (see syncGarmentsFromCA's
+   * startup warning if this filter unexpectedly hides everything).
+   */
+  isPublic(caObject: CAObject): boolean {
+    const settings = this.extractBundleValue(caObject, 'ca_objects.web_display_settings');
+    const raw = settings?.public_display;
+    if (raw === true || raw === 1) return true;
+    if (typeof raw === 'string') {
+      const v = raw.trim().toLowerCase();
+      return v === '1' || v === 'true' || v === 'yes';
+    }
+    return false;
+  }
+
   clearCache(): void {
     this.cache.clear();
     this.token = null;
@@ -593,7 +621,17 @@ const DETAIL_BUNDLES =
   'ca_objects.date_range,ca_objects.condition,ca_objects.storage_location,' +
   'ca_objects.gender,ca_objects.age_group,' +
   'ca_objects.color_location,ca_objects.material_location,ca_objects.function,' +
-  'ca_objects.description,ca_objects.web_narrative,ca_objects.provenance';
+  'ca_objects.description,ca_objects.web_narrative,ca_objects.provenance,' +
+  'ca_objects.web_display_settings';
+
+/**
+ * Escape hatch for CA_SKIP_PUBLIC_DISPLAY_FILTER=true — bypasses the
+ * public_display filter below. Only use this temporarily while verifying
+ * the "ca_objects.web_display_settings" bundle name against a live CA
+ * installation; leaving it set in production serves every record,
+ * including mid-cataloguing ones never meant to be public.
+ */
+const SKIP_PUBLIC_DISPLAY_FILTER = process.env.CA_SKIP_PUBLIC_DISPLAY_FILTER === 'true';
 
 async function fetchAllObjects(client: CollectiveAccessClient): Promise<CAObject[]> {
   const PAGE_SIZE = 100;
@@ -677,16 +715,37 @@ export async function syncGarmentsFromCA(limit = 0, skipImages = false): Promise
   );
   const detailedObjects = await pLimit(detailTasks, 10);
 
+  // Filter to records flagged public_display=Yes — see isPublic() for why
+  // this exists and its fail-closed default.
+  let publicObjects = detailedObjects;
+  if (SKIP_PUBLIC_DISPLAY_FILTER) {
+    console.warn(
+      '[CA] CA_SKIP_PUBLIC_DISPLAY_FILTER=true — serving ALL CollectiveAccess objects, ' +
+      'including unpublished/draft records. Do not use this in production.'
+    );
+  } else {
+    publicObjects = detailedObjects.filter(obj => client.isPublic(obj));
+    if (publicObjects.length === 0 && detailedObjects.length > 0) {
+      console.warn(
+        `[CA] public_display filter hid all ${detailedObjects.length} object(s) fetched from CA. ` +
+        'If the "ca_objects.web_display_settings" bundle name or "public_display" field name ' +
+        'does not match this installation\'s CA profile, every garment will be hidden from the ' +
+        'public site. Set CA_SKIP_PUBLIC_DISPLAY_FILTER=true temporarily while you verify the ' +
+        'field name (do not leave this set in production).'
+      );
+    }
+  }
+
   if (skipImages) {
     // Fast hydration: metadata only, no image requests
-    return detailedObjects.map(obj => client.convertToGarment(obj, []));
+    return publicObjects.map(obj => client.convertToGarment(obj, []));
   }
 
   // Full sync: also fetch images
-  const imageTasks = detailedObjects.map(obj => () =>
+  const imageTasks = publicObjects.map(obj => () =>
     client.fetchObjectImages(String((obj as any).object_id?.value ?? (obj as any).object_id ?? (obj as any).id))
   );
   const imageResults = await pLimit(imageTasks, 10);
 
-  return detailedObjects.map((obj, i) => client.convertToGarment(obj, imageResults[i]));
+  return publicObjects.map((obj, i) => client.convertToGarment(obj, imageResults[i]));
 }
