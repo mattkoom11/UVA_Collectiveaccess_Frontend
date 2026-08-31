@@ -12,6 +12,7 @@ import CompareButton from "./CompareButton";
 import SocialShare from "./SocialShare";
 import { getEducationalContentByEra, getEducationalContentByMaterial } from "@/data/educationalContent";
 import { getAnalytics } from "@/lib/analytics";
+import ErrorBoundary from "./ErrorBoundary";
 
 const Garment3DViewer = dynamic(() => import("./Garment3DViewer"), { ssr: false });
 
@@ -186,11 +187,21 @@ export default function GarmentDetailClient({ garment, relatedGarments }: Garmen
               {/* 3D Viewer tab content — only mounts when 3D tab is active */}
               {garment.model3d_url && activeTab === "3d" && (
                 <div className="mb-10">
-                  <Garment3DViewer
-                    modelUrl={garment.model3d_url}
-                    garmentId={garment.id}
-                    garment={garment}
-                  />
+                  <ErrorBoundary
+                    fallback={
+                      <div className="w-full h-[600px] md:h-[800px] lg:h-[900px] flex items-center justify-center border border-zinc-800 rounded-lg">
+                        <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+                          3D model is unavailable right now
+                        </p>
+                      </div>
+                    }
+                  >
+                    <Garment3DViewer
+                      modelUrl={garment.model3d_url}
+                      garmentId={garment.id}
+                      garment={garment}
+                    />
+                  </ErrorBoundary>
                 </div>
               )}
 

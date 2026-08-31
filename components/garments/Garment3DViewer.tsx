@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useLoader } from "@react-three/fiber";
-import { OrbitControls, PerspectiveCamera, Environment, useGLTF } from "@react-three/drei";
+import { OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
 import { Suspense, useRef } from "react";
 import { Group } from "three";
 import DemoGarment from "./DemoGarment";
@@ -89,9 +89,7 @@ export default function Garment3DViewer({ modelUrl, garmentId, garment }: Props)
         <pointLight position={[-5, 3, -5]} intensity={0.4} color="#ffffff" />
         <pointLight position={[5, 3, -5]} intensity={0.4} color="#ffffff" />
         <pointLight position={[0, 8, 0]} intensity={0.3} color="#ffffff" />
-        
-        <Environment preset="studio" />
-        
+
         {/* Ground plane for shadows */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]} receiveShadow>
           <planeGeometry args={[20, 20]} />

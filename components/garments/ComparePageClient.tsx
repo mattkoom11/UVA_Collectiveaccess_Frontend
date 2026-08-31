@@ -8,6 +8,7 @@ import Link from "next/link";
 import { X, Plus, Download, FileText, FileSpreadsheet, File, GitCompare } from "lucide-react";
 import EmptyState from "./EmptyState";
 import Garment3DViewer from "./Garment3DViewer";
+import ErrorBoundary from "./ErrorBoundary";
 import { exportToCSV, exportToJSON, exportToPDF } from "@/lib/exportUtils";
 import { getAnalytics } from "@/lib/analytics";
 
@@ -279,7 +280,17 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
                     {compareGarments.map((garment) => (
                       <td key={garment.id} className="p-4">
                         <div className="h-64 border border-zinc-800">
-                          <Garment3DViewer garment={garment} />
+                          <ErrorBoundary
+                            fallback={
+                              <div className="w-full h-full flex items-center justify-center">
+                                <p className="text-xs uppercase tracking-[0.15em] text-zinc-500">
+                                  3D view unavailable
+                                </p>
+                              </div>
+                            }
+                          >
+                            <Garment3DViewer garment={garment} />
+                          </ErrorBoundary>
                         </div>
                       </td>
                     ))}
