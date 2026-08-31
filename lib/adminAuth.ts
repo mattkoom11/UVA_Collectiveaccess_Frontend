@@ -101,16 +101,32 @@ const loginAttempts = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 10;
 const RATE_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 
+// Per-IP limiting above relies on `x-forwarded-for`/`x-real-ip`, which are
+// ordinary request headers an attacker can vary on every request unless the
+// hosting platform strips/overwrites them. As defense-in-depth, also cap the
+// TOTAL number of attempts across all IPs so spoofing the IP can't buy
+// unlimited guesses — only a much larger, still-bounded budget.
+let globalAttempts = { count: 0, resetAt: 0 };
+const GLOBAL_RATE_LIMIT = 50;
+
 /** Returns true if the request is within limits, false if it should be blocked. */
 export function checkLoginRateLimit(ip: string): boolean {
   const now = Date.now();
+
+  if (now > globalAttempts.resetAt) {
+    globalAttempts = { count: 0, resetAt: now + RATE_WINDOW_MS };
+  }
+  if (globalAttempts.count >= GLOBAL_RATE_LIMIT) return false;
+
   const entry = loginAttempts.get(ip);
   if (!entry || now > entry.resetAt) {
     loginAttempts.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    globalAttempts.count++;
     return true;
   }
   if (entry.count >= RATE_LIMIT) return false;
   entry.count++;
+  globalAttempts.count++;
   return true;
 }
 

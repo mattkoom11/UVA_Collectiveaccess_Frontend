@@ -1,7 +1,10 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Download, DownloadCloud } from "lucide-react";
+
+const FOCUSABLE_SELECTOR =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 interface ImageGalleryProps {
   images: string[];
@@ -25,6 +28,8 @@ export default function ImageGallery({
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [pinchStart, setPinchStart] = useState<number | null>(null);
   const [swipeHintVisible, setSwipeHintVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const currentImage = images[currentIndex];
 
@@ -58,7 +63,17 @@ export default function ImageGallery({
     });
   }, []);
 
-  // Keyboard navigation
+  // Focus the dialog on open and restore focus to whatever was focused
+  // before it opened when it closes/unmounts.
+  useEffect(() => {
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    closeButtonRef.current?.focus();
+    return () => {
+      previouslyFocused?.focus?.();
+    };
+  }, []);
+
+  // Keyboard navigation + focus trap (Tab/Shift+Tab stay within the dialog)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && onClose) {
@@ -71,6 +86,21 @@ export default function ImageGallery({
         handleZoomIn();
       } else if (e.key === "-") {
         handleZoomOut();
+      } else if (e.key === "Tab" && containerRef.current) {
+        const focusable = Array.from(
+          containerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement;
+        if (e.shiftKey && active === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
 
@@ -191,9 +221,16 @@ export default function ImageGallery({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
+    <div
+      ref={containerRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+      className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+    >
       {/* Close button */}
       <button
+        ref={closeButtonRef}
         onClick={onClose}
         className="absolute top-4 right-4 z-10 text-zinc-300 hover:text-white transition-colors p-2"
         aria-label="Close gallery"

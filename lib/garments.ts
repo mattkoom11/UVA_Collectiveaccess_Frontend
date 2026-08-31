@@ -4,6 +4,8 @@ import { syncGarmentsFromCA, isCAConfigured } from "@/lib/collectiveAccess";
 
 let caGarmentsCache: Garment[] | null = null;
 let hydrateInFlight: Promise<void> | null = null;
+let lastHydrateFailureAt = 0;
+const HYDRATE_RETRY_COOLDOWN_MS = 60_000;
 
 function getCacheFilePath(): string {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -61,6 +63,10 @@ export async function hydrateGarmentsFromCA(): Promise<void> {
   // If a hydration is already in progress, wait for it instead of firing a second one.
   if (hydrateInFlight) return hydrateInFlight;
 
+  // Back off after a failed attempt so a down CA instance isn't hammered
+  // with a fresh login + fetch cycle on every single incoming request.
+  if (Date.now() - lastHydrateFailureAt < HYDRATE_RETRY_COOLDOWN_MS) return;
+
   hydrateInFlight = (async () => {
     // Try disk cache first — this has real dates/eras from the last admin sync
     const disk = loadDiskCache();
@@ -85,6 +91,7 @@ export async function hydrateGarmentsFromCA(): Promise<void> {
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.error(`[CA] Hydrate failed, falling back to static data. Reason: ${msg}`);
+      lastHydrateFailureAt = Date.now();
     }
   })().finally(() => {
     hydrateInFlight = null;
