@@ -2,8 +2,20 @@
 
 import PageLayout from "@/components/layout/PageLayout";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { ArrowRight } from "lucide-react";
 import { Garment, getGarmentTypeFromWorkType } from "@/types/garment";
+import ErrorBoundary from "@/components/garments/ErrorBoundary";
+
+const Runway3D = dynamic(() => import("@/components/garments/Runway3D"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[600px] md:h-[800px] bg-black flex flex-col items-center justify-center">
+      <div className="w-8 h-8 border-2 border-zinc-700 border-t-zinc-300 rounded-full animate-spin mb-4" />
+      <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Loading 3D Runway</p>
+    </div>
+  ),
+});
 
 export default function HomePage({ garments }: { garments: Garment[] }) {
   const total = garments.length;
@@ -44,6 +56,28 @@ export default function HomePage({ garments }: { garments: Garment[] }) {
           </div>
         </div>
       </section>
+
+      {/* 3D Runway */}
+      {garments.length > 0 && (
+        <section className="border-b border-archive-border py-12 md:py-16 bg-black">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-8 text-center">
+              3D Runway
+            </h2>
+            <ErrorBoundary
+              fallback={
+                <div className="w-full h-[600px] md:h-[800px] flex items-center justify-center">
+                  <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+                    3D Runway is unavailable right now
+                  </p>
+                </div>
+              }
+            >
+              <Runway3D garments={garments} />
+            </ErrorBoundary>
+          </div>
+        </section>
+      )}
 
       {/* Collection stats — slight rhythm: first metric reads as anchor */}
       {total > 0 && (

@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { PerspectiveCamera, Environment, OrbitControls } from "@react-three/drei";
+import { PerspectiveCamera, OrbitControls } from "@react-three/drei";
 import { useRef, useState, useMemo } from "react";
 import { Group } from "three";
 import { Garment, Era, GarmentType, getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/garment";
@@ -345,8 +345,7 @@ export default function Runway3D({ garments }: Props) {
           maxPolarAngle={Math.PI / 2}
         />
         <RunwayLighting />
-        <Environment preset="night" />
-        
+
         {/* Catwalk platform */}
         <Catwalk />
         
