@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "id": "demo-testdress0",
+    "slug": "test-dress-0",
+    "label": "Test Dress 0 (3D Scan Demo)",
+    "name": "Test Dress 0",
+    "era": "1980+",
+    "type": "dress",
+    "work_type": "Dress",
+    "colors": [],
+    "materials": [],
+    "images": [],
+    "model3d_url": "/models/testdress0-lowpoly.glb",
+    "collection": "Demo",
+    "description": "Placeholder entry for testing the 3D GLB viewer pipeline with a real RealityScan photogrammetry export."
+  }
+]

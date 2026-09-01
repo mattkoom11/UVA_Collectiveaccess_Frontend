@@ -42,3 +42,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local-only demo/placeholder 3D model — a compressed test scan wired to a
+# placeholder garments.json entry, not real archive content. Remove this
+# line if you want to commit it as a permanent demo asset (it's ~9.5MB,
+# under the 10MB guidance) — left ignored by default since it's test data.
+/public/models/testdress0-lowpoly.glb

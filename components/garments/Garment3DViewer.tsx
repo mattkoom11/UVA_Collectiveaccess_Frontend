@@ -2,8 +2,8 @@
 
 import { Canvas, useLoader } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
-import { Suspense, useRef } from "react";
-import { Group } from "three";
+import { Suspense, useMemo, useRef } from "react";
+import { Box3, Group, Vector3 } from "three";
 import DemoGarment from "./DemoGarment";
 import { Garment } from "@/types/garment";
 import { getPrimaryColor } from "@/lib/colorUtils";
@@ -26,23 +26,51 @@ function LoadingModel() {
   );
 }
 
+// Target height (world units) models are normalized to. The viewer's camera
+// and OrbitControls distances are tuned for objects roughly this tall.
+const TARGET_MODEL_HEIGHT = 2;
+// World Y of the ground plane below — the model's base is placed here so it
+// appears to stand on it rather than float or clip through.
+const GROUND_Y = -1;
+
 // 3D Model component - loads GLTF/GLB models
 function GarmentModel({ modelUrl }: { modelUrl: string }) {
   const groupRef = useRef<Group>(null);
-  
+
   // Load the 3D model using useGLTF from drei
   // This supports GLTF/GLB formats commonly used for photogrammetry
   const { scene } = useGLTF(modelUrl);
-  
+
   // Clone the scene to avoid mutating the original
-  const clonedScene = scene.clone();
-  
+  const clonedScene = useMemo(() => scene.clone(), [scene]);
+
+  // Photogrammetry exports vary wildly in export scale/origin (a raw scan
+  // may be tens of units across with an arbitrary pivot). Auto-fit every
+  // model to a consistent height and center it on the ground plane so the
+  // fixed camera/orbit-control distances above always frame it, regardless
+  // of the source software's units.
+  const { scale, position } = useMemo(() => {
+    const box = new Box3().setFromObject(clonedScene);
+    const size = box.getSize(new Vector3());
+    const center = box.getCenter(new Vector3());
+    const s = size.y > 0 ? TARGET_MODEL_HEIGHT / size.y : 1;
+
+    return {
+      scale: s,
+      position: [
+        -center.x * s,
+        GROUND_Y - box.min.y * s,
+        -center.z * s,
+      ] as [number, number, number],
+    };
+  }, [clonedScene]);
+
   return (
-    <primitive 
+    <primitive
       ref={groupRef}
-      object={clonedScene} 
-      scale={1} 
-      position={[0, 0, 0]}
+      object={clonedScene}
+      scale={scale}
+      position={position}
     />
   );
 }

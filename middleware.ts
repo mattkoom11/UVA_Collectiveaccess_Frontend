@@ -29,9 +29,12 @@ export function middleware(request: NextRequest) {
     "media-src 'self' blob: data:",
     // Geist / display fonts are self-hosted by Next.js; data URIs for icons.
     "font-src 'self' data:",
-    // All API calls go through /api/* server-side routes, so only 'self' is
-    // needed for client-side fetch/XHR.
-    "connect-src 'self'",
+    // All API calls go through /api/* server-side routes, so 'self' covers
+    // those. 'blob:' is also required: GLTFLoader decodes embedded GLB
+    // textures by creating a blob: URL and fetching it — img-src already
+    // allowed that for <img> tags, but connect-src (fetch/XHR) needs its
+    // own blob: entry, or every embedded-texture 3D model fails to load.
+    "connect-src 'self' blob:",
     // Three.js spawns Web Workers from blob: URLs.
     "worker-src blob:",
     // No plugin content (Flash, etc.).
