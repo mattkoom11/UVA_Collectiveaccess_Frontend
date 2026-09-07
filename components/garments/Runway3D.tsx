@@ -225,20 +225,20 @@ function Catwalk() {
       {/* Main runway platform - extended to cover the oval path */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.9, 0]}>
         <planeGeometry args={[12, 24]} />
-        <meshStandardMaterial 
-          color="#1a1a1a" 
-          metalness={0.8}
-          roughness={0.2}
+        <meshStandardMaterial
+          color="#1a1a1a"
+          metalness={0.5}
+          roughness={0.45}
         />
       </mesh>
-      
+
       {/* Side path for the oval (left side) */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-2, -0.9, 0]}>
         <planeGeometry args={[4, 24]} />
-        <meshStandardMaterial 
-          color="#0f0f0f" 
-          metalness={0.6}
-          roughness={0.3}
+        <meshStandardMaterial
+          color="#0f0f0f"
+          metalness={0.4}
+          roughness={0.5}
         />
       </mesh>
       
@@ -265,21 +265,24 @@ function Catwalk() {
 function RunwayLighting() {
   return (
     <>
-      {/* Main spotlight */}
-      <spotLight
-        position={[0, 10, 0]}
-        angle={0.5}
-        penumbra={0.5}
-        intensity={2}
-        castShadow
-      />
-      
-      {/* Ambient fill */}
-      <ambientLight intensity={0.3} />
-      
+      {/* Soft overall fill so no part of the oval path falls into shadow */}
+      <ambientLight intensity={0.7} />
+      <hemisphereLight args={["#ffffff", "#3a3a3a", 0.9]} />
+
+      {/* Spotlights spaced along the runway's full length so walking models
+          stay lit through the whole loop, not just the center */}
+      <spotLight position={[0, 10, -8]} angle={0.65} penumbra={0.5} intensity={3} castShadow />
+      <spotLight position={[0, 10, 0]} angle={0.65} penumbra={0.5} intensity={3} castShadow />
+      <spotLight position={[0, 10, 8]} angle={0.65} penumbra={0.5} intensity={3} castShadow />
+      {/* Extra coverage over the side leg of the oval (x: 0 to -4) */}
+      <spotLight position={[-2, 10, 4]} angle={0.6} penumbra={0.5} intensity={2} />
+      <spotLight position={[-2, 10, -4]} angle={0.6} penumbra={0.5} intensity={2} />
+
       {/* Rim lights */}
-      <pointLight position={[-10, 5, 0]} intensity={0.5} color="#ffffff" />
-      <pointLight position={[10, 5, 0]} intensity={0.5} color="#ffffff" />
+      <pointLight position={[-10, 5, 0]} intensity={1.2} color="#ffffff" />
+      <pointLight position={[10, 5, 0]} intensity={1.2} color="#ffffff" />
+      <pointLight position={[0, 4, 10]} intensity={1} color="#ffffff" />
+      <pointLight position={[0, 4, -10]} intensity={1} color="#ffffff" />
     </>
   );
 }
@@ -383,7 +386,12 @@ export default function Runway3D({ garments }: Props) {
       
       <Canvas
         shadows
-        onCreated={() => setSceneReady(true)}
+        onCreated={(state) => {
+          setSceneReady(true);
+          // ACES Filmic tone mapping (R3F's default) compresses highlights;
+          // nudge exposure up so the runway doesn't read as dim overall.
+          state.gl.toneMappingExposure = 1.35;
+        }}
         dpr={Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 1.5)}
         performance={{ min: 0.5 }}
         gl={{ powerPreference: "high-performance", antialias: true, stencil: false, depth: true }}
