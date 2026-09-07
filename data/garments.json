@@ -10,8 +10,8 @@
     "colors": [],
     "materials": [],
     "images": [],
-    "model3d_url": "/models/testdress0-lowpoly.glb",
+    "model3d_url": "/models/testdress0-repaired.glb",
     "collection": "Demo",
-    "description": "Placeholder entry for testing the 3D GLB viewer pipeline with a real RealityScan photogrammetry export."
+    "description": "RealityScan photogrammetry export, retopologized in AutoRemesher after welding coincident-duplicate vertices at fold seams in the source scan (see garment-capture-pipeline/weld_source.py) — fully watertight, no gaps."
   }
 ]

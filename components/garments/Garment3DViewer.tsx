@@ -83,10 +83,10 @@ function PlaceholderModel({ garment }: { garment?: Garment }) {
 
 export default function Garment3DViewer({ modelUrl, garmentId, garment }: Props) {
   return (
-    <div className="w-full h-[600px] md:h-[800px] lg:h-[900px] bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 rounded-lg overflow-hidden border border-zinc-800 shadow-2xl relative">
+    <div className="w-full h-[600px] md:h-[800px] lg:h-[900px] bg-gradient-to-b from-stone-200 via-stone-100 to-stone-200 rounded-lg overflow-hidden border border-stone-300 shadow-2xl relative">
       <Canvas shadows>
         <PerspectiveCamera makeDefault position={[0, 1, 5]} fov={50} />
-        <OrbitControls 
+        <OrbitControls
           enableZoom={true}
           enablePan={true}
           enableRotate={true}
@@ -97,31 +97,33 @@ export default function Garment3DViewer({ modelUrl, garmentId, garment }: Props)
           enableDamping
           dampingFactor={0.05}
         />
-        
-        {/* Enhanced Lighting for better visibility */}
-        <ambientLight intensity={0.6} />
+
+        {/* Soft, even gallery-style lighting rather than moody spotlights */}
+        <ambientLight intensity={0.9} />
         <spotLight
           position={[5, 5, 5]}
-          angle={0.5}
-          penumbra={0.5}
-          intensity={1.2}
+          angle={0.6}
+          penumbra={0.8}
+          intensity={0.7}
+          color="#fff8ec"
           castShadow
         />
         <spotLight
           position={[-5, 5, -5]}
-          angle={0.5}
-          penumbra={0.5}
-          intensity={0.8}
+          angle={0.6}
+          penumbra={0.8}
+          intensity={0.5}
+          color="#fff8ec"
           castShadow
         />
-        <pointLight position={[-5, 3, -5]} intensity={0.4} color="#ffffff" />
-        <pointLight position={[5, 3, -5]} intensity={0.4} color="#ffffff" />
-        <pointLight position={[0, 8, 0]} intensity={0.3} color="#ffffff" />
+        <pointLight position={[-5, 3, -5]} intensity={0.3} color="#fffaf0" />
+        <pointLight position={[5, 3, -5]} intensity={0.3} color="#fffaf0" />
+        <pointLight position={[0, 8, 0]} intensity={0.25} color="#fffaf0" />
 
-        {/* Ground plane for shadows */}
+        {/* Ground plane — light gallery-floor tone instead of a dark stage */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]} receiveShadow>
           <planeGeometry args={[20, 20]} />
-          <meshStandardMaterial color="#0a0a0a" roughness={0.8} />
+          <meshStandardMaterial color="#d8d2c4" roughness={0.9} />
         </mesh>
         
         {/* Model */}
