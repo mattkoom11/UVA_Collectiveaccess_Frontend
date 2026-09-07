@@ -1,15 +1,96 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { PerspectiveCamera, OrbitControls } from "@react-three/drei";
-import { useRef, useState, useMemo } from "react";
-import { Group } from "three";
+import { PerspectiveCamera, OrbitControls, useGLTF } from "@react-three/drei";
+import { Suspense, useRef, useState, useMemo } from "react";
+import { Box3, Group, Vector3 } from "three";
 import { Garment, Era, GarmentType, getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/garment";
 import { filterGarments } from "@/lib/garments";
 import { getPrimaryColor, getSecondaryColor } from "@/lib/colorUtils";
 
 interface Props {
   garments: Garment[];
+}
+
+// Target height (world units) garment meshes are normalized to on the runway,
+// and the local Y (within each walking model's group) that counts as "standing
+// on the catwalk" — matches the group's world Y offset from the platform top.
+const RUNWAY_MODEL_HEIGHT = 1.3;
+const RUNWAY_GROUND_Y = -0.4;
+
+// Loads and auto-fits a garment's GLTF/GLB scan so it stands on the catwalk
+// regardless of the source model's export scale/origin.
+function RunwayGarmentMesh({ modelUrl, hovered }: { modelUrl: string; hovered: boolean }) {
+  const { scene } = useGLTF(modelUrl);
+  const clonedScene = useMemo(() => scene.clone(), [scene]);
+
+  const { scale, position } = useMemo(() => {
+    const box = new Box3().setFromObject(clonedScene);
+    const size = box.getSize(new Vector3());
+    const center = box.getCenter(new Vector3());
+    const s = size.y > 0 ? RUNWAY_MODEL_HEIGHT / size.y : 1;
+
+    return {
+      scale: s,
+      position: [
+        -center.x * s,
+        RUNWAY_GROUND_Y - box.min.y * s,
+        -center.z * s,
+      ] as [number, number, number],
+    };
+  }, [clonedScene]);
+
+  return (
+    <primitive
+      object={clonedScene}
+      scale={hovered ? scale * 1.08 : scale}
+      position={position}
+    />
+  );
+}
+
+// The stylized placeholder figure, used when a garment has no 3D scan yet.
+function PlaceholderFigure({ garment, hovered }: { garment: Garment; hovered: boolean }) {
+  return (
+    <>
+      {/* Head */}
+      <mesh scale={hovered ? [1.1, 1.1, 1.1] : [1, 1, 1]}>
+        <sphereGeometry args={[0.15, 16, 16]} />
+        <meshStandardMaterial color="#fdbcb4" />
+      </mesh>
+
+      {/* Body/Torso */}
+      <mesh position={[0, -0.3, 0]}>
+        <boxGeometry args={[0.3, 0.4, 0.15]} />
+        <meshStandardMaterial
+          color={getPrimaryColor(garment.colors)}
+          metalness={0.3}
+          roughness={0.7}
+        />
+      </mesh>
+
+      {/* Legs */}
+      <mesh position={[-0.08, -0.7, 0]}>
+        <boxGeometry args={[0.08, 0.3, 0.08]} />
+        <meshStandardMaterial color="#2d3748" />
+      </mesh>
+      <mesh position={[0.08, -0.7, 0]}>
+        <boxGeometry args={[0.08, 0.3, 0.08]} />
+        <meshStandardMaterial color="#2d3748" />
+      </mesh>
+
+      {/* Garment indicator */}
+      <mesh position={[0, -0.35, 0]} scale={hovered ? [1.2, 1.2, 1.2] : [1, 1, 1]}>
+        <boxGeometry args={[0.35, 0.5, 0.2]} />
+        <meshStandardMaterial
+          color={getSecondaryColor(garment.colors, getPrimaryColor(garment.colors))}
+          wireframe={!hovered}
+          transparent
+          opacity={hovered ? 0.8 : 0.3}
+        />
+      </mesh>
+    </>
+  );
 }
 
 // Animated model component that walks along the catwalk
@@ -104,6 +185,8 @@ function WalkingModel({
     onGarmentClick(garment.id);
   };
 
+  const modelUrl = garment.model3d_url || garment.modelUrl;
+
   return (
     <group
       ref={groupRef}
@@ -111,44 +194,14 @@ function WalkingModel({
       onPointerOver={handlePointerOver}
       onPointerOut={handlePointerOut}
     >
-      {/* Simple placeholder figure - replace with actual model */}
-      <mesh scale={hovered ? [1.1, 1.1, 1.1] : [1, 1, 1]}>
-        {/* Head */}
-        <sphereGeometry args={[0.15, 16, 16]} />
-        <meshStandardMaterial color="#fdbcb4" />
-      </mesh>
-      
-      {/* Body/Torso */}
-      <mesh position={[0, -0.3, 0]}>
-        <boxGeometry args={[0.3, 0.4, 0.15]} />
-        <meshStandardMaterial 
-          color={getPrimaryColor(garment.colors)} 
-          metalness={0.3}
-          roughness={0.7}
-        />
-      </mesh>
-      
-      {/* Legs */}
-      <mesh position={[-0.08, -0.7, 0]}>
-        <boxGeometry args={[0.08, 0.3, 0.08]} />
-        <meshStandardMaterial color="#2d3748" />
-      </mesh>
-      <mesh position={[0.08, -0.7, 0]}>
-        <boxGeometry args={[0.08, 0.3, 0.08]} />
-        <meshStandardMaterial color="#2d3748" />
-      </mesh>
-      
-      {/* Garment indicator - will be replaced with 3D model */}
-      <mesh position={[0, -0.35, 0]} scale={hovered ? [1.2, 1.2, 1.2] : [1, 1, 1]}>
-        <boxGeometry args={[0.35, 0.5, 0.2]} />
-        <meshStandardMaterial 
-          color={getSecondaryColor(garment.colors, getPrimaryColor(garment.colors))}
-          wireframe={!hovered}
-          transparent
-          opacity={hovered ? 0.8 : 0.3}
-        />
-      </mesh>
-      
+      {modelUrl ? (
+        <Suspense fallback={<PlaceholderFigure garment={garment} hovered={hovered} />}>
+          <RunwayGarmentMesh modelUrl={modelUrl} hovered={hovered} />
+        </Suspense>
+      ) : (
+        <PlaceholderFigure garment={garment} hovered={hovered} />
+      )}
+
       {/* Clickable area */}
       <mesh 
         position={[0, 0, 0]} 
