@@ -11,6 +11,7 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/testdress0-repaired.glb",
+    "model3d_rotationY": 135,
     "collection": "Demo",
     "description": "RealityScan photogrammetry export, retopologized in AutoRemesher after welding coincident-duplicate vertices at fold seams in the source scan (see garment-capture-pipeline/weld_source.py) — fully watertight, no gaps."
   },
@@ -26,6 +27,7 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/testdress1.glb",
+    "model3d_rotationY": 0,
     "collection": "Demo",
     "description": "RealityScan photogrammetry export, retopologized in AutoRemesher (already watertight straight out of RealityScan, no weld needed this time), with real diffuse texture baked from the dense source scan via garment-capture-pipeline/bake_texture.py + assemble_textured_glb.py."
   },
@@ -41,6 +43,7 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/testdress2.glb",
+    "model3d_rotationY": 225,
     "collection": "Demo",
     "description": "RealityScan photogrammetry export, retopologized in AutoRemesher (already watertight straight out of RealityScan) and textured via garment-capture-pipeline/bake_texture.py + assemble_textured_glb.py. This scan's own export used a Z-up axis convention (unlike Test Dress 0/1's Y-up) and was rotated to match before import here."
   }

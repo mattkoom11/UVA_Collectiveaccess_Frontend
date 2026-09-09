@@ -32,9 +32,13 @@ const TARGET_MODEL_HEIGHT = 2;
 // World Y of the ground plane below — the model's base is placed here so it
 // appears to stand on it rather than float or clip through.
 const GROUND_Y = -1;
+// Rather than starting dead-on to the camera, garments open on a 3/4 turn —
+// facing 45° toward the camera's left — on top of each garment's own
+// calibrated front-facing offset (model3d_rotationY).
+const VIEWER_INITIAL_ANGLE_OFFSET_DEGREES = -45;
 
 // 3D Model component - loads GLTF/GLB models
-function GarmentModel({ modelUrl }: { modelUrl: string }) {
+function GarmentModel({ modelUrl, rotationY = 0 }: { modelUrl: string; rotationY?: number }) {
   const groupRef = useRef<Group>(null);
 
   // Load the 3D model using useGLTF from drei
@@ -65,13 +69,18 @@ function GarmentModel({ modelUrl }: { modelUrl: string }) {
     };
   }, [clonedScene]);
 
+  // Wrapping group: the rotation must apply to the already-centered mesh, not
+  // compose with the recentering translation itself (see RunwayGarmentMesh in
+  // Runway3D.tsx for the same pattern and why order matters here).
   return (
-    <primitive
-      ref={groupRef}
-      object={clonedScene}
-      scale={scale}
-      position={position}
-    />
+    <group rotation={[0, rotationY, 0]}>
+      <primitive
+        ref={groupRef}
+        object={clonedScene}
+        scale={scale}
+        position={position}
+      />
+    </group>
   );
 }
 
@@ -129,7 +138,13 @@ export default function Garment3DViewer({ modelUrl, garmentId, garment }: Props)
         {/* Model */}
         <Suspense fallback={<LoadingModel />}>
           {modelUrl ? (
-            <GarmentModel modelUrl={modelUrl} />
+            <GarmentModel
+              modelUrl={modelUrl}
+              rotationY={
+                (((garment?.model3d_rotationY ?? 0) + VIEWER_INITIAL_ANGLE_OFFSET_DEGREES) * Math.PI) /
+                180
+              }
+            />
           ) : (
             <PlaceholderModel garment={garment} />
           )}

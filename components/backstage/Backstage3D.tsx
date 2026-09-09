@@ -1,13 +1,18 @@
 "use client";
 
 import { Canvas, useFrame, useThree, ThreeEvent } from "@react-three/fiber";
-import { PerspectiveCamera, OrbitControls, useGLTF, Environment, useTexture } from "@react-three/drei";
+import { PerspectiveCamera, OrbitControls, useGLTF, useTexture } from "@react-three/drei";
 import { Suspense, useRef, useState, useEffect, useLayoutEffect, useMemo, useCallback } from "react";
-import { Group, Vector3, RepeatWrapping } from "three";
+import { Box3, Group, Vector3, RepeatWrapping } from "three";
 import * as THREE from "three";
 import DemoGarment from "@/components/garments/DemoGarment";
 import { getGarmentById } from "@/lib/garments";
 import { getPrimaryColor } from "@/lib/colorUtils";
+
+// Target height (world units) a garment scan is normalized to so it stands
+// on its pedestal regardless of the source scan's export scale/origin —
+// mirrors RunwayGarmentMesh's auto-fit in Runway3D.tsx.
+const BACKSTAGE_GARMENT_HEIGHT = 1.5;
 
 interface Backstage3DProps {
   onGarmentSelected?: (garmentId: string) => void;
@@ -511,17 +516,33 @@ function GarmentModel({
   onGarmentClick,
   position,
   garmentId,
+  rotationY = 0,
 }: {
   modelUrl: string;
   onGarmentClick: (garmentId?: string) => void;
   position: [number, number, number];
   garmentId?: string;
+  rotationY?: number;
 }) {
   const groupRef = useRef<Group>(null);
-  
+
   // useGLTF must be called unconditionally - Suspense will handle loading
   const { scene: loadedScene } = useGLTF(modelUrl);
-  const scene = loadedScene.clone();
+  const scene = useMemo(() => loadedScene.clone(), [loadedScene]);
+
+  // Auto-fit the scan to a consistent on-pedestal height, since scans are
+  // exported at wildly different scales/origins (see BACKSTAGE_GARMENT_HEIGHT).
+  const { fitScale, fitPosition } = useMemo(() => {
+    const box = new Box3().setFromObject(scene);
+    const size = box.getSize(new Vector3());
+    const center = box.getCenter(new Vector3());
+    const s = size.y > 0 ? BACKSTAGE_GARMENT_HEIGHT / size.y : 1;
+
+    return {
+      fitScale: s,
+      fitPosition: [-center.x * s, -box.min.y * s, -center.z * s] as [number, number, number],
+    };
+  }, [scene]);
 
   // Rotate the garment slowly
   useFrame(() => {
@@ -550,8 +571,8 @@ function GarmentModel({
   }, [onGarmentClick, garmentId]);
 
   return (
-    <group ref={groupRef} position={position} onClick={handleClick}>
-      <primitive object={scene} scale={1} />
+    <group ref={groupRef} position={position} rotation={[0, rotationY, 0]} onClick={handleClick}>
+      <primitive object={scene} scale={fitScale} position={fitPosition} />
     </group>
   );
 }
@@ -703,6 +724,14 @@ export default function Backstage3D({
     });
   }, [actualGarmentIds]);
 
+  // Per-garment scan front-facing calibration (degrees -> radians)
+  const garmentRotations = useMemo(() => {
+    return actualGarmentIds.map(id => {
+      const garment = getGarmentById(id);
+      return ((garment?.model3d_rotationY ?? 0) * Math.PI) / 180;
+    });
+  }, [actualGarmentIds]);
+
   useEffect(() => {
     // Fade out UI after 5 seconds
     const timer = setTimeout(() => {
@@ -813,9 +842,13 @@ export default function Backstage3D({
 
             const handleContextRestored = () => {
               console.log("WebGL context restored");
+              // Just clear the error state — three.js's WebGLRenderer already
+              // re-uploads GL resources on its own after a restore. Forcing a
+              // full <Canvas> remount here would request a brand-new context
+              // immediately, which under context pressure (e.g. several 3D
+              // views used across the page in one session) can retrigger loss
+              // right away and loop.
               setContextLost(false);
-              setIsMounted(false);
-              setTimeout(() => setIsMounted(true), 100);
             };
 
             state.gl.domElement.addEventListener('webglcontextlost', handleContextLost);
@@ -874,7 +907,9 @@ export default function Backstage3D({
         )}
 
         <BackstageLighting garmentPositions={finalPositions} />
-        <Environment preset="warehouse" />
+        {/* No <Environment> here: its HDRI loads from an external CDN, which
+            this app's CSP (connect-src 'self' blob:) blocks — it would throw
+            and crash the whole scene via the ErrorBoundary above. */}
 
         <BackstageRoom 
           garmentPositions={finalPositions}
@@ -889,11 +924,12 @@ export default function Backstage3D({
           return (
             <Suspense key={`garment-${garmentId}-${index}`} fallback={<GarmentLoading position={position} />}>
               {modelUrl ? (
-                <GarmentModel 
-                  modelUrl={modelUrl} 
-                  onGarmentClick={handleGarmentClick} 
+                <GarmentModel
+                  modelUrl={modelUrl}
+                  onGarmentClick={handleGarmentClick}
                   position={position}
                   garmentId={garmentId}
+                  rotationY={garmentRotations[index]}
                 />
               ) : (
                 <PlaceholderGarment 

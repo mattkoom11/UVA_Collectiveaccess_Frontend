@@ -12,6 +12,15 @@ import { ErrorBoundary } from "@/components/backstage/ErrorBoundary";
 
 const Backstage3D = dynamic(() => import("@/components/backstage/Backstage3D"), { ssr: false });
 
+// The 3D-scanned demo garments (see data/garments.json) — shown together,
+// spread across pedestals, whenever any one of them is opened in backstage.
+const DEMO_GARMENT_IDS = ["demo-testdress0", "demo-testdress1", "demo-testdress2"];
+const DEMO_GARMENT_POSITIONS: Array<[number, number, number]> = [
+  [-3, 0.45, -8],
+  [0, 0.45, -8],
+  [3, 0.45, -8],
+];
+
 interface BackstagePageProps {
   garmentId: string;
 }
@@ -133,16 +142,28 @@ export default function BackstagePage({ garmentId }: BackstagePageProps) {
         {/* 3D Backstage Viewer */}
         <section className="w-full h-[calc(100vh-300px)] min-h-[600px] border-b border-zinc-800 relative">
           <ErrorBoundary>
-            <Backstage3D
-              onGarmentSelected={(id) => {
-                // Use router for navigation instead of window.location
-                if (typeof window !== 'undefined') {
-                  window.location.href = `/backstage/${id}`;
-                }
-              }}
-              garmentId={garmentId}
-              garmentPositions={[[0, 0.45, -8]]}
-            />
+            {DEMO_GARMENT_IDS.includes(garmentId) ? (
+              <Backstage3D
+                onGarmentSelected={(id) => {
+                  if (typeof window !== 'undefined') {
+                    window.location.href = `/backstage/${id}`;
+                  }
+                }}
+                garmentIds={DEMO_GARMENT_IDS}
+                garmentPositions={DEMO_GARMENT_POSITIONS}
+              />
+            ) : (
+              <Backstage3D
+                onGarmentSelected={(id) => {
+                  // Use router for navigation instead of window.location
+                  if (typeof window !== 'undefined') {
+                    window.location.href = `/backstage/${id}`;
+                  }
+                }}
+                garmentId={garmentId}
+                garmentPositions={[[0, 0.45, -8]]}
+              />
+            )}
           </ErrorBoundary>
         </section>
 

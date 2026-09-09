@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { PerspectiveCamera, OrbitControls, useGLTF } from "@react-three/drei";
-import { Suspense, useRef, useState, useMemo } from "react";
+import { Suspense, useRef, useState, useMemo, useEffect } from "react";
 import { Box3, Group, Vector3 } from "three";
 import { Garment, Era, GarmentType, getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/garment";
 import { filterGarments } from "@/lib/garments";
@@ -20,7 +20,7 @@ const RUNWAY_GROUND_Y = -0.4;
 
 // Loads and auto-fits a garment's GLTF/GLB scan so it stands on the catwalk
 // regardless of the source model's export scale/origin.
-function RunwayGarmentMesh({ modelUrl, hovered }: { modelUrl: string; hovered: boolean }) {
+function RunwayGarmentMesh({ modelUrl, hovered, rotationY = 0 }: { modelUrl: string; hovered: boolean; rotationY?: number }) {
   const { scene } = useGLTF(modelUrl);
   const clonedScene = useMemo(() => scene.clone(), [scene]);
 
@@ -40,12 +40,18 @@ function RunwayGarmentMesh({ modelUrl, hovered }: { modelUrl: string; hovered: b
     };
   }, [clonedScene]);
 
+  // Scan exports have an arbitrary front direction baked into their own local
+  // axes. This wraps the already-centered mesh in a group rotated around its
+  // vertical axis, so the calibration offset composes with (rather than
+  // fights) the parent WalkingModel's per-frame walk-direction rotation.
   return (
-    <primitive
-      object={clonedScene}
-      scale={hovered ? scale * 1.08 : scale}
-      position={position}
-    />
+    <group rotation={[0, rotationY, 0]}>
+      <primitive
+        object={clonedScene}
+        scale={hovered ? scale * 1.08 : scale}
+        position={position}
+      />
+    </group>
   );
 }
 
@@ -125,57 +131,56 @@ function WalkingModel({
     if (!groupRef.current) return;
     
     const time = state.clock.elapsedTime;
-    const walkSpeed = 0.08; // Speed of walking (lower = slower) - very slow, elegant fashion show pace
-    const spacing = 10; // Time spacing between models (seconds) - increased to match slower speed
-    const pathLength = 16; // Total time to complete one full oval loop - very slow, deliberate pace
-    
+    const spacing = 15; // Time spacing between models (seconds) - increased to match slower speed
+    const pathLength = 24; // Total time to complete one full oval loop - slower, more deliberate pace
+
     // Stagger each model so they follow one after another
     const offsetTime = time - (index * spacing);
     const normalizedTime = ((offsetTime % pathLength) + pathLength) % pathLength;
-    
+
     // Oval path parameters
     const runwayLength = 20; // Length of runway (z: -10 to 10)
     const sideOffset = 4; // How far to the side they go (x: 0 to -4)
     const startZ = -10; // Back of runway
     const endZ = 10; // Front of runway
-    
+
     let x = 0;
     let z = 0;
     let rotationY = 0;
-    
-    // Define the oval path in 4 segments (adjusted for very slow, elegant pace)
-    if (normalizedTime < 4) {
+
+    // Define the oval path in 4 segments (durations scaled 1.5x for a slower pace)
+    if (normalizedTime < 6) {
       // Segment 1: Walk forward down center runway (z: -10 to 10)
-      const t = normalizedTime / 4;
+      const t = normalizedTime / 6;
       z = startZ + (endZ - startZ) * t;
       x = 0;
       rotationY = 0; // Face forward (positive z)
-    } else if (normalizedTime < 6) {
+    } else if (normalizedTime < 9) {
       // Segment 2: Turn and walk to the left side (x: 0 to -4)
-      const t = (normalizedTime - 4) / 2;
+      const t = (normalizedTime - 6) / 3;
       z = endZ;
       x = -sideOffset * t;
       rotationY = -Math.PI / 2; // Face left
-    } else if (normalizedTime < 10) {
+    } else if (normalizedTime < 15) {
       // Segment 3: Walk back along the side (z: 10 to -10)
-      const t = (normalizedTime - 6) / 4;
+      const t = (normalizedTime - 9) / 6;
       z = endZ - (endZ - startZ) * t;
       x = -sideOffset;
       rotationY = Math.PI; // Face backward (negative z)
     } else {
       // Segment 4: Turn and walk back to center (x: -4 to 0)
-      const t = (normalizedTime - 10) / 6;
+      const t = (normalizedTime - 15) / 9;
       z = startZ;
       x = -sideOffset * (1 - t);
       rotationY = Math.PI / 2; // Face right
     }
-    
+
     // Apply position
     groupRef.current.position.x = x;
     groupRef.current.position.z = z;
-    
-    // Slight bobbing motion for walking
-    groupRef.current.position.y = position[1] + Math.sin(time * 4 + index) * 0.08;
+
+    // Slight bobbing motion for walking, matched to the slower stride
+    groupRef.current.position.y = position[1] + Math.sin(time * 2.7 + index) * 0.08;
     
     // Smooth rotation to face direction
     groupRef.current.rotation.y = rotationY;
@@ -196,7 +201,11 @@ function WalkingModel({
     >
       {modelUrl ? (
         <Suspense fallback={<PlaceholderFigure garment={garment} hovered={hovered} />}>
-          <RunwayGarmentMesh modelUrl={modelUrl} hovered={hovered} />
+          <RunwayGarmentMesh
+            modelUrl={modelUrl}
+            hovered={hovered}
+            rotationY={((garment.model3d_rotationY ?? 0) * Math.PI) / 180}
+          />
         </Suspense>
       ) : (
         <PlaceholderFigure garment={garment} hovered={hovered} />
@@ -319,14 +328,39 @@ export default function Runway3D({ garments }: Props) {
   };
 
   const [sceneReady, setSceneReady] = useState(false);
+  const [sceneFailed, setSceneFailed] = useState(false);
+
+  // If the WebGL canvas never finishes initializing (context creation failure,
+  // exhausted GPU contexts from other 3D views on the page, etc.), the loading
+  // spinner would otherwise spin forever since it's only cleared by Canvas's
+  // onCreated callback. Time out and offer a reload instead of hanging.
+  useEffect(() => {
+    if (sceneReady) return;
+    const timer = setTimeout(() => setSceneFailed(true), 10000);
+    return () => clearTimeout(timer);
+  }, [sceneReady]);
 
   return (
     <div className="w-full h-[600px] md:h-[800px] bg-black relative">
       {/* Loading overlay */}
-      {!sceneReady && (
+      {!sceneReady && !sceneFailed && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black">
           <div className="w-8 h-8 border-2 border-zinc-700 border-t-zinc-300 rounded-full animate-spin mb-4" />
           <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">Loading 3D Runway</p>
+        </div>
+      )}
+
+      {/* Failed to load / lost WebGL context */}
+      {sceneFailed && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black text-center px-4">
+          <p className="text-sm text-zinc-300 mb-2">3D Runway failed to load</p>
+          <p className="text-xs text-zinc-500 mb-4">This can happen if too many 3D views are open at once.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-zinc-800 text-zinc-200 text-xs uppercase tracking-[0.1em] rounded hover:bg-zinc-700 transition-colors"
+          >
+            Reload
+          </button>
         </div>
       )}
 
@@ -384,6 +418,7 @@ export default function Runway3D({ garments }: Props) {
         )}
       </div>
       
+      {!sceneFailed && (
       <Canvas
         shadows
         onCreated={(state) => {
@@ -391,6 +426,16 @@ export default function Runway3D({ garments }: Props) {
           // ACES Filmic tone mapping (R3F's default) compresses highlights;
           // nudge exposure up so the runway doesn't read as dim overall.
           state.gl.toneMappingExposure = 1.35;
+          // A lost context otherwise leaves a dead black canvas with no
+          // feedback — surface the reload UI instead.
+          state.gl.domElement.addEventListener(
+            "webglcontextlost",
+            (e) => {
+              e.preventDefault();
+              setSceneFailed(true);
+            },
+            { once: true }
+          );
         }}
         dpr={Math.min(typeof window !== 'undefined' ? window.devicePixelRatio : 1, 1.5)}
         performance={{ min: 0.5 }}
@@ -422,6 +467,7 @@ export default function Runway3D({ garments }: Props) {
           />
         ))}
       </Canvas>
+      )}
       
       {/* Hover label overlay */}
       {hoveredGarment && (

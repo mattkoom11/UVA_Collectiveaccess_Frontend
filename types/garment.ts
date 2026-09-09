@@ -51,6 +51,7 @@ export interface Garment {
   inspiration?: string; // What inspired this piece
   context?: string; // Historical/social context
   model3d_url?: string; // URL to photogrammetry 3D model
+  model3d_rotationY?: number; // Degrees to spin the scan around its vertical axis so its front faces the camera/runway (scan exports have an arbitrary front direction baked in)
   
   // New fields from prompt
   tagline?: string; // Short 1-2 sentence editorial hook
