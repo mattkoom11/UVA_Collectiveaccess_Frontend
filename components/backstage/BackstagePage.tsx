@@ -14,11 +14,12 @@ const Backstage3D = dynamic(() => import("@/components/backstage/Backstage3D"), 
 
 // The 3D-scanned demo garments (see data/garments.json) — shown together,
 // spread across pedestals, whenever any one of them is opened in backstage.
-const DEMO_GARMENT_IDS = ["demo-testdress0", "demo-testdress1", "demo-testdress2"];
+const DEMO_GARMENT_IDS = ["demo-testdress0", "demo-testdress1", "demo-testdress2", "demo-testdress3"];
 const DEMO_GARMENT_POSITIONS: Array<[number, number, number]> = [
-  [-3, 0.45, -8],
-  [0, 0.45, -8],
-  [3, 0.45, -8],
+  [-4.5, 0.45, -8],
+  [-1.5, 0.45, -8],
+  [1.5, 0.45, -8],
+  [4.5, 0.45, -8],
 ];
 
 interface BackstagePageProps {
