@@ -46,5 +46,21 @@
     "model3d_rotationY": 225,
     "collection": "Demo",
     "description": "RealityScan photogrammetry export, retopologized in AutoRemesher (already watertight straight out of RealityScan) and textured via garment-capture-pipeline/bake_texture.py + assemble_textured_glb.py. This scan's own export used a Z-up axis convention (unlike Test Dress 0/1's Y-up) and was rotated to match before import here."
+  },
+  {
+    "id": "demo-testdress3",
+    "slug": "test-dress-3",
+    "label": "Test Dress 3 (3D Scan Demo)",
+    "name": "Test Dress 3",
+    "era": "1980+",
+    "type": "dress",
+    "work_type": "Dress",
+    "colors": [],
+    "materials": [],
+    "images": [],
+    "model3d_url": "/models/testdress3.glb",
+    "model3d_rotationY": 0,
+    "collection": "Demo",
+    "description": "RealityScan photogrammetry export, retopologized in AutoRemesher and textured via garment-capture-pipeline/bake_texture.py + assemble_textured_glb.py. Like Test Dress 2, this scan's own export used a Z-up axis convention (unlike Test Dress 0/1's Y-up); the same -90 deg rotation about X was applied to the baked mesh (empirically derived from comparing AutoRemesher's raw retopology output against the crop/align pass in RealityScan_Projects/TestDress3/TestDress3_Rotated.obj) before assembling the GLB."
   }
 ]
