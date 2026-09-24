@@ -13,7 +13,7 @@
     "model3d_url": "/models/testdress0-repaired.glb",
     "model3d_rotationY": 135,
     "collection": "Demo",
-    "description": "RealityScan photogrammetry export, retopologized in AutoRemesher after welding coincident-duplicate vertices at fold seams in the source scan (see garment-capture-pipeline/weld_source.py) — fully watertight, no gaps."
+    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py. Previously built by retopologizing in AutoRemesher and re-baking the texture, which smeared fine detail; replaced 2026-09-23."
   },
   {
     "id": "demo-testdress1",
@@ -30,7 +30,7 @@
     "model3d_rotationY": 0,
     "collection": "Demo",
     "accessionNumber": "OTW.2023.780",
-    "description": "RealityScan photogrammetry export, retopologized in AutoRemesher (already watertight straight out of RealityScan, no weld needed this time), with real diffuse texture baked from the dense source scan via garment-capture-pipeline/bake_texture.py + assemble_textured_glb.py."
+    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py, with a -90 deg rotation about X and a small vertical offset preserved from the earlier build so placement is unchanged. Previously retopologized and re-baked; replaced 2026-09-23."
   },
   {
     "id": "demo-testdress2",
@@ -47,7 +47,7 @@
     "model3d_rotationY": 225,
     "collection": "Demo",
     "accessionNumber": "ENS.2023.8029",
-    "description": "RealityScan photogrammetry export, retopologized in AutoRemesher (already watertight straight out of RealityScan) and textured via garment-capture-pipeline/bake_texture.py + assemble_textured_glb.py. This scan's own export used a Z-up axis convention (unlike Test Dress 0/1's Y-up) and was rotated to match before import here."
+    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py. This scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Previously retopologized and re-baked; replaced 2026-09-23."
   },
   {
     "id": "demo-testdress3",
@@ -64,7 +64,7 @@
     "model3d_rotationY": 270,
     "collection": "Demo",
     "accessionNumber": "OTW.2025.243",
-    "description": "RealityScan photogrammetry export, retopologized in AutoRemesher and textured via garment-capture-pipeline/bake_texture.py + assemble_textured_glb.py. Like Test Dress 2, this scan's own export used a Z-up axis convention (unlike Test Dress 0/1's Y-up); the same -90 deg rotation about X was applied to the baked mesh (empirically derived from comparing AutoRemesher's raw retopology output against the crop/align pass in RealityScan_Projects/TestDress3/TestDress3_Rotated.obj) before assembling the GLB."
+    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py. Like Test Dress 2, this scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Previously retopologized and re-baked; replaced 2026-09-23."
   },
   {
     "id": "demo-testdress4",
