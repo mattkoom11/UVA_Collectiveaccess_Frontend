@@ -78,8 +78,8 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/testdress4.glb",
-    "model3d_rotationY": 0,
+    "model3d_rotationY": 180,
     "collection": "Demo",
-    "description": "RealityScan photogrammetry export, retopologized in AutoRemesher and textured via garment-capture-pipeline/bake_texture.py + assemble_textured_glb.py. Like Test Dress 2/3, this scan's own export used a Z-up axis convention (unlike Test Dress 0/1's Y-up); the same -90 deg rotation about X was applied to the baked mesh (confirmed by comparing AutoRemesher's raw retopology output against the crop/align pass in RealityScan_Projects/TestDress4/TestDress4_Rotated.obj, bounding boxes matched exactly post-rotation) before assembling the GLB. model3d_rotationY left at 0 (not yet visually tuned like Test Dress 0-3) — adjust once viewed in the browser."
+    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, keeping RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py. This scan's own export used a Z-up axis convention (unlike Test Dress 0/1's Y-up), so a -90 deg rotation about X was applied. The retopologize-and-rebake route used for Test Dress 0-3 was tried first and produced smeared texture and black blocks on the center-front placket, so it was replaced for this garment. model3d_rotationY set to 180 (confirmed 2026-09-23 via visual check) to face forward."
   }
 ]
