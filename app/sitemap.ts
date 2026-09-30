@@ -88,14 +88,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }))
 
-  // Backstage (3D) pages per garment
-  const backstagePages: MetadataRoute.Sitemap = garments.map((g) => ({
-    url: `${baseUrl}/backstage/${g.id}`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.6,
-  }))
-
-  return [...staticPages, ...garmentPages, ...exhibitionPages, ...learnIndex, ...learnArticlePages, ...backstagePages]
+  return [...staticPages, ...garmentPages, ...exhibitionPages, ...learnIndex, ...learnArticlePages]
 }
 

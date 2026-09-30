@@ -1,6 +1,6 @@
 import garmentsData from "@/data/garments.json";
 import { Garment, Era, GarmentType, getEraFromDecade, getGarmentTypeFromWorkType, normalizeMaterials } from "@/types/garment";
-import { syncGarmentsFromCA, isCAConfigured } from "@/lib/collectiveAccess";
+import { syncGarmentsFromCA, isCAConfigured, fetchGarmentImages, type CAImage } from "@/lib/collectiveAccess";
 
 let caGarmentsCache: Garment[] | null = null;
 let hydrateInFlight: Promise<void> | null = null;
@@ -51,6 +51,54 @@ function saveDiskCache(garments: Garment[]): void {
   }
 }
 
+let imageFillInFlight = false;
+
+/**
+ * Fills in photos for garments that have none, from images fetched by
+ * garment id. Garments that already have images are left alone. Returns a new
+ * array.
+ */
+export function mergeGarmentImages(garments: Garment[], imagesById: Map<string, CAImage[]>): Garment[] {
+  return garments.map((g) => {
+    if (g.images?.length) return g;
+    const found = (imagesById.get(g.id) ?? []).filter((img) => img.url);
+    if (!found.length) return g;
+    return {
+      ...g,
+      images: found.map((img) => img.url),
+      imageUrl: found[0].url,
+      thumbnailUrl: found[0].thumbnail_url || found[0].url,
+    };
+  });
+}
+
+/**
+ * Hydration fetches metadata only, to keep startup fast, so photos are
+ * fetched afterwards without blocking any request. The result is written to
+ * the disk cache so the next cold start already has them.
+ */
+function fillMissingImagesInBackground(): void {
+  if (imageFillInFlight || !caGarmentsCache) return;
+  const missing = caGarmentsCache.filter((g) => !g.images?.length).map((g) => g.id);
+  if (missing.length === 0) return;
+
+  imageFillInFlight = true;
+  fetchGarmentImages(missing)
+    .then((imagesById) => {
+      if (!caGarmentsCache) return;
+      caGarmentsCache = mergeGarmentImages(caGarmentsCache, imagesById);
+      saveDiskCache(caGarmentsCache);
+      const filled = [...imagesById.values()].filter((imgs) => imgs.length > 0).length;
+      console.log(`[CA] Filled in images for ${filled} of ${missing.length} garment(s).`);
+    })
+    .catch((e) => {
+      console.error("[CA] Background image fetch failed:", e instanceof Error ? e.message : e);
+    })
+    .finally(() => {
+      imageFillInFlight = false;
+    });
+}
+
 /**
  * When CA is configured, populate the in-memory cache from CollectiveAccess.
  * On first run after a restart, tries the disk cache first (fast), then falls
@@ -72,6 +120,7 @@ export async function hydrateGarmentsFromCA(): Promise<void> {
     const disk = loadDiskCache();
     if (disk) {
       caGarmentsCache = disk;
+      fillMissingImagesInBackground();
       return;
     }
 
@@ -88,6 +137,7 @@ export async function hydrateGarmentsFromCA(): Promise<void> {
         materials: normalizeMaterials(g.materials),
       })) as Garment[];
       console.log(`[CA] Hydrated ${caGarmentsCache.length} garments successfully.`);
+      fillMissingImagesInBackground();
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.error(`[CA] Hydrate failed, falling back to static data. Reason: ${msg}`);

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { hydrateGarmentsFromCA, getAllGarments, getGarmentBySlug } from "@/lib/garments";
 import { Garment } from "@/types/garment";
-import GarmentDetailWithTabs from "@/components/garments/GarmentDetailWithTabs";
+import GarmentDetailClient from "@/components/garments/GarmentDetailClient";
 import { getEnhancedRelatedGarments } from "@/lib/relatedGarments";
 import { Metadata } from "next";
 
@@ -91,7 +91,7 @@ export default async function GarmentDetailPage({ params }: Props) {
           }).replace(/</g, "\\u003c").replace(/>/g, "\\u003e"),
         }}
       />
-      <GarmentDetailWithTabs garment={garment} relatedGarments={relatedGarments} allGarments={allGarments} />
+      <GarmentDetailClient garment={garment} relatedGarments={relatedGarments} />
     </>
   );
 }

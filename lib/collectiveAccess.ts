@@ -4,7 +4,8 @@
  * Docs: https://docs.collectiveaccess.org/wiki/Web_Service_API
  */
 
-import { getGarmentTypeFromWorkType } from '@/types/garment';
+import { getGarmentTypeFromWorkType, type GarmentModel, type ModelRole } from '@/types/garment';
+import { pickPreviewModelUrl } from '@/lib/museum';
 
 export interface CollectiveAccessConfig {
   baseUrl: string;
@@ -28,6 +29,54 @@ export interface CAImage {
   caption?: string;
 }
 
+/**
+ * Reads a CA yes/no list value. Depending on the install and request, CA
+ * returns list values as the item code ("yes"), the label ("Yes"), a boolean
+ * or 1/0. Anything else, including a missing value, is treated as no.
+ */
+export function isYesValue(raw: unknown): boolean {
+  if (raw === true || raw === 1) return true;
+  if (typeof raw === 'string') {
+    const v = raw.trim().toLowerCase();
+    return v === '1' || v === 'true' || v === 'yes';
+  }
+  return false;
+}
+
+const MODEL_ROLES: readonly ModelRole[] = ['web_preview', 'full_detail', 'archival_master'];
+
+function normalizeModelRole(raw: unknown): ModelRole | undefined {
+  if (typeof raw !== 'string') return undefined;
+  const code = raw.trim().toLowerCase().replace(/[\s-]+/g, '_');
+  return MODEL_ROLES.find((role) => role === code);
+}
+
+// The browser can only load a model from a full URL or a path on this site;
+// a bare filename in model_file_reference has nowhere to be fetched from.
+function isLoadableModelUrl(value: string): boolean {
+  return /^https?:\/\//i.test(value) || value.startsWith('/');
+}
+
+/**
+ * Converts object_3d_documentation entries into the models the site can
+ * load. Entries without a loadable URL are dropped.
+ */
+export function parseModelEntries(entries: Record<string, unknown>[]): GarmentModel[] {
+  const models: GarmentModel[] = [];
+  for (const entry of entries) {
+    const ref = entry.model_file_reference;
+    const url = typeof ref === 'string' ? ref.trim() : '';
+    if (!url || !isLoadableModelUrl(url)) continue;
+    const format = typeof entry.model_format === 'string' ? entry.model_format.trim() : '';
+    models.push({
+      url,
+      role: normalizeModelRole(entry.model_role),
+      ...(format ? { format } : {}),
+    });
+  }
+  return models;
+}
+
 class CollectiveAccessClient {
   private config: CollectiveAccessConfig;
   private token: string | null = null;
@@ -39,6 +88,8 @@ class CollectiveAccessClient {
   // Result-set cache: key → { data, timestamp }
   private cache: Map<string, { data: any; timestamp: number }> = new Map();
   private readonly CACHE_TTL_MS = 5 * 60 * 1000;
+  // A hung CA request would otherwise hold its sync worker forever.
+  private readonly REQUEST_TIMEOUT_MS = 20_000;
 
   constructor(config: CollectiveAccessConfig) {
     this.config = config;
@@ -153,6 +204,7 @@ class CollectiveAccessClient {
         'Authorization': this.basicAuthHeader(),
         ...(this.sessionCookie ? { Cookie: this.sessionCookie } : {}),
       },
+      signal: AbortSignal.timeout(this.REQUEST_TIMEOUT_MS),
     });
     if (!response.ok) {
       throw new Error(`CollectiveAccess API error ${response.status}: ${response.statusText} (${path})`);
@@ -439,6 +491,13 @@ class CollectiveAccessClient {
     const tagline            = webNarrative?.pull_quote as string | undefined;
     const aestheticDesc      = webNarrative?.style_notes as string | undefined;
 
+    const displaySettings  = this.extractBundleValue(caObject, 'ca_objects.web_display_settings');
+    const featuredOnRunway = isYesValue(displaySettings?.featured_on_runway);
+    const orderValue       = parseInt(String(displaySettings?.homepage_order ?? ''), 10);
+    const runwayOrder      = Number.isFinite(orderValue) ? orderValue : undefined;
+
+    const models = parseModelEntries(this.extractBundleValues(caObject, 'ca_objects.object_3d_documentation'));
+
     return {
       id:              String(caObject.object_id?.value ?? caObject.intrinsic?.object_id ?? idno),
       slug:            this.generateSlug(idno),
@@ -466,6 +525,9 @@ class CollectiveAccessClient {
       condition,
       provenance,
       storageLocation,
+      featuredOnRunway,
+      runwayOrder,
+      ...(models.length ? { models, model3d_url: pickPreviewModelUrl(models) } : {}),
     };
   }
 
@@ -552,13 +614,7 @@ class CollectiveAccessClient {
    */
   isPublic(caObject: CAObject): boolean {
     const settings = this.extractBundleValue(caObject, 'ca_objects.web_display_settings');
-    const raw = settings?.public_display;
-    if (raw === true || raw === 1) return true;
-    if (typeof raw === 'string') {
-      const v = raw.trim().toLowerCase();
-      return v === '1' || v === 'true' || v === 'yes';
-    }
-    return false;
+    return isYesValue(settings?.public_display);
   }
 
   clearCache(): void {
@@ -622,7 +678,7 @@ const DETAIL_BUNDLES =
   'ca_objects.gender,ca_objects.age_group,' +
   'ca_objects.color_location,ca_objects.material_location,ca_objects.function,' +
   'ca_objects.description,ca_objects.web_narrative,ca_objects.provenance,' +
-  'ca_objects.web_display_settings';
+  'ca_objects.web_display_settings,ca_objects.object_3d_documentation';
 
 /**
  * Escape hatch for CA_SKIP_PUBLIC_DISPLAY_FILTER=true — bypasses the
@@ -675,6 +731,18 @@ async function pLimit<T>(tasks: (() => Promise<T>)[], concurrency: number): Prom
   }
   await Promise.all(Array.from({ length: concurrency }, worker));
   return results;
+}
+
+/**
+ * Fetch images for already-synced garments, keyed by garment id (the CA
+ * object_id). Used to fill in photos after a metadata-only hydration. A failed
+ * lookup yields an empty list for that garment rather than failing the batch.
+ */
+export async function fetchGarmentImages(ids: string[], concurrency = 4): Promise<Map<string, CAImage[]>> {
+  const client = getCollectiveAccessClient();
+  const tasks = ids.map(id => () => client.fetchObjectImages(id));
+  const results = await pLimit(tasks, concurrency);
+  return new Map(ids.map((id, i) => [id, results[i]]));
 }
 
 /**

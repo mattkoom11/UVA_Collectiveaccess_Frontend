@@ -33,7 +33,7 @@ UVA_Collectiveaccess_Frontend/
 │   ├── page.tsx               # Home page
 │   ├── collection/            # /collection — paginated garment grid
 │   ├── garments/[slug]/       # /garments/:slug — detail page
-│   ├── backstage/[id]/        # /backstage/:id — 3D backstage detail
+│   ├── backstage/[id]/        # /backstage/:id — redirects to the garment's record (retired)
 │   ├── admin/                 # /admin — AdminDashboard (auth-gated)
 │   ├── timeline/               # /timeline
 │   ├── favorites/              # /favorites
@@ -41,7 +41,6 @@ UVA_Collectiveaccess_Frontend/
 │   ├── exhibitions/            # /exhibitions
 │   ├── learn/                  # /learn
 │   ├── statistics/             # /statistics
-│   ├── runway/                 # /runway
 │   ├── search/                 # /search
 │   └── api/
 │       ├── admin/             # POST /api/admin/auth, POST /api/admin/sync
@@ -53,10 +52,8 @@ UVA_Collectiveaccess_Frontend/
 │   │                           #   Compare, Favorites, Garment3DViewer
 │   ├── layout/                 # SiteHeader, SiteFooter, Breadcrumbs,
 │   │                           #   SearchBar, PWA, Accessibility
-│   ├── backstage/               # Backstage3D, BackstagePage
-│   ├── home/                    # HomePage (3D Runway + Backstage tabs)
+│   ├── museum/                  # MuseumHall (the 3D hall / homepage) and its parts
 │   ├── admin/                   # AdminAuthGate
-│   ├── runway/                  # RunwayPage
 │   └── ui/                      # Shared primitives (Button, etc.)
 ├── lib/
 │   ├── collectiveAccess.ts     # Singleton CollectiveAccessClient (5-min result cache)
@@ -151,8 +148,13 @@ interface Garment {
 ## Key Pages & Features
 
 ### `/` — Home Page
-- 3D Runway tab (animated models walking oval catwalk, filterable by era/type)
-- 3D Backstage tab (interactive mannequins, click → `/backstage/[id]`)
+- The homepage is the museum's entrance: a walkable 3D hall (`components/museum/MuseumHall.tsx`) with a welcome panel
+- One continuous runway through four era wings (Pre-1920 → 1980+), stepping up a level per era
+- Flagships (CA `featured_on_runway` = yes + a loadable 3D file) stand frozen on the runway; click to orbit and zoom in place
+- Photo-only garments hang as lightboxes on the walls, loading as the visitor approaches
+- Drag to look, click the floor to walk, WASD/arrows to move
+- No WebGL, or `prefers-reduced-motion`, redirects to `/collection`
+- `/runway` and `/hall` redirect to `/` (`next.config.ts`); `/backstage/:id` redirects to the garment's record
 - Featured exhibitions section
 
 ### `/collection` — Collection Page
@@ -192,8 +194,11 @@ interface Garment {
 
 | Component | Description |
 |-----------|-------------|
-| `Runway3D` | Animated walking models on oval catwalk path (@react-three/fiber) |
-| `Backstage3D` | Interactive mannequins in backstage scene; click → `/backstage/[id]` |
+| `MuseumHall` | The walkable hall: scene, overlays, inspect/lightbox state. Layout comes from `lib/museum.ts` (wings, flagship rule) and `lib/hallLayout.ts` (positions) |
+| `HallArchitecture` | Floor, walls, ceiling spot grid, stepped runway, lighting |
+| `FlagshipGarment` | A fitted GLB on the runway; swaps in the `full_detail` file while inspected |
+| `Lightbox` | Backlit wall panel; photo loads by distance (needs CORS on the photo host) |
+| `HallControls` / `InspectControls` | Walking, and the fly-in / orbit / fly-back inspection |
 | `Garment3DViewer` | Single garment GLTF viewer |
 
 ---
@@ -241,7 +246,7 @@ interface Garment {
 
 | Issue | Location | Notes |
 |-------|----------|-------|
-| Image fetching skipped during hydration | `lib/garments.ts` | Prevents hydration hangs; images loaded separately |
+| Hydration fetches metadata only | `lib/garments.ts` | Prevents hydration hangs. Missing photos are then fetched in the background (`fillMissingImagesInBackground`) and saved to the disk cache. Garments with no photos in CA are re-checked once per server start |
 | `public_display` bundle name unverified against a live CA install | `lib/collectiveAccess.ts` (`isPublic()`) | Guessed as `ca_objects.web_display_settings` by naming-convention analogy to `ca_objects.web_narrative` — confirm against the real profile; a startup warning fires if the filter hides every synced object |
 | Login rate limiter is in-memory | `lib/adminAuth.ts` | Resets on process restart — fine for the current single-process deployment, revisit if this ever runs multi-instance |
 

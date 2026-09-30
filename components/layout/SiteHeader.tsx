@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Menu, X } from "lucide-react";
 import SearchBar from "./SearchBar";
 
@@ -18,12 +18,22 @@ const NAV_LINKS = [
 
 export default function SiteHeader() {
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  // The menu belongs to the page it was opened on, so navigating closes it.
+  const [menuOpenOn, setMenuOpenOn] = useState<string | null>(null);
+  const mobileOpen = menuOpenOn !== null && menuOpenOn === pathname;
+  const headerRef = useRef<HTMLElement>(null);
 
-  // Close menu on route change
+  // Publish the header's height (it differs between phone and desktop) so
+  // full-screen views like the museum hall can fill exactly the space below.
   useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
+    const el = headerRef.current;
+    if (!el) return;
+    const publish = () => document.documentElement.style.setProperty("--header-h", `${el.offsetHeight}px`);
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // Prevent body scroll while menu is open
   useEffect(() => {
@@ -57,27 +67,28 @@ export default function SiteHeader() {
   };
 
   return (
-    <header className="border-b border-archive-border sticky top-0 z-50 bg-[color-mix(in_oklch,var(--background)_92%,transparent)] backdrop-blur-sm">
+    <header ref={headerRef} className="border-b border-archive-border sticky top-0 z-50 bg-[color-mix(in_oklch,var(--background)_92%,transparent)] backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-4 py-4 md:py-6">
         {/* Top row: Logo, Desktop Nav, and Mobile Toggle */}
         <div className="flex items-center justify-between mb-0 md:mb-4">
           <Link
             href="/"
-            className="text-sm md:text-base tracking-[0.25em] uppercase font-light text-archive-fg hover:opacity-90 transition-opacity"
+            className="font-serif text-base md:text-lg uppercase tracking-[0.14em] text-archive-fg hover:opacity-90 transition-opacity"
           >
             UVA Fashion Archive
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex gap-6 lg:gap-8 text-xs md:text-sm uppercase tracking-[0.2em] font-light">
+          <nav className="hidden md:flex gap-6 lg:gap-8 text-xs uppercase tracking-[0.16em]">
             {NAV_LINKS.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
-                className={`transition-colors ${
+                aria-current={isActive(href) ? "page" : undefined}
+                className={`pb-1 border-b transition-colors ${
                   isActive(href)
-                    ? "text-archive-fg border-b border-archive-fg pb-1"
-                    : "text-archive-fg/85 hover:text-archive-fg"
+                    ? "text-archive-fg border-archive-signal"
+                    : "text-archive-muted border-transparent hover:text-archive-fg"
                 }`}
               >
                 {label}
@@ -87,7 +98,7 @@ export default function SiteHeader() {
 
           {/* Mobile hamburger */}
           <button
-            onClick={() => setMobileOpen((v) => !v)}
+            onClick={() => setMenuOpenOn(mobileOpen ? null : pathname)}
             className="md:hidden p-2 -mr-2 text-archive-muted hover:text-archive-fg transition-colors"
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileOpen}
@@ -104,14 +115,19 @@ export default function SiteHeader() {
 
       {/* Mobile drawer */}
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 top-[57px] z-50 bg-[color-mix(in_oklch,var(--background)_96%,transparent)] backdrop-blur-md overflow-y-auto">
+        // The header's backdrop-blur makes it the containing block for fixed
+        // children, so the drawer is anchored to the header instead of the viewport.
+        <div className="md:hidden absolute top-full inset-x-0 h-[calc(100dvh-100%)] z-50 bg-archive-bg overflow-y-auto">
           <nav className="flex flex-col px-6 py-6 gap-1">
             {NAV_LINKS.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
-                className={`py-3 text-base uppercase tracking-[0.2em] font-light border-b border-archive-border/60 transition-colors ${
-                  isActive(href) ? "text-archive-fg" : "text-archive-muted hover:text-archive-fg/90"
+                aria-current={isActive(href) ? "page" : undefined}
+                className={`py-3 pl-3 text-sm uppercase tracking-[0.16em] border-b border-archive-border/60 border-l-2 transition-colors ${
+                  isActive(href)
+                    ? "text-archive-fg border-l-archive-signal"
+                    : "text-archive-muted border-l-transparent hover:text-archive-fg"
                 }`}
               >
                 {label}

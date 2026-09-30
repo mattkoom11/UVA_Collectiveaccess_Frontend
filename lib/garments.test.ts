@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { filterGarments, searchGarments } from "./garments";
+import { filterGarments, mergeGarmentImages, searchGarments } from "./garments";
 import type { Garment } from "@/types/garment";
 
 function makeGarment(overrides: Partial<Garment>): Garment {
@@ -119,5 +119,37 @@ describe("searchGarments", () => {
   it("is case-insensitive", () => {
     const result = searchGarments(items, "GOWN");
     expect(result.map((g) => g.id)).toEqual(["1"]);
+  });
+});
+
+describe("mergeGarmentImages", () => {
+  const image = (url: string, thumb?: string) => ({ media_id: "m", url, thumbnail_url: thumb });
+
+  it("fills in photos for garments that have none", () => {
+    const [g] = mergeGarmentImages(
+      [makeGarment({ id: "7" })],
+      new Map([["7", [image("https://x.invalid/a.jpg", "https://x.invalid/a-thumb.jpg"), image("https://x.invalid/b.jpg")]]])
+    );
+    expect(g.images).toEqual(["https://x.invalid/a.jpg", "https://x.invalid/b.jpg"]);
+    expect(g.imageUrl).toBe("https://x.invalid/a.jpg");
+    expect(g.thumbnailUrl).toBe("https://x.invalid/a-thumb.jpg");
+  });
+
+  it("leaves garments that already have images untouched", () => {
+    const original = makeGarment({ id: "7", images: ["https://x.invalid/existing.jpg"] });
+    const [g] = mergeGarmentImages([original], new Map([["7", [image("https://x.invalid/new.jpg")]]]));
+    expect(g).toBe(original);
+  });
+
+  it("uses the full image as the thumbnail when CA has no thumbnail", () => {
+    const [g] = mergeGarmentImages([makeGarment({ id: "7" })], new Map([["7", [image("https://x.invalid/a.jpg")]]]));
+    expect(g.thumbnailUrl).toBe("https://x.invalid/a.jpg");
+  });
+
+  it("skips images with no URL and garments with no lookup result", () => {
+    const garments = [makeGarment({ id: "7" }), makeGarment({ id: "8" })];
+    const result = mergeGarmentImages(garments, new Map([["7", [image("")]]]));
+    expect(result[0].images).toEqual([]);
+    expect(result[1].images).toEqual([]);
   });
 });
