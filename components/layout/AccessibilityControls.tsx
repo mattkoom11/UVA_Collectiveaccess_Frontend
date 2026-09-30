@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Eye, Contrast, Type } from "lucide-react";
+import { Accessibility, Contrast, Type } from "lucide-react";
 
 export default function AccessibilityControls() {
+  const [open, setOpen] = useState(false);
   const [highContrast, setHighContrast] = useState(false);
   const [fontSize, setFontSize] = useState<"normal" | "large" | "xlarge">("normal");
 
@@ -43,57 +44,53 @@ export default function AccessibilityControls() {
     applyAccessibilitySettings(highContrast, size);
   };
 
+  const sizeButton = (size: typeof fontSize, label: string, textClass: string) => (
+    <button
+      type="button"
+      onClick={() => changeFontSize(size)}
+      aria-label={label}
+      aria-pressed={fontSize === size}
+      className={`w-8 h-8 ${textClass} transition-colors ${
+        fontSize === size ? "bg-archive-surface-muted text-archive-fg" : "text-archive-muted hover:text-archive-fg"
+      }`}
+    >
+      A
+    </button>
+  );
+
+  // Collapsed to one button by default, so it doesn't sit over page content
+  // (or the museum hall) until someone asks for it.
   return (
-    <div className="fixed bottom-4 left-4 z-40 print-hide">
-      <div className="bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl p-3 space-y-2">
-        <button
-          onClick={toggleHighContrast}
-          className="flex items-center gap-2 px-3 py-2 text-sm text-zinc-300 hover:text-zinc-100 hover:bg-zinc-800 rounded transition-colors w-full"
-          aria-label="Toggle high contrast mode"
-        >
-          <Contrast className="w-4 h-4" />
-          <span>High Contrast</span>
-        </button>
-        
-        <div className="flex items-center gap-2 px-3 py-2">
-          <Type className="w-4 h-4 text-zinc-400" />
-          <div className="flex gap-1">
-            <button
-              onClick={() => changeFontSize("normal")}
-              className={`px-2 py-1 text-xs rounded transition-colors ${
-                fontSize === "normal"
-                  ? "bg-zinc-800 text-zinc-200"
-                  : "text-zinc-400 hover:text-zinc-200"
-              }`}
-              aria-label="Normal font size"
-            >
-              A
-            </button>
-            <button
-              onClick={() => changeFontSize("large")}
-              className={`px-2 py-1 text-xs rounded transition-colors ${
-                fontSize === "large"
-                  ? "bg-zinc-800 text-zinc-200"
-                  : "text-zinc-400 hover:text-zinc-200"
-              }`}
-              aria-label="Large font size"
-            >
-              A
-            </button>
-            <button
-              onClick={() => changeFontSize("xlarge")}
-              className={`px-2 py-1 text-xs rounded transition-colors ${
-                fontSize === "xlarge"
-                  ? "bg-zinc-800 text-zinc-200"
-                  : "text-zinc-400 hover:text-zinc-200"
-              }`}
-              aria-label="Extra large font size"
-            >
-              A
-            </button>
+    <div className="fixed bottom-4 left-4 z-40 print-hide flex flex-col items-start gap-2">
+      {open && (
+        <div id="accessibility-panel" className="bg-archive-surface border border-archive-border p-3 space-y-2">
+          <button
+            type="button"
+            onClick={toggleHighContrast}
+            aria-pressed={highContrast}
+            className="flex items-center gap-2 px-3 py-2 text-sm text-archive-muted-subtle hover:text-archive-fg hover:bg-archive-surface-muted transition-colors w-full"
+          >
+            <Contrast className="w-4 h-4" aria-hidden="true" />
+            <span>High contrast</span>
+          </button>
+          <div className="flex items-center gap-2 px-3 py-1">
+            <Type className="w-4 h-4 text-archive-muted" aria-hidden="true" />
+            {sizeButton("normal", "Normal text size", "text-xs")}
+            {sizeButton("large", "Large text size", "text-sm")}
+            {sizeButton("xlarge", "Extra large text size", "text-base")}
           </div>
         </div>
-      </div>
+      )}
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-label="Accessibility settings"
+        aria-expanded={open}
+        aria-controls="accessibility-panel"
+        className="w-11 h-11 flex items-center justify-center bg-archive-surface/90 border border-archive-border text-archive-muted hover:text-archive-fg hover:border-archive-border-hover transition-colors"
+      >
+        <Accessibility className="w-5 h-5" aria-hidden="true" />
+      </button>
     </div>
   );
 }

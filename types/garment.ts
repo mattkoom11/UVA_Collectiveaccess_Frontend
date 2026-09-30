@@ -23,6 +23,17 @@ export type GarmentType =
   | 'textile'
   | 'other';
 
+// Which version of a garment's 3D scan a file is (CA field
+// object_3d_documentation.model_role). The hall loads web_preview and swaps in
+// full_detail on close inspection; archival_master is never loaded by the site.
+export type ModelRole = 'web_preview' | 'full_detail' | 'archival_master';
+
+export interface GarmentModel {
+  url: string;
+  role?: ModelRole;
+  format?: string;
+}
+
 export interface Garment {
   id: string;
   slug: string;
@@ -52,6 +63,9 @@ export interface Garment {
   context?: string; // Historical/social context
   model3d_url?: string; // URL to photogrammetry 3D model
   model3d_rotationY?: number; // Degrees to spin the scan around its vertical axis so its front faces the camera/runway (scan exports have an arbitrary front direction baked in)
+  models?: GarmentModel[]; // Every 3D file on the CA record; model3d_url holds the preview one
+  featuredOnRunway?: boolean; // CA web_display_settings.featured_on_runway
+  runwayOrder?: number; // CA web_display_settings.homepage_order: position along the runway within an era
   
   // New fields from prompt
   tagline?: string; // Short 1-2 sentence editorial hook

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import HomePage from "@/components/home/HomePage";
+import MuseumHallLoader from "@/components/museum/MuseumHallLoader";
 import { hydrateGarmentsFromCA, getAllGarments } from "@/lib/garments";
 
 export const dynamic = "force-dynamic";
@@ -30,6 +30,6 @@ export const metadata: Metadata = {
 
 export default async function HomeRoute() {
   hydrateGarmentsFromCA().catch(() => {});
-  const garments = getAllGarments();
-  return <HomePage garments={garments} />;
+  // The homepage is the museum's entrance.
+  return <MuseumHallLoader garments={getAllGarments()} intro />;
 }

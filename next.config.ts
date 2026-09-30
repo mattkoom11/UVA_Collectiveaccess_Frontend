@@ -16,6 +16,14 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react'],
   },
+  // The runway and the hall preview were folded into the homepage, which is
+  // now the museum's entrance.
+  async redirects() {
+    return [
+      { source: "/runway", destination: "/", permanent: false },
+      { source: "/hall", destination: "/", permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -1,37 +1,13 @@
-import { Suspense } from "react";
-import { notFound } from "next/navigation";
-import BackstagePage from "@/components/backstage/BackstagePage";
-import { getAllGarments, getGarmentById } from "@/lib/garments";
+import { redirect } from "next/navigation";
+import { getGarmentById, hydrateGarmentsFromCA } from "@/lib/garments";
 
-export async function generateStaticParams() {
-  const allGarments = getAllGarments();
-  return allGarments.map((g) => ({ id: g.id }));
-}
+export const dynamic = "force-dynamic";
 
-interface Props {
-  params: Promise<{ id: string }>;
-}
-
-function BackstagePageFallback() {
-  return (
-    <div className="min-h-screen bg-zinc-50 text-zinc-950 flex items-center justify-center">
-      <p className="text-zinc-600">Loading backstage...</p>
-    </div>
-  );
-}
-
-export default async function BackstageRoute({ params }: Props) {
+// Backstage was folded into the museum hall. Old links go to the garment's
+// own record instead.
+export default async function BackstageRedirect({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  hydrateGarmentsFromCA().catch(() => {});
   const garment = getGarmentById(id);
-
-  if (!garment) {
-    notFound();
-  }
-
-  return (
-    <Suspense fallback={<BackstagePageFallback />}>
-      <BackstagePage garmentId={id} />
-    </Suspense>
-  );
+  redirect(garment ? `/garments/${garment.slug}` : "/collection");
 }
-

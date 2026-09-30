@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { Download, X } from "lucide-react";
 
 export default function PWAInstallPrompt() {
+  const pathname = usePathname();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showPrompt, setShowPrompt] = useState(false);
 
@@ -47,7 +49,8 @@ export default function PWAInstallPrompt() {
     sessionStorage.setItem('pwa-prompt-dismissed', 'true');
   };
 
-  if (!showPrompt || !deferredPrompt || sessionStorage.getItem('pwa-prompt-dismissed')) {
+  // The homepage is the full-screen museum hall; don't cover it.
+  if (pathname === '/' || !showPrompt || !deferredPrompt || sessionStorage.getItem('pwa-prompt-dismissed')) {
     return null;
   }
 
