@@ -104,5 +104,22 @@
     "collection": "Demo",
     "accessionNumber": "DR.2023.17",
     "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied (RealityScan's raw diffuse reads dark/orange/oversaturated otherwise). This scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Sixth garment in the pilot dataset (features.csv/pca_sanity_check.py), the first captured under its real accession number directly rather than a generic testdressN placeholder. model3d_rotationY set to 45 on 2026-09-28 via visual check, then corrected to 0 (45 deg clockwise from a top-down/turntable view, per Matthew's follow-up) the same day."
+  },
+  {
+    "id": "dr-2023-323",
+    "slug": "dr-2023-323",
+    "label": "DR.2023.323 (3D Scan Demo)",
+    "name": "DR.2023.323",
+    "era": "1980+",
+    "type": "dress",
+    "work_type": "Dress",
+    "colors": [],
+    "materials": [],
+    "images": [],
+    "model3d_url": "/models/dr-2023-323.glb",
+    "model3d_rotationY": -45,
+    "collection": "Demo",
+    "accessionNumber": "DR.2023.323",
+    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied (RealityScan's raw diffuse reads dark/orange/oversaturated otherwise). This scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Seventh garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py), captured under its real accession number directly. model3d_rotationY set to -45 (confirmed 2026-09-30 via visual check in the live viewer, after trying 0/45/90) to face forward."
   }
 ]
