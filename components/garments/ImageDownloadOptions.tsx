@@ -38,7 +38,7 @@ export default function ImageDownloadOptions({
     <div className="relative">
       <button
         onClick={() => setShowOptions(!showOptions)}
-        className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg transition-colors text-sm text-zinc-300"
+        className="flex items-center gap-2 px-4 py-2 bg-archive-surface-muted hover:bg-archive-border-hover border border-archive-border transition-colors text-sm text-archive-muted-subtle"
         aria-label="Download options"
       >
         <Settings className="w-4 h-4" />
@@ -51,9 +51,9 @@ export default function ImageDownloadOptions({
             className="fixed inset-0 z-40"
             onClick={() => setShowOptions(false)}
           />
-          <div className="absolute top-full right-0 mt-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 min-w-[250px] p-4 space-y-4">
+          <div className="absolute top-full right-0 mt-2 bg-archive-surface border border-archive-border shadow-xl z-50 min-w-[250px] p-4 space-y-4">
             <div>
-              <label className="block text-xs uppercase tracking-[0.1em] text-zinc-400 mb-2">
+              <label className="block text-xs uppercase tracking-[0.1em] text-archive-muted mb-2">
                 Quality
               </label>
               <div className="flex gap-2">
@@ -61,10 +61,10 @@ export default function ImageDownloadOptions({
                   <button
                     key={q}
                     onClick={() => setQuality(q)}
-                    className={`flex-1 px-3 py-2 text-xs rounded transition-colors ${
-                      quality === q
-                        ? "bg-zinc-800 text-zinc-200"
-                        : "bg-zinc-800/50 text-zinc-400 hover:text-zinc-200"
+                    className={`flex-1 px-3 py-2 text-xs transition-colors ${
+ quality === q
+                        ? "bg-archive-surface-muted text-archive-fg"
+                        : "bg-archive-surface-muted/50 text-archive-muted hover:text-archive-fg"
                     }`}
                   >
                     {q.charAt(0).toUpperCase() + q.slice(1)}
@@ -74,7 +74,7 @@ export default function ImageDownloadOptions({
             </div>
 
             <div>
-              <label className="block text-xs uppercase tracking-[0.1em] text-zinc-400 mb-2">
+              <label className="block text-xs uppercase tracking-[0.1em] text-archive-muted mb-2">
                 Format
               </label>
               <div className="flex gap-2">
@@ -82,10 +82,10 @@ export default function ImageDownloadOptions({
                   <button
                     key={f}
                     onClick={() => setFormat(f)}
-                    className={`flex-1 px-3 py-2 text-xs rounded transition-colors uppercase ${
-                      format === f
-                        ? "bg-zinc-800 text-zinc-200"
-                        : "bg-zinc-800/50 text-zinc-400 hover:text-zinc-200"
+                    className={`flex-1 px-3 py-2 text-xs transition-colors uppercase ${
+ format === f
+                        ? "bg-archive-surface-muted text-archive-fg"
+                        : "bg-archive-surface-muted/50 text-archive-muted hover:text-archive-fg"
                     }`}
                   >
                     {f}
@@ -96,7 +96,7 @@ export default function ImageDownloadOptions({
 
             <button
               onClick={handleDownload}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg transition-colors text-sm text-zinc-200"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-archive-surface-muted hover:bg-archive-border-hover border border-archive-border transition-colors text-sm text-archive-fg"
             >
               <Download className="w-4 h-4" />
               Download {quality} {format.toUpperCase()}

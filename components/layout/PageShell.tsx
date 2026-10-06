@@ -17,7 +17,7 @@ export default function PageShell({ title, subtitle, children }: PageShellProps)
             </h1>
           )}
           {subtitle && (
-            <p className="mt-3 max-w-2xl text-sm md:text-base text-zinc-300 leading-relaxed">
+            <p className="mt-3 max-w-2xl text-sm md:text-base text-archive-muted-subtle leading-relaxed">
               {subtitle}
             </p>
           )}

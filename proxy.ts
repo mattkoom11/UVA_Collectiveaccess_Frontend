@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // Generate a fresh cryptographic nonce for every request.
   // Next.js App Router reads `x-nonce` from the request headers and
   // automatically applies it to all inline <script> tags it emits, enabling

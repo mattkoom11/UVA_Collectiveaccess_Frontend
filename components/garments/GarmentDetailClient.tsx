@@ -130,7 +130,7 @@ export default function GarmentDetailClient({ garment, relatedGarments }: Garmen
                       key={tab}
                       onClick={() => setActiveTab(tab)}
                       className={`px-4 py-2 text-xs uppercase tracking-[0.15em] transition-colors ${
-                        activeTab === tab
+ activeTab === tab
                           ? "border-b-2 border-archive-fg text-archive-fg -mb-px"
                           : "text-archive-muted hover:text-archive-fg"
                       }`}
@@ -189,8 +189,8 @@ export default function GarmentDetailClient({ garment, relatedGarments }: Garmen
                 <div className="mb-10">
                   <ErrorBoundary
                     fallback={
-                      <div className="w-full h-[600px] md:h-[800px] lg:h-[900px] flex items-center justify-center border border-zinc-800 rounded-lg">
-                        <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+                      <div className="w-full h-[600px] md:h-[800px] lg:h-[900px] flex items-center justify-center border border-archive-border">
+                        <p className="text-xs uppercase tracking-[0.2em] text-archive-muted">
                           3D model is unavailable right now
                         </p>
                       </div>

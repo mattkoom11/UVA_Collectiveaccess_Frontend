@@ -1,4 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#09090b"/>
-  <text x="256" y="270" text-anchor="middle" fill="#a1a1aa" font-size="32" font-family="sans-serif">UVA Fashion</text>
+  <rect width="512" height="512" fill="#0b0b0c"/>
+  <rect x="34" y="34" width="444" height="444" fill="none" stroke="#2a2a2d" stroke-width="3"/>
+  <text x="256" y="300" text-anchor="middle" fill="#f5f5f2" font-size="150" font-family="Liberation Serif, Georgia, Times, serif" letter-spacing="6">UVA</text>
+  <rect x="196" y="342" width="120" height="3" fill="#e04a3e"/>
 </svg>

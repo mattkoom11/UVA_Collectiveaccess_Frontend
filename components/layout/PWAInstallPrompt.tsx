@@ -56,22 +56,22 @@ export default function PWAInstallPrompt() {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50 animate-fade-up">
-      <div className="bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl p-4">
+      <div className="bg-archive-surface border border-archive-border shadow-xl p-4">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-3">
-            <Download className="w-5 h-5 text-zinc-400" />
+            <Download className="w-5 h-5 text-archive-muted" />
             <div>
-              <h3 className="text-sm font-semibold text-zinc-200">
+              <h3 className="text-sm font-semibold text-archive-fg">
                 Install UVA Fashion Archive
               </h3>
-              <p className="text-xs text-zinc-400 mt-1">
+              <p className="text-xs text-archive-muted mt-1">
                 Add to your home screen for quick access
               </p>
             </div>
           </div>
           <button
             onClick={handleDismiss}
-            className="text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="text-archive-muted hover:text-archive-fg transition-colors"
             aria-label="Dismiss"
           >
             <X className="w-4 h-4" />
@@ -80,13 +80,13 @@ export default function PWAInstallPrompt() {
         <div className="flex gap-2">
           <button
             onClick={handleInstall}
-            className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-sm px-4 py-2 rounded transition-colors"
+            className="flex-1 bg-archive-surface-muted hover:bg-archive-border-hover text-archive-fg text-sm px-4 py-2 transition-colors"
           >
             Install
           </button>
           <button
             onClick={handleDismiss}
-            className="px-4 py-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="px-4 py-2 text-sm text-archive-muted hover:text-archive-fg transition-colors"
           >
             Not now
           </button>

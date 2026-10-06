@@ -3,17 +3,26 @@ import { createHmac, timingSafeEqual } from "crypto";
 
 const DEFAULT_ADMIN_PASSWORD = "uva-fashion-admin";
 
-// Refuse to serve admin requests in production with the default password —
-// silently accepting it would leave every deployment guessable from the
-// public source/docs. Local dev and preview builds still get the default
-// for convenience.
-if (process.env.NODE_ENV === "production" && !process.env.ADMIN_PASSWORD) {
-  throw new Error(
-    "ADMIN_PASSWORD must be set in production — refusing to start with the default admin password."
-  );
+/**
+ * Resolve the admin password per call instead of at module load.
+ *
+ * `next build` evaluates every route module while collecting page data, and
+ * CI / container builds normally inject ADMIN_PASSWORD only at run time. A
+ * module-level throw therefore broke the build itself — before a single
+ * request was served — rather than failing closed where the password is
+ * actually needed. Resolving lazily keeps the production guard (it still
+ * refuses to accept the default password) while letting the build succeed.
+ */
+function adminPassword(): string {
+  const configured = process.env.ADMIN_PASSWORD;
+  if (configured) return configured;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "ADMIN_PASSWORD must be set in production — refusing to use the default admin password."
+    );
+  }
+  return DEFAULT_ADMIN_PASSWORD;
 }
-
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
 
 export const ADMIN_COOKIE = "uva_admin_session";
 
@@ -27,7 +36,7 @@ export const COOKIE_MAX_AGE = SESSION_MAX_AGE_MS / 1000; // seconds, for Max-Age
 // ---------------------------------------------------------------------------
 
 function sign(ts: number): string {
-  return createHmac("sha256", ADMIN_PASSWORD).update(String(ts)).digest("hex");
+  return createHmac("sha256", adminPassword()).update(String(ts)).digest("hex");
 }
 
 export function createSessionToken(): string {
@@ -65,12 +74,19 @@ export function verifyAdminSession(req: NextRequest): boolean {
 /** Timing-safe password check — prevents oracle attacks on the comparison. */
 export function verifyAdminPassword(password: unknown): boolean {
   if (typeof password !== "string") return false;
+  let expected: string;
+  try {
+    expected = adminPassword();
+  } catch {
+    // Misconfigured production deployment: no password can be correct.
+    return false;
+  }
   try {
     // timingSafeEqual requires equal-length buffers; pad to avoid length leak
     const a = Buffer.from(password.padEnd(128));
-    const b = Buffer.from(ADMIN_PASSWORD.padEnd(128));
+    const b = Buffer.from(expected.padEnd(128));
     return (
-      password.length === ADMIN_PASSWORD.length &&
+      password.length === expected.length &&
       timingSafeEqual(a, b)
     );
   } catch {

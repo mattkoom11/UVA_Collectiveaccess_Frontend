@@ -114,7 +114,7 @@ export default function SocialShare({ url, title, description, image }: SocialSh
     <div className="relative">
       <button
         onClick={handleNativeShare}
-        className="text-xs uppercase tracking-[0.2em] text-zinc-400 hover:text-zinc-200 transition-colors border border-zinc-700 px-4 py-2 hover:border-zinc-500 flex items-center gap-2"
+        className="text-xs uppercase tracking-[0.2em] text-archive-muted hover:text-archive-fg transition-colors border border-archive-border px-4 py-2 hover:border-archive-border-hover flex items-center gap-2"
       >
         <Share2 className="w-4 h-4" />
         Share
@@ -126,48 +126,48 @@ export default function SocialShare({ url, title, description, image }: SocialSh
             className="fixed inset-0 z-40"
             onClick={() => setShowMenu(false)}
           />
-          <div className="absolute top-full left-0 mt-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 min-w-[200px]">
+          <div className="absolute top-full left-0 mt-2 bg-archive-surface border border-archive-border shadow-xl z-50 min-w-[200px]">
             <div className="p-2 space-y-1">
               <button
                 onClick={shareToTwitter}
-                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800 transition-colors rounded"
+                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-archive-muted-subtle hover:bg-archive-surface-muted transition-colors"
               >
                 <Twitter className="w-4 h-4" />
                 Twitter
               </button>
               <button
                 onClick={shareToFacebook}
-                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800 transition-colors rounded"
+                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-archive-muted-subtle hover:bg-archive-surface-muted transition-colors"
               >
                 <Facebook className="w-4 h-4" />
                 Facebook
               </button>
               <button
                 onClick={shareToLinkedIn}
-                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800 transition-colors rounded"
+                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-archive-muted-subtle hover:bg-archive-surface-muted transition-colors"
               >
                 <Linkedin className="w-4 h-4" />
                 LinkedIn
               </button>
               <button
                 onClick={shareToPinterest}
-                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800 transition-colors rounded"
+                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-archive-muted-subtle hover:bg-archive-surface-muted transition-colors"
               >
                 <Share2 className="w-4 h-4" />
                 Pinterest
               </button>
-              <div className="border-t border-zinc-700 my-1" />
+              <div className="border-t border-archive-border my-1" />
               <button
                 onClick={generateQRCode}
-                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800 transition-colors rounded"
+                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-archive-muted-subtle hover:bg-archive-surface-muted transition-colors"
               >
                 <QrCode className="w-4 h-4" />
                 QR Code
               </button>
-              <div className="border-t border-zinc-700 my-1" />
+              <div className="border-t border-archive-border my-1" />
               <button
                 onClick={handleCopyLink}
-                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800 transition-colors rounded"
+                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-archive-muted-subtle hover:bg-archive-surface-muted transition-colors"
               >
                 {copied ? (
                   <>
@@ -194,35 +194,35 @@ export default function SocialShare({ url, title, description, image }: SocialSh
             onClick={() => setShowQRCode(false)}
           >
             <div
-              className="bg-zinc-900 border border-zinc-700 rounded-lg p-6 max-w-md w-full"
+              className="bg-archive-surface border border-archive-border p-6 max-w-md w-full"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-light text-zinc-200">QR Code</h3>
+                <h3 className="text-lg font-light text-archive-fg">QR Code</h3>
                 <button
                   onClick={() => setShowQRCode(false)}
-                  className="text-zinc-400 hover:text-zinc-200 transition-colors"
+                  className="text-archive-muted hover:text-archive-fg transition-colors"
                   aria-label="Close"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
               <div className="flex flex-col items-center gap-4">
-                <div className="bg-white p-4 rounded">
+                <div className="bg-white p-4">
                   <img
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(fullUrl)}`}
                     alt="QR Code"
                     className="w-64 h-64"
                   />
                 </div>
-                <p className="text-sm text-zinc-400 text-center">
+                <p className="text-sm text-archive-muted text-center">
                   Scan to view this garment
                 </p>
                 <div className="flex gap-2 w-full">
                   <button
                     onClick={downloadQRCode}
                     disabled={qrDownloading}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-200 hover:bg-zinc-700 transition-colors rounded text-sm disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-archive-surface-muted border border-archive-border text-archive-fg hover:bg-archive-border-hover transition-colors text-sm disabled:opacity-50"
                     aria-label={qrDownloading ? "Downloading QR code" : "Download QR code image"}
                   >
                     <Download className="w-4 h-4" />
@@ -230,7 +230,7 @@ export default function SocialShare({ url, title, description, image }: SocialSh
                   </button>
                   <button
                     onClick={() => setShowQRCode(false)}
-                    className="px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-200 hover:bg-zinc-700 transition-colors rounded text-sm"
+                    className="px-4 py-2 bg-archive-surface-muted border border-archive-border text-archive-fg hover:bg-archive-border-hover transition-colors text-sm"
                   >
                     Close
                   </button>

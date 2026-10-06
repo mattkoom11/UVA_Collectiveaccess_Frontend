@@ -27,7 +27,7 @@ export default function ImageGallery({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(null);
   const [pinchStart, setPinchStart] = useState<number | null>(null);
-  const [swipeHintVisible, setSwipeHintVisible] = useState(false);
+  const [hintDismissed, setHintDismissed] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -137,18 +137,17 @@ export default function ImageGallery({
     setIsDragging(false);
   };
 
-  // Show swipe hint only on touch devices; auto-dismiss after 2 seconds
+  // The hint auto-dismisses after 2s. Which devices see it at all is decided
+  // in CSS (`pointer-coarse:`) rather than here, so this effect never sets
+  // state synchronously on mount (which would trigger a cascading render).
   useEffect(() => {
-    if (window.matchMedia('(pointer: coarse)').matches) {
-      setSwipeHintVisible(true);
-      const t = setTimeout(() => setSwipeHintVisible(false), 2000);
-      return () => clearTimeout(t);
-    }
+    const t = setTimeout(() => setHintDismissed(true), 2000);
+    return () => clearTimeout(t);
   }, []);
 
   // Touch handlers for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
-    setSwipeHintVisible(false);
+    setHintDismissed(true);
     if (e.touches.length === 1) {
       setTouchStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
     } else if (e.touches.length === 2) {
@@ -232,7 +231,7 @@ export default function ImageGallery({
       <button
         ref={closeButtonRef}
         onClick={onClose}
-        className="absolute top-4 right-4 z-10 text-zinc-300 hover:text-white transition-colors p-2"
+        className="absolute top-4 right-4 z-10 text-archive-muted-subtle hover:text-white transition-colors p-2"
         aria-label="Close gallery"
       >
         <X className="w-6 h-6" />
@@ -244,7 +243,7 @@ export default function ImageGallery({
         {images.length > 1 && (
           <button
             onClick={handlePrevious}
-            className="absolute left-4 z-10 text-zinc-300 hover:text-white transition-colors p-3 bg-black/50 rounded-full hover:bg-black/70"
+            className="absolute left-4 z-10 text-archive-muted-subtle hover:text-white transition-colors p-3 bg-black/50 rounded-full hover:bg-black/70"
             aria-label="Previous image"
           >
             <ChevronLeft className="w-6 h-6" />
@@ -277,8 +276,8 @@ export default function ImageGallery({
                 draggable={false}
               />
             ) : (
-              <div className="w-[800px] h-[600px] bg-zinc-900 flex items-center justify-center">
-                <p className="text-zinc-500">Image {currentIndex + 1}</p>
+              <div className="w-[800px] h-[600px] bg-archive-surface flex items-center justify-center">
+                <p className="text-archive-muted">Image {currentIndex + 1}</p>
               </div>
             )}
           </div>
@@ -288,7 +287,7 @@ export default function ImageGallery({
         {images.length > 1 && (
           <button
             onClick={handleNext}
-            className="absolute right-4 z-10 text-zinc-300 hover:text-white transition-colors p-3 bg-black/50 rounded-full hover:bg-black/70"
+            className="absolute right-4 z-10 text-archive-muted-subtle hover:text-white transition-colors p-3 bg-black/50 rounded-full hover:bg-black/70"
             aria-label="Next image"
           >
             <ChevronRight className="w-6 h-6" />
@@ -296,39 +295,39 @@ export default function ImageGallery({
         )}
       </div>
 
-      {/* Swipe hint — mobile only, auto-dismisses after 2s or on first touch */}
-      {swipeHintVisible && (
-        <div className="pointer-events-none absolute bottom-16 inset-x-0 flex justify-center z-10">
-          <span className="bg-black/60 text-white/80 text-xs px-4 py-1.5 rounded-full tracking-widest uppercase">
+      {/* Swipe hint — touch devices only (via CSS), auto-dismisses after 2s or on first touch */}
+      {!hintDismissed && (
+        <div className="pointer-events-none absolute bottom-16 inset-x-0 hidden pointer-coarse:flex justify-center z-10">
+          <span className="bg-black/60 text-white/80 text-xs px-4 py-1.5 tracking-widest uppercase">
             ← swipe →
           </span>
         </div>
       )}
 
       {/* Controls bar */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-black/70 backdrop-blur-sm px-6 py-3 rounded-lg flex items-center gap-4">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-black/70 backdrop-blur-sm px-6 py-3 flex items-center gap-4">
         {/* Image counter */}
-        <div className="text-sm text-zinc-300 font-light">
+        <div className="text-sm text-archive-muted-subtle font-light">
           {currentIndex + 1} / {images.length}
         </div>
 
         {/* Zoom controls */}
-        <div className="flex items-center gap-2 border-l border-r border-zinc-700 px-4">
+        <div className="flex items-center gap-2 border-l border-r border-archive-border px-4">
           <button
             onClick={handleZoomOut}
             disabled={zoomLevel <= 1}
-            className="text-zinc-300 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="text-archive-muted-subtle hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             aria-label="Zoom out"
           >
             <ZoomOut className="w-5 h-5" />
           </button>
-          <span className="text-xs text-zinc-400 min-w-[3rem] text-center">
+          <span className="text-xs text-archive-muted min-w-[3rem] text-center">
             {Math.round(zoomLevel * 100)}%
           </span>
           <button
             onClick={handleZoomIn}
             disabled={zoomLevel >= 5}
-            className="text-zinc-300 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="text-archive-muted-subtle hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             aria-label="Zoom in"
           >
             <ZoomIn className="w-5 h-5" />
@@ -336,7 +335,7 @@ export default function ImageGallery({
           {isZoomed && (
             <button
               onClick={handleResetZoom}
-              className="ml-2 text-xs text-zinc-400 hover:text-zinc-200 transition-colors"
+              className="ml-2 text-xs text-archive-muted hover:text-archive-fg transition-colors"
             >
               Reset
             </button>
@@ -344,10 +343,10 @@ export default function ImageGallery({
         </div>
 
         {/* Download buttons */}
-        <div className="flex items-center gap-2 border-l border-zinc-700 pl-4">
+        <div className="flex items-center gap-2 border-l border-archive-border pl-4">
           <button
             onClick={handleDownload}
-            className="text-zinc-300 hover:text-white transition-colors"
+            className="text-archive-muted-subtle hover:text-white transition-colors"
             aria-label="Download current image"
             title="Download current image"
           >
@@ -356,7 +355,7 @@ export default function ImageGallery({
           {images.length > 1 && (
             <button
               onClick={handleDownloadAll}
-              className="text-zinc-300 hover:text-white transition-colors"
+              className="text-archive-muted-subtle hover:text-white transition-colors"
               aria-label="Download all images"
               title="Download all images"
             >
@@ -366,7 +365,7 @@ export default function ImageGallery({
         </div>
 
         {/* Keyboard hints */}
-        <div className="text-xs text-zinc-500 font-light border-l border-zinc-700 pl-4">
+        <div className="text-xs text-archive-muted font-light border-l border-archive-border pl-4">
           <span className="hidden md:inline">← → Navigate</span>
           <span className="hidden md:inline ml-2">+ - Zoom</span>
           <span className="hidden md:inline ml-2">ESC Close</span>
@@ -383,10 +382,10 @@ export default function ImageGallery({
                 setCurrentIndex(index);
                 handleResetZoom();
               }}
-              className={`flex-shrink-0 w-16 h-16 border-2 transition-all ${
-                index === currentIndex
-                  ? "border-zinc-300 scale-110"
-                  : "border-zinc-700 hover:border-zinc-500"
+              className={`flex-shrink-0 w-16 h-16 border transition-all ${
+ index === currentIndex
+                  ? "border-archive-fg scale-110"
+                  : "border-archive-border hover:border-archive-border-hover"
               }`}
             >
               {img ? (
@@ -396,7 +395,7 @@ export default function ImageGallery({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-zinc-800 flex items-center justify-center text-xs text-zinc-500">
+                <div className="w-full h-full bg-archive-surface-muted flex items-center justify-center text-xs text-archive-muted">
                   {index + 1}
                 </div>
               )}

@@ -8,7 +8,6 @@ let lastHydrateFailureAt = 0;
 const HYDRATE_RETRY_COOLDOWN_MS = 60_000;
 
 function getCacheFilePath(): string {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const path = require("path") as typeof import("path");
   return path.join(process.cwd(), "data", "ca-garments-cache.json");
 }
@@ -18,7 +17,6 @@ const isDev = process.env.NODE_ENV !== "production";
 function loadDiskCache(): Garment[] | null {
   if (typeof window !== "undefined") return null;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const fs = require("fs") as typeof import("fs");
     const cacheFile = getCacheFilePath();
     if (fs.existsSync(cacheFile)) {
@@ -38,13 +36,15 @@ function loadDiskCache(): Garment[] | null {
 function saveDiskCache(garments: Garment[]): void {
   if (typeof window !== "undefined") return;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const fs = require("fs") as typeof import("fs");
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const path = require("path") as typeof import("path");
     const cacheFile = getCacheFilePath();
     fs.mkdirSync(path.dirname(cacheFile), { recursive: true });
-    fs.writeFileSync(cacheFile, JSON.stringify(garments), "utf-8");
+    // Write to a sibling temp file and rename, so a crash mid-write can never
+    // leave a truncated cache that then fails to parse on the next cold start.
+    const tmpFile = `${cacheFile}.${process.pid}.tmp`;
+    fs.writeFileSync(tmpFile, JSON.stringify(garments), "utf-8");
+    fs.renameSync(tmpFile, cacheFile);
     if (isDev) console.log(`[CA] Saved ${garments.length} garments to disk cache.`);
   } catch (e) {
     if (isDev) console.warn("[CA] Could not write disk cache:", e);

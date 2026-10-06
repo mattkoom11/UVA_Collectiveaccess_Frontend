@@ -1,11 +1,18 @@
 import { MetadataRoute } from 'next'
-import { getAllGarments } from '@/lib/garments'
+import { getAllGarments, hydrateGarmentsFromCA } from '@/lib/garments'
 import { sampleExhibitions } from '@/data/exhibitions'
 import { educationalContent } from '@/data/educationalContent'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+// Regenerated hourly. A purely static sitemap is built without CA_BASE_URL and
+// would silently omit every CollectiveAccess garment, listing only the bundled
+// fallback data.
+export const revalidate = 3600
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://uvafashionarchive.com'
-  
+
+  await hydrateGarmentsFromCA().catch(() => {})
+
   const garments = getAllGarments()
   
   // Static pages

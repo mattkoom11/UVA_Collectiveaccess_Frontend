@@ -10,12 +10,12 @@ interface LearnDetailClientProps {
 
 export default function LearnDetailClient({ content }: LearnDetailClientProps) {
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-50">
+    <div className="min-h-screen bg-archive-bg text-archive-fg">
       <div className="max-w-4xl mx-auto px-4 py-12 md:py-20">
         {/* Back Button */}
         <Link
           href="/learn"
-          className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors mb-8"
+          className="inline-flex items-center gap-2 text-sm text-archive-muted hover:text-archive-fg transition-colors mb-8"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Learn
@@ -23,14 +23,14 @@ export default function LearnDetailClient({ content }: LearnDetailClientProps) {
 
         {/* Header */}
         <div className="mb-12">
-          <div className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-4">
+          <div className="text-xs uppercase tracking-[0.2em] text-archive-muted mb-4">
             {content.category}
           </div>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight mb-4">
             {content.title}
           </h1>
           {content.subtitle && (
-            <p className="text-lg md:text-xl text-zinc-400 font-light">
+            <p className="text-lg md:text-xl text-archive-muted font-light">
               {content.subtitle}
             </p>
           )}
@@ -38,20 +38,20 @@ export default function LearnDetailClient({ content }: LearnDetailClientProps) {
 
         {/* Content */}
         <div className="prose prose-invert prose-zinc max-w-none">
-          <div className="text-base md:text-lg text-zinc-300 font-light leading-relaxed whitespace-pre-line">
+          <div className="text-base md:text-lg text-archive-muted-subtle font-light leading-relaxed whitespace-pre-line">
             {content.content.split("\n\n").map((paragraph, index) => {
               // Handle markdown-like formatting
               if (paragraph.startsWith("- **")) {
                 // List item with bold
                 return (
-                  <div key={index} className="mb-4 pl-4 border-l-2 border-zinc-700">
-                    <p className="text-zinc-300">{paragraph.replace(/^- \*\*/, "**").replace(/\*\*:/, ":")}</p>
+                  <div key={index} className="mb-4 pl-4 border-l-2 border-archive-border">
+                    <p className="text-archive-muted-subtle">{paragraph.replace(/^- \*\*/, "**").replace(/\*\*:/, ":")}</p>
                   </div>
                 );
               } else if (paragraph.startsWith("**")) {
                 // Bold heading
                 return (
-                  <h2 key={index} className="text-xl font-light text-zinc-200 mt-8 mb-4">
+                  <h2 key={index} className="text-xl font-light text-archive-fg mt-8 mb-4">
                     {paragraph.replace(/\*\*/g, "")}
                   </h2>
                 );

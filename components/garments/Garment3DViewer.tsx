@@ -92,7 +92,7 @@ function PlaceholderModel({ garment }: { garment?: Garment }) {
 
 export default function Garment3DViewer({ modelUrl, garmentId, garment }: Props) {
   return (
-    <div className="w-full h-[600px] md:h-[800px] lg:h-[900px] bg-gradient-to-b from-stone-200 via-stone-100 to-stone-200 rounded-lg overflow-hidden border border-stone-300 shadow-2xl relative">
+    <div className="w-full h-[600px] md:h-[800px] lg:h-[900px] bg-gradient-to-b from-stone-200 via-stone-100 to-stone-200 overflow-hidden border border-stone-300 shadow-2xl relative">
       <Canvas shadows>
         <PerspectiveCamera makeDefault position={[0, 1, 5]} fov={50} />
         <OrbitControls
@@ -159,8 +159,8 @@ export default function Garment3DViewer({ modelUrl, garmentId, garment }: Props)
       </Canvas>
       
       {/* Controls hint */}
-      <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm border border-zinc-800 rounded-lg px-4 py-3 text-xs text-zinc-300 space-y-1">
-        <p className="font-medium text-zinc-200 mb-2">Controls</p>
+      <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm border border-archive-border px-4 py-3 text-xs text-archive-muted-subtle space-y-1">
+        <p className="font-medium text-archive-fg mb-2">Controls</p>
         <p>🖱️ Rotate: Click & Drag</p>
         <p>🔍 Zoom: Scroll Wheel</p>
         <p>↔️ Pan: Right-click & Drag</p>
@@ -168,9 +168,9 @@ export default function Garment3DViewer({ modelUrl, garmentId, garment }: Props)
       
       {!modelUrl && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="text-center text-zinc-500 text-sm bg-zinc-950/70 backdrop-blur-sm border border-zinc-800 px-6 py-4 rounded-lg">
-            <p className="font-medium text-zinc-300 mb-1">3D Model Placeholder</p>
-            <p className="text-xs mt-1 text-zinc-500">Add photogrammetry model URL to view the actual 3D scan</p>
+          <div className="text-center text-archive-muted text-sm bg-archive-bg/70 backdrop-blur-sm border border-archive-border px-6 py-4">
+            <p className="font-medium text-archive-muted-subtle mb-1">3D Model Placeholder</p>
+            <p className="text-xs mt-1 text-archive-muted">Add photogrammetry model URL to view the actual 3D scan</p>
           </div>
         </div>
       )}

@@ -44,10 +44,10 @@ export default function CompareButton({
     return (
       <button
         onClick={handleClick}
-        className={`flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-light transition-colors border border-zinc-700 px-4 py-2 hover:border-zinc-500 ${
+        className={`flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-light transition-colors border border-archive-border px-4 py-2 hover:border-archive-border-hover ${
           isAdding
-            ? "text-zinc-200 border-zinc-500"
-            : "text-zinc-400 hover:text-zinc-200"
+            ? "text-archive-fg border-archive-border-hover"
+            : "text-archive-muted hover:text-archive-fg"
         } ${className}`}
         aria-label="Add to comparison"
       >
@@ -60,7 +60,7 @@ export default function CompareButton({
   return (
     <button
       onClick={handleClick}
-      className={`p-2 rounded-full transition-all text-zinc-400 hover:text-zinc-300 hover:bg-zinc-900/50 ${className}`}
+      className={`p-2 rounded-full transition-all text-archive-muted hover:text-archive-muted-subtle hover:bg-archive-surface/50 ${className}`}
       aria-label="Add to comparison"
     >
       <Scale className="w-5 h-5" />

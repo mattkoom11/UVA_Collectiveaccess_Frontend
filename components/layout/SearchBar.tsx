@@ -63,7 +63,7 @@ export default function SearchBar({
     setFocusedIndex(-1);
   };
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = useCallback((e?: React.FormEvent) => {
     e?.preventDefault();
     if (query.trim().length > 0) {
       setIsOpen(false);
@@ -74,7 +74,7 @@ export default function SearchBar({
       }
       inputRef.current?.blur();
     }
-  };
+  }, [query, onSearch, router]);
 
   // Handle keyboard navigation
   useEffect(() => {
@@ -112,7 +112,7 @@ export default function SearchBar({
       window.addEventListener("keydown", handleKeyDown);
       return () => window.removeEventListener("keydown", handleKeyDown);
     }
-  }, [isOpen, searchResults, focusedIndex, query]);
+  }, [isOpen, searchResults, focusedIndex, query, handleSubmit]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -155,7 +155,7 @@ export default function SearchBar({
       <>
         {parts.map((part, i) => 
           part.match ? (
-            <mark key={i} className="bg-zinc-700 text-zinc-100 px-0.5">
+            <mark key={i} className="bg-archive-border-hover text-archive-fg px-0.5">
               {part.text}
             </mark>
           ) : (
@@ -179,18 +179,18 @@ export default function SearchBar({
           onFocus={handleInputFocus}
           placeholder={placeholder}
           className={`
-            w-full bg-zinc-900/50 border border-zinc-700 text-zinc-100 placeholder-zinc-500
-            focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500
+ w-full bg-archive-surface/50 border border-archive-border text-archive-fg placeholder-archive-muted
+            focus:outline-none focus:border-archive-border-hover focus:ring-1 focus:ring-archive-border-hover
             transition-colors font-light
             ${isHeaderVariant 
-              ? "text-xs px-3 py-1.5 rounded" 
-              : "text-sm md:text-base px-4 py-3 rounded-lg"
+              ? "text-xs px-3 py-1.5" 
+              : "text-sm md:text-base px-4 py-3"
             }
           `}
         />
         <button
           type="submit"
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition-colors"
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-archive-muted hover:text-archive-fg transition-colors"
           aria-label="Search"
         >
           <svg
@@ -211,7 +211,7 @@ export default function SearchBar({
 
       {/* Dropdown Results */}
       {isOpen && searchResults.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-archive-surface border border-archive-border shadow-xl z-50 max-h-96 overflow-y-auto">
           <div className="p-2">
             {searchResults.map((garment, index) => (
               <a
@@ -219,31 +219,31 @@ export default function SearchBar({
                 href={`/garments/${garment.slug}`}
                 onClick={() => handleSelectResult(garment)}
                 className={`
-                  block px-3 py-2 rounded hover:bg-zinc-800 transition-colors
-                  ${focusedIndex === index ? "bg-zinc-800" : ""}
+ block px-3 py-2 hover:bg-archive-surface-muted transition-colors
+                  ${focusedIndex === index ? "bg-archive-surface-muted" : ""}
                 `}
               >
                 <div className="flex items-start gap-3">
                   {/* Thumbnail */}
-                  <div className="flex-shrink-0 w-12 h-16 bg-zinc-800 rounded overflow-hidden">
+                  <div className="flex-shrink-0 w-12 h-16 bg-archive-surface-muted overflow-hidden">
                     {garment.thumbnailUrl && (
                       <img src={garment.thumbnailUrl} alt="" className="w-full h-full object-cover" />
                     )}
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-light text-zinc-100 mb-1 truncate">
+                    <h3 className="text-sm font-light text-archive-fg mb-1 truncate">
                       {highlightMatch(
                         garment.name || garment.label || garment.editorial_title || "Untitled",
                         query
                       )}
                     </h3>
-                    <p className="text-xs text-zinc-400 font-light">
+                    <p className="text-xs text-archive-muted font-light">
                       {garment.decade || garment.date || ""}
                       {garment.work_type && ` • ${garment.work_type}`}
                     </p>
                     {(garment.tagline || garment.description) && (
-                      <p className="text-xs text-zinc-500 font-light mt-1 line-clamp-1">
+                      <p className="text-xs text-archive-muted font-light mt-1 line-clamp-1">
                         {highlightMatch(
                           garment.tagline || garment.description || "",
                           query
@@ -259,7 +259,7 @@ export default function SearchBar({
             {totalResults > searchResults.length && (
               <button
                 onClick={handleSubmit}
-                className="w-full mt-2 px-3 py-2 text-xs text-zinc-400 hover:text-zinc-200 text-center border-t border-zinc-800 pt-2"
+                className="w-full mt-2 px-3 py-2 text-xs text-archive-muted hover:text-archive-fg text-center border-t border-archive-border pt-2"
               >
                 View all {totalResults} results
               </button>
@@ -270,9 +270,9 @@ export default function SearchBar({
 
       {/* No results message */}
       {isOpen && query.trim().length > 0 && searchResults.length === 0 && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 p-4">
-          <p className="text-sm text-zinc-400 font-light text-center">
-            No garments found matching "{query}"
+        <div className="absolute top-full left-0 right-0 mt-1 bg-archive-surface border border-archive-border shadow-xl z-50 p-4">
+          <p className="text-sm text-archive-muted font-light text-center">
+            No garments found matching &ldquo;{query}&rdquo;
           </p>
         </div>
       )}
