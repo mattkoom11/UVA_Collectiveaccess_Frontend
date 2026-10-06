@@ -95,11 +95,11 @@ export default function TimelineView({ garments }: TimelineViewProps) {
 
   const getEraColor = (era?: string) => {
     switch (era) {
-      case 'pre-1920': return 'border-zinc-700 bg-zinc-900/30';
+      case 'pre-1920': return 'border-archive-border bg-archive-surface/30';
       case '1920-1950': return 'border-amber-700/50 bg-amber-950/20';
       case '1950-1980': return 'border-blue-700/50 bg-blue-950/20';
       case '1980+': return 'border-purple-700/50 bg-purple-950/20';
-      default: return 'border-zinc-700 bg-zinc-900/30';
+      default: return 'border-archive-border bg-archive-surface/30';
     }
   };
 
@@ -154,7 +154,7 @@ export default function TimelineView({ garments }: TimelineViewProps) {
           <h2 className="text-3xl md:text-4xl font-light tracking-tight mb-4">
             Timeline View
           </h2>
-          <p className="text-sm text-zinc-400 font-light">
+          <p className="text-sm text-archive-muted font-light">
             Explore garments chronologically across fashion eras
           </p>
         </div>
@@ -162,13 +162,13 @@ export default function TimelineView({ garments }: TimelineViewProps) {
         {/* Controls */}
         <div className="flex flex-wrap items-center justify-center gap-4 mb-8">
           {/* Zoom Controls */}
-          <div className="flex items-center gap-2 bg-zinc-900/50 border border-zinc-700 rounded">
+          <div className="flex items-center gap-2 bg-archive-surface/50 border border-archive-border">
             <button
               onClick={() => setZoomLevel("era")}
               className={`px-4 py-2 text-xs uppercase tracking-[0.1em] transition-colors ${
-                zoomLevel === "era"
-                  ? "bg-zinc-800 text-zinc-200"
-                  : "text-zinc-400 hover:text-zinc-200"
+ zoomLevel === "era"
+                  ? "bg-archive-surface-muted text-archive-fg"
+                  : "text-archive-muted hover:text-archive-fg"
               }`}
             >
               Era
@@ -176,9 +176,9 @@ export default function TimelineView({ garments }: TimelineViewProps) {
             <button
               onClick={() => setZoomLevel("decade")}
               className={`px-4 py-2 text-xs uppercase tracking-[0.1em] transition-colors ${
-                zoomLevel === "decade"
-                  ? "bg-zinc-800 text-zinc-200"
-                  : "text-zinc-400 hover:text-zinc-200"
+ zoomLevel === "decade"
+                  ? "bg-archive-surface-muted text-archive-fg"
+                  : "text-archive-muted hover:text-archive-fg"
               }`}
             >
               Decade
@@ -186,9 +186,9 @@ export default function TimelineView({ garments }: TimelineViewProps) {
             <button
               onClick={() => setZoomLevel("year")}
               className={`px-4 py-2 text-xs uppercase tracking-[0.1em] transition-colors ${
-                zoomLevel === "year"
-                  ? "bg-zinc-800 text-zinc-200"
-                  : "text-zinc-400 hover:text-zinc-200"
+ zoomLevel === "year"
+                  ? "bg-archive-surface-muted text-archive-fg"
+                  : "text-archive-muted hover:text-archive-fg"
               }`}
             >
               Year
@@ -199,8 +199,8 @@ export default function TimelineView({ garments }: TimelineViewProps) {
           <div className="relative">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-400 hover:text-zinc-200 uppercase tracking-[0.1em] font-light hover:border-zinc-600 transition-colors flex items-center gap-2 ${
-                selectedEras.size > 0 ? "border-zinc-500 text-zinc-200" : ""
+              className={`bg-archive-surface/50 border border-archive-border px-4 py-2 text-sm text-archive-muted hover:text-archive-fg uppercase tracking-[0.1em] font-light hover:border-archive-border-hover transition-colors flex items-center gap-2 ${
+ selectedEras.size > 0 ? "border-archive-border-hover text-archive-fg" : ""
               }`}
             >
               <Filter className="w-4 h-4" />
@@ -208,27 +208,27 @@ export default function TimelineView({ garments }: TimelineViewProps) {
               <ChevronDown className={`w-4 h-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
             </button>
             {showFilters && (
-              <div className="absolute top-full right-0 mt-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 min-w-[200px] p-4">
+              <div className="absolute top-full right-0 mt-2 bg-archive-surface border border-archive-border shadow-xl z-50 min-w-[200px] p-4">
                 <div className="space-y-2">
                   {eras.map((era) => (
                     <label
                       key={era}
-                      className="flex items-center gap-2 cursor-pointer text-sm text-zinc-300 hover:text-zinc-200"
+                      className="flex items-center gap-2 cursor-pointer text-sm text-archive-muted-subtle hover:text-archive-fg"
                     >
                       <input
                         type="checkbox"
                         checked={selectedEras.has(era)}
                         onChange={() => toggleEra(era)}
-                        className="w-4 h-4 rounded border-zinc-700 bg-zinc-800 text-zinc-400 focus:ring-zinc-600"
+                        className="w-4 h-4 border-archive-border bg-archive-surface-muted text-archive-muted focus:ring-archive-border-hover"
                       />
                       <span>{getEraLabel(era)}</span>
-                      <span className="text-xs text-zinc-500 ml-auto">
+                      <span className="text-xs text-archive-muted ml-auto">
                         ({densityData[era] || 0})
                       </span>
                     </label>
                   ))}
                   {undatedCount > 0 && (
-                    <div className="flex items-center gap-2 text-sm text-zinc-500 pt-1 border-t border-zinc-800">
+                    <div className="flex items-center gap-2 text-sm text-archive-muted pt-1 border-t border-archive-border">
                       <span>Undated</span>
                       <span className="text-xs ml-auto">({undatedCount})</span>
                     </div>
@@ -236,7 +236,7 @@ export default function TimelineView({ garments }: TimelineViewProps) {
                   {selectedEras.size > 0 && (
                     <button
                       onClick={() => setSelectedEras(new Set())}
-                      className="w-full mt-2 text-xs text-zinc-400 hover:text-zinc-200 border border-zinc-700 px-3 py-1.5 rounded hover:border-zinc-600 transition-colors flex items-center justify-center gap-2"
+                      className="w-full mt-2 text-xs text-archive-muted hover:text-archive-fg border border-archive-border px-3 py-1.5 hover:border-archive-border-hover transition-colors flex items-center justify-center gap-2"
                     >
                       <X className="w-3 h-3" />
                       Clear Filters
@@ -250,8 +250,8 @@ export default function TimelineView({ garments }: TimelineViewProps) {
 
         {/* Density Visualization */}
         {selectedEras.size === 0 && (
-          <div className="mb-8 bg-zinc-900/30 border border-zinc-800 rounded-lg p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-zinc-400 mb-3 text-center">Collection Density by Era</p>
+          <div className="mb-8 bg-archive-surface/30 border border-archive-border p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-archive-muted mb-3 text-center">Collection Density by Era</p>
             <div className="flex items-end gap-2 h-24">
               {eras.map((era) => {
                 const count = densityData[era] || 0;
@@ -259,21 +259,21 @@ export default function TimelineView({ garments }: TimelineViewProps) {
                 const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
                 return (
                   <div key={era} className="flex-1 flex flex-col items-center gap-2">
-                    <div className="relative w-full bg-zinc-800 rounded-t" style={{ height: `${height}%` }}>
+                    <div className="relative w-full bg-archive-surface-muted rounded-t" style={{ height: `${height}%` }}>
                       <div className={`absolute inset-0 rounded-t ${getEraColor(era).split(' ')[1]}`} />
                     </div>
-                    <span className="text-xs text-zinc-500">{getEraLabel(era)}</span>
-                    <span className="text-xs font-light text-zinc-400">{count}</span>
+                    <span className="text-xs text-archive-muted">{getEraLabel(era)}</span>
+                    <span className="text-xs font-light text-archive-muted">{count}</span>
                   </div>
                 );
               })}
               {undatedCount > 0 && (
                 <div className="flex-1 flex flex-col items-center gap-2">
-                  <div className="relative w-full bg-zinc-800 rounded-t" style={{ height: `${(undatedCount / Math.max(...Object.values(densityData), undatedCount)) * 100}%` }}>
-                    <div className="absolute inset-0 rounded-t bg-zinc-700/40" />
+                  <div className="relative w-full bg-archive-surface-muted rounded-t" style={{ height: `${(undatedCount / Math.max(...Object.values(densityData), undatedCount)) * 100}%` }}>
+                    <div className="absolute inset-0 rounded-t bg-archive-border-hover/40" />
                   </div>
-                  <span className="text-xs text-zinc-600">Undated</span>
-                  <span className="text-xs font-light text-zinc-500">{undatedCount}</span>
+                  <span className="text-xs text-archive-muted">Undated</span>
+                  <span className="text-xs font-light text-archive-muted">{undatedCount}</span>
                 </div>
               )}
             </div>
@@ -282,8 +282,8 @@ export default function TimelineView({ garments }: TimelineViewProps) {
 
         {/* Timeline Navigation (Quick Jump) */}
         {timelineMarkers.length > 5 && (
-          <div className="mb-8 bg-zinc-900/30 border border-zinc-800 rounded-lg p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-zinc-400 mb-3 text-center">Quick Navigation</p>
+          <div className="mb-8 bg-archive-surface/30 border border-archive-border p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-archive-muted mb-3 text-center">Quick Navigation</p>
             <div className="flex flex-wrap gap-2 justify-center">
               {timelineMarkers.slice(0, 10).map((marker) => (
                 <button
@@ -292,7 +292,7 @@ export default function TimelineView({ garments }: TimelineViewProps) {
                     const element = document.querySelector(`[data-timeline-key="${marker.key}"]`);
                     element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                   }}
-                  className="px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 border border-zinc-700 hover:border-zinc-600 rounded transition-colors flex items-center gap-1"
+                  className="px-3 py-1.5 text-xs text-archive-muted hover:text-archive-fg border border-archive-border hover:border-archive-border-hover transition-colors flex items-center gap-1"
                 >
                   <Hash className="w-3 h-3" />
                   {marker.label} ({marker.count})
@@ -327,7 +327,7 @@ export default function TimelineView({ garments }: TimelineViewProps) {
       {scrollPosition > 500 && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 bg-zinc-900/80 border border-zinc-700 p-3 rounded-full text-zinc-400 hover:text-zinc-200 hover:border-zinc-600 transition-all duration-300 backdrop-blur-sm z-40"
+          className="fixed bottom-8 right-8 bg-archive-surface/80 border border-archive-border p-3 rounded-full text-archive-muted hover:text-archive-fg hover:border-archive-border-hover transition-all duration-300 backdrop-blur-sm z-40"
           aria-label="Scroll to top"
         >
           <ArrowUp className="w-5 h-5" />

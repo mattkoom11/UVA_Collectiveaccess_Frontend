@@ -120,7 +120,7 @@ function SearchPageContent() {
       <>
         {parts.map((part, i) => 
           part.match ? (
-            <mark key={i} className="bg-archive-surface text-archive-fg px-0.5 rounded">
+            <mark key={i} className="bg-archive-surface text-archive-fg px-0.5">
               {part.text}
             </mark>
           ) : (
@@ -154,7 +154,7 @@ function SearchPageContent() {
           {/* Active search query */}
           {searchQuery && (
             <div className="text-center mb-6">
-              <div className="inline-flex items-center gap-2 bg-archive-surface border border-archive-border px-4 py-2 rounded">
+              <div className="inline-flex items-center gap-2 bg-archive-surface border border-archive-border px-4 py-2">
                 <span className="text-sm text-archive-muted font-light">
                   Results for: <span className="text-archive-fg">{searchQuery}</span>
                 </span>
@@ -174,7 +174,7 @@ function SearchPageContent() {
 
         {/* Filter Bar */}
         <div className="mb-12 flex flex-wrap gap-4 items-center justify-center">
-          <div className="bg-archive-surface border border-archive-border px-4 py-2 rounded">
+          <div className="bg-archive-surface border border-archive-border px-4 py-2">
             <select
               value={selectedEra}
               onChange={(e) => setSelectedEra(e.target.value as Era | "all")}
@@ -188,7 +188,7 @@ function SearchPageContent() {
             </select>
           </div>
           
-          <div className="bg-archive-surface border border-archive-border px-4 py-2 rounded">
+          <div className="bg-archive-surface border border-archive-border px-4 py-2">
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value as GarmentType | "all")}
@@ -218,7 +218,7 @@ function SearchPageContent() {
           </div>
 
           {(searchQuery || selectedEra !== "all" || selectedType !== "all") && (
-            <div className="bg-archive-surface border border-archive-border px-4 py-2 rounded">
+            <div className="bg-archive-surface border border-archive-border px-4 py-2">
               <span className="text-sm text-archive-fg uppercase tracking-[0.1em] font-light">
                 {filteredResults.length} {filteredResults.length === 1 ? 'result' : 'results'}
               </span>

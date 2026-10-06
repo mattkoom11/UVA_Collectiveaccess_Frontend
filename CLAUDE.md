@@ -71,7 +71,7 @@ UVA_Collectiveaccess_Frontend/
 │   ├── relatedGarments.ts      # Similarity-scoring algorithm
 │   ├── savedSearches.ts        # Saved searches (localStorage)
 │   └── statistics.ts           # Collection statistics
-├── middleware.ts               # CSP + security headers, per-request nonce
+├── proxy.ts                    # CSP + security headers, per-request nonce
 ├── types/
 │   └── garment.ts              # Garment interface, Era, GarmentType, helper fns
 ├── data/
@@ -158,7 +158,7 @@ interface Garment {
 - Featured exhibitions section
 
 ### `/collection` — Collection Page
-- Pagination: 24 garments/page
+- Pagination: 36 garments/page
 - Sort: relevance / date (asc/desc) / name (asc/desc) / era
 - Filters: era, garment type, color, material, decade, work_type, date range
 - Active filter chip strip (clear individual or all)
@@ -227,9 +227,10 @@ interface Garment {
   check itself. Rate-limited per-IP (in-memory, resets on restart —
   acceptable for a single-admin tool per the code comment in
   `lib/adminAuth.ts`).
-- **`ADMIN_PASSWORD` default**: `lib/adminAuth.ts` **refuses to start** (throws on module load) if `NODE_ENV=production` and `ADMIN_PASSWORD` is unset — it no longer silently falls back to `"uva-fashion-admin"` in production. Local dev still gets the default for convenience.
+- **`ADMIN_PASSWORD` in production**: `lib/adminAuth.ts` resolves the password lazily (per call) and refuses to fall back to the default when `NODE_ENV=production`. The check deliberately is *not* at module load: `next build` evaluates every route module while collecting page data, so a module-level throw broke production builds in any environment that only injects `ADMIN_PASSWORD` at run time. Local dev still gets the default for convenience.
 - **CA credentials**: Server-only `CA_*` env vars. `NEXT_PUBLIC_CA_*` fallbacks exist but expose secrets — avoid in production.
-- **Security headers + CSP**: implemented in `middleware.ts` on every request — strict nonce-based `Content-Security-Policy` (`strict-dynamic`, `frame-ancestors 'none'`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`.
+- **Security headers + CSP**: implemented in `proxy.ts` on every request — strict nonce-based `Content-Security-Policy` (`strict-dynamic`, `frame-ancestors 'none'`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`.
+  - The nonce is per-request, so every route renders dynamically: `app/layout.tsx` reads `x-nonce` via `headers()`, which is what makes Next.js stamp the nonce onto its inline scripts. Prerendering a page would bake in 7–8 nonce-less inline scripts, and browsers ignore `'self'` when `strict-dynamic` is present, so they'd all be blocked. Making routes static requires HTML-rewriting the nonce in `proxy.ts` instead — a deliberate tradeoff, not an oversight.
 - **Public-display filtering**: `CollectiveAccessClient.isPublic()` restricts synced garments to CA records flagged `public_display` (see Data Flow) — mid-cataloguing/unpublished records are no longer served through `/api/garments`, `/api/search`, or any page.
 - `robots.txt` disallows `/admin`.
 - `poweredByHeader: false` in Next.js config.

@@ -68,22 +68,22 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-50">
+    <div className="min-h-screen bg-archive-bg text-archive-fg">
       <div className="max-w-7xl mx-auto px-4 py-12 md:py-20">
         {/* Header */}
         <div className="mb-12 md:mb-16 text-center">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight mb-4">
             Compare Garments
           </h1>
-          <p className="text-sm md:text-base text-zinc-400 font-light max-w-2xl mx-auto">
+          <p className="text-sm md:text-base text-archive-muted font-light max-w-2xl mx-auto">
             Select up to 4 garments to compare side-by-side
           </p>
         </div>
 
         {/* Add Garments Section */}
         {compareIds.length < 4 && (
-          <div className="print-hide mb-8 p-6 border border-zinc-800 bg-zinc-900/30 rounded-lg">
-            <h2 className="text-sm uppercase tracking-[0.2em] text-zinc-400 mb-4">
+          <div className="print-hide mb-8 p-6 border border-archive-border bg-archive-surface/30">
+            <h2 className="text-sm uppercase tracking-[0.2em] text-archive-muted mb-4">
               Add Garments to Compare
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -94,15 +94,15 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
                   <button
                     key={garment.id}
                     onClick={() => addToCompare(garment.id)}
-                    className="p-4 border border-zinc-700 hover:border-zinc-500 transition-colors text-left group"
+                    className="p-4 border border-archive-border hover:border-archive-border-hover transition-colors text-left group"
                   >
-                    <div className="aspect-[3/4] bg-zinc-900 mb-2 flex items-center justify-center text-zinc-600 text-xs">
+                    <div className="aspect-[3/4] bg-archive-surface mb-2 flex items-center justify-center text-archive-muted text-xs">
                       Image
                     </div>
-                    <p className="text-xs text-zinc-400 group-hover:text-zinc-200 transition-colors line-clamp-2">
+                    <p className="text-xs text-archive-muted group-hover:text-archive-fg transition-colors line-clamp-2">
                       {garment.name || garment.label || garment.editorial_title}
                     </p>
-                    <div className="mt-2 flex items-center gap-1 text-zinc-500">
+                    <div className="mt-2 flex items-center gap-1 text-archive-muted">
                       <Plus className="w-3 h-3" />
                       <span className="text-xs">Add</span>
                     </div>
@@ -112,7 +112,7 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
             <div className="mt-4 text-center">
               <Link
                 href="/collection"
-                className="text-xs uppercase tracking-[0.2em] text-zinc-400 hover:text-zinc-200 transition-colors"
+                className="text-xs uppercase tracking-[0.2em] text-archive-muted hover:text-archive-fg transition-colors"
               >
                 Browse all garments →
               </Link>
@@ -139,7 +139,7 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
               <div className="flex gap-2">
                 <button
                   onClick={exportComparisonJSON}
-                  className="text-xs uppercase tracking-[0.2em] text-zinc-400 hover:text-zinc-200 transition-colors border border-zinc-700 px-4 py-2 hover:border-zinc-500 flex items-center gap-2"
+                  className="text-xs uppercase tracking-[0.2em] text-archive-muted hover:text-archive-fg transition-colors border border-archive-border px-4 py-2 hover:border-archive-border-hover flex items-center gap-2"
                   title="Export as JSON"
                 >
                   <FileText className="w-4 h-4" />
@@ -147,7 +147,7 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
                 </button>
                 <button
                   onClick={exportComparisonCSV}
-                  className="text-xs uppercase tracking-[0.2em] text-zinc-400 hover:text-zinc-200 transition-colors border border-zinc-700 px-4 py-2 hover:border-zinc-500 flex items-center gap-2"
+                  className="text-xs uppercase tracking-[0.2em] text-archive-muted hover:text-archive-fg transition-colors border border-archive-border px-4 py-2 hover:border-archive-border-hover flex items-center gap-2"
                   title="Export as CSV"
                 >
                   <FileSpreadsheet className="w-4 h-4" />
@@ -155,7 +155,7 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
                 </button>
                 <button
                   onClick={exportComparisonPDF}
-                  className="text-xs uppercase tracking-[0.2em] text-zinc-400 hover:text-zinc-200 transition-colors border border-zinc-700 px-4 py-2 hover:border-zinc-500 flex items-center gap-2"
+                  className="text-xs uppercase tracking-[0.2em] text-archive-muted hover:text-archive-fg transition-colors border border-archive-border px-4 py-2 hover:border-archive-border-hover flex items-center gap-2"
                   title="Export as PDF"
                 >
                   <File className="w-4 h-4" />
@@ -168,8 +168,8 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
             <div className="overflow-x-auto" id="comparison-table">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="border-b border-zinc-800">
-                    <th className="p-4 text-left text-xs uppercase tracking-[0.2em] text-zinc-400 font-light">
+                  <tr className="border-b border-archive-border">
+                    <th className="p-4 text-left text-xs uppercase tracking-[0.2em] text-archive-muted font-light">
                       Property
                     </th>
                     {compareGarments.map((garment) => (
@@ -177,7 +177,7 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
                         <div className="relative">
                           <button
                             onClick={() => removeFromCompare(garment.id)}
-                            className="absolute top-0 right-0 p-1 text-zinc-500 hover:text-zinc-300 transition-colors"
+                            className="absolute top-0 right-0 p-1 text-archive-muted hover:text-archive-muted-subtle transition-colors"
                             aria-label="Remove from comparison"
                           >
                             <X className="w-4 h-4" />
@@ -186,10 +186,10 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
                             href={`/garments/${garment.slug}`}
                             className="block group"
                           >
-                            <div className="aspect-[3/4] bg-zinc-900 mb-3 flex items-center justify-center text-zinc-600 text-xs">
+                            <div className="aspect-[3/4] bg-archive-surface mb-3 flex items-center justify-center text-archive-muted text-xs">
                               Image
                             </div>
-                            <h3 className="text-sm font-light mb-1 group-hover:text-zinc-200 transition-colors">
+                            <h3 className="text-sm font-light mb-1 group-hover:text-archive-fg transition-colors">
                               {garment.name || garment.label || garment.editorial_title}
                             </h3>
                           </a>
@@ -199,91 +199,91 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b border-zinc-800">
-                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-zinc-500">ID</td>
+                  <tr className="border-b border-archive-border">
+                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-archive-muted">ID</td>
                     {compareGarments.map((garment) => (
-                      <td key={garment.id} className="p-4 text-sm text-zinc-300">
+                      <td key={garment.id} className="p-4 text-sm text-archive-muted-subtle">
                         {garment.id}
                       </td>
                     ))}
                   </tr>
-                  <tr className="border-b border-zinc-800">
-                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-zinc-500">Date</td>
+                  <tr className="border-b border-archive-border">
+                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-archive-muted">Date</td>
                     {compareGarments.map((garment) => (
-                      <td key={garment.id} className="p-4 text-sm text-zinc-300">
+                      <td key={garment.id} className="p-4 text-sm text-archive-muted-subtle">
                         {garment.decade || garment.date || garment.yearApprox || "—"}
                       </td>
                     ))}
                   </tr>
-                  <tr className="border-b border-zinc-800">
-                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-zinc-500">Era</td>
+                  <tr className="border-b border-archive-border">
+                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-archive-muted">Era</td>
                     {compareGarments.map((garment) => (
-                      <td key={garment.id} className="p-4 text-sm text-zinc-300">
+                      <td key={garment.id} className="p-4 text-sm text-archive-muted-subtle">
                         {garment.era || "—"}
                       </td>
                     ))}
                   </tr>
-                  <tr className="border-b border-zinc-800">
-                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-zinc-500">Type</td>
+                  <tr className="border-b border-archive-border">
+                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-archive-muted">Type</td>
                     {compareGarments.map((garment) => (
-                      <td key={garment.id} className="p-4 text-sm text-zinc-300">
+                      <td key={garment.id} className="p-4 text-sm text-archive-muted-subtle">
                         {garment.work_type || garment.type || "—"}
                       </td>
                     ))}
                   </tr>
-                  <tr className="border-b border-zinc-800">
-                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-zinc-500">Colors</td>
+                  <tr className="border-b border-archive-border">
+                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-archive-muted">Colors</td>
                     {compareGarments.map((garment) => (
-                      <td key={garment.id} className="p-4 text-sm text-zinc-300">
+                      <td key={garment.id} className="p-4 text-sm text-archive-muted-subtle">
                         {garment.colors && (Array.isArray(garment.colors) ? garment.colors.length > 0 : garment.colors)
                           ? (Array.isArray(garment.colors) ? garment.colors.join(", ") : garment.colors)
                           : "—"}
                       </td>
                     ))}
                   </tr>
-                  <tr className="border-b border-zinc-800">
-                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-zinc-500">Materials</td>
+                  <tr className="border-b border-archive-border">
+                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-archive-muted">Materials</td>
                     {compareGarments.map((garment) => (
-                      <td key={garment.id} className="p-4 text-sm text-zinc-300">
+                      <td key={garment.id} className="p-4 text-sm text-archive-muted-subtle">
                         {garment.materials && (Array.isArray(garment.materials) ? garment.materials.length > 0 : garment.materials)
                           ? (Array.isArray(garment.materials) ? garment.materials.join(", ") : garment.materials)
                           : "—"}
                       </td>
                     ))}
                   </tr>
-                  <tr className="border-b border-zinc-800">
-                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-zinc-500">Dimensions</td>
+                  <tr className="border-b border-archive-border">
+                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-archive-muted">Dimensions</td>
                     {compareGarments.map((garment) => (
-                      <td key={garment.id} className="p-4 text-sm text-zinc-300">
+                      <td key={garment.id} className="p-4 text-sm text-archive-muted-subtle">
                         {garment.dimensions || "—"}
                       </td>
                     ))}
                   </tr>
-                  <tr className="border-b border-zinc-800">
-                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-zinc-500">Condition</td>
+                  <tr className="border-b border-archive-border">
+                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-archive-muted">Condition</td>
                     {compareGarments.map((garment) => (
-                      <td key={garment.id} className="p-4 text-sm text-zinc-300">
+                      <td key={garment.id} className="p-4 text-sm text-archive-muted-subtle">
                         {garment.condition || "—"}
                       </td>
                     ))}
                   </tr>
-                  <tr className="border-b border-zinc-800">
-                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-zinc-500">Collection</td>
+                  <tr className="border-b border-archive-border">
+                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-archive-muted">Collection</td>
                     {compareGarments.map((garment) => (
-                      <td key={garment.id} className="p-4 text-sm text-zinc-300">
+                      <td key={garment.id} className="p-4 text-sm text-archive-muted-subtle">
                         {garment.collection || "—"}
                       </td>
                     ))}
                   </tr>
                   <tr>
-                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-zinc-500">3D View</td>
+                    <td className="p-4 text-xs uppercase tracking-[0.1em] text-archive-muted">3D View</td>
                     {compareGarments.map((garment) => (
                       <td key={garment.id} className="p-4">
-                        <div className="h-64 border border-zinc-800">
+                        <div className="h-64 border border-archive-border">
                           <ErrorBoundary
                             fallback={
                               <div className="w-full h-full flex items-center justify-center">
-                                <p className="text-xs uppercase tracking-[0.15em] text-zinc-500">
+                                <p className="text-xs uppercase tracking-[0.15em] text-archive-muted">
                                   3D view unavailable
                                 </p>
                               </div>
@@ -301,15 +301,15 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
           </div>
         ) : (
           <div className="text-center py-16">
-            <p className="text-lg text-zinc-400 font-light mb-4">
+            <p className="text-lg text-archive-muted font-light mb-4">
               No garments selected for comparison
             </p>
-            <p className="text-sm text-zinc-500 font-light mb-6">
+            <p className="text-sm text-archive-muted font-light mb-6">
               Select garments from the collection to compare
             </p>
             <Link
               href="/collection"
-              className="inline-block text-xs uppercase tracking-[0.25em] text-zinc-400 hover:text-zinc-200 transition border border-zinc-700 px-6 py-3 hover:border-zinc-500"
+              className="inline-block text-xs uppercase tracking-[0.25em] text-archive-muted hover:text-archive-fg transition border border-archive-border px-6 py-3 hover:border-archive-border-hover"
             >
               Browse Collection
             </Link>

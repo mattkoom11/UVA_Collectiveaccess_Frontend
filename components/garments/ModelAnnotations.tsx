@@ -61,28 +61,28 @@ export default function ModelAnnotations({ annotations, onAnnotationClick }: Mod
                 distanceFactor={10}
                 style={{ pointerEvents: "auto" }}
               >
-                <div className="bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl p-4 max-w-xs min-w-[250px] text-left">
+                <div className="bg-archive-surface border border-archive-border shadow-xl p-4 max-w-xs min-w-[250px] text-left">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <Info className="w-4 h-4 text-zinc-400" />
-                      <h3 className="text-sm font-semibold text-zinc-200">
+                      <Info className="w-4 h-4 text-archive-muted" />
+                      <h3 className="text-sm font-semibold text-archive-fg">
                         {annotation.title}
                       </h3>
                     </div>
                     <button
                       onClick={() => setActiveAnnotation(null)}
-                      className="text-zinc-400 hover:text-zinc-200 transition-colors"
+                      className="text-archive-muted hover:text-archive-fg transition-colors"
                       aria-label="Close annotation"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                   {annotation.category && (
-                    <span className="inline-block text-xs uppercase tracking-[0.1em] text-zinc-500 mb-2">
+                    <span className="inline-block text-xs uppercase tracking-[0.1em] text-archive-muted mb-2">
                       {annotation.category}
                     </span>
                   )}
-                  <p className="text-xs text-zinc-300 font-light leading-relaxed">
+                  <p className="text-xs text-archive-muted-subtle font-light leading-relaxed">
                     {annotation.description}
                   </p>
                 </div>
@@ -92,7 +92,7 @@ export default function ModelAnnotations({ annotations, onAnnotationClick }: Mod
             {/* Hover indicator */}
             {isHovered && !isActive && (
               <Html position={[0, 0.15, 0]} center distanceFactor={10}>
-                <div className="bg-zinc-800/90 border border-zinc-600 rounded px-2 py-1 text-xs text-zinc-200 whitespace-nowrap">
+                <div className="bg-archive-surface-muted/90 border border-archive-border-hover px-2 py-1 text-xs text-archive-fg whitespace-nowrap">
                   {annotation.title}
                 </div>
               </Html>

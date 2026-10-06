@@ -37,13 +37,13 @@ export default function GarmentSearchClient() {
   return (
     <div className="space-y-6">
       {/* Controls */}
-      <div className="flex flex-wrap gap-4 items-end border-b border-zinc-800 pb-4">
+      <div className="flex flex-wrap gap-4 items-end border-b border-archive-border pb-4">
         <div className="space-y-1">
-          <label className="block text-[0.7rem] uppercase tracking-[0.2em] text-zinc-400">
+          <label className="block text-[0.7rem] uppercase tracking-[0.2em] text-archive-muted">
             Decade
           </label>
           <select
-            className="bg-zinc-900 border border-zinc-700 text-sm px-2 py-1"
+            className="bg-archive-surface border border-archive-border text-sm px-2 py-1"
             value={decade}
             onChange={(e) => setDecade(e.target.value)}
           >
@@ -57,11 +57,11 @@ export default function GarmentSearchClient() {
         </div>
 
         <div className="space-y-1">
-          <label className="block text-[0.7rem] uppercase tracking-[0.2em] text-zinc-400">
+          <label className="block text-[0.7rem] uppercase tracking-[0.2em] text-archive-muted">
             Work type
           </label>
           <select
-            className="bg-zinc-900 border border-zinc-700 text-sm px-2 py-1"
+            className="bg-archive-surface border border-archive-border text-sm px-2 py-1"
             value={workType}
             onChange={(e) => setWorkType(e.target.value)}
           >
@@ -75,11 +75,11 @@ export default function GarmentSearchClient() {
         </div>
 
         <div className="space-y-1">
-          <label className="block text-[0.7rem] uppercase tracking-[0.2em] text-zinc-400">
+          <label className="block text-[0.7rem] uppercase tracking-[0.2em] text-archive-muted">
             Color
           </label>
           <select
-            className="bg-zinc-900 border border-zinc-700 text-sm px-2 py-1"
+            className="bg-archive-surface border border-archive-border text-sm px-2 py-1"
             value={color}
             onChange={(e) => setColor(e.target.value)}
           >
@@ -98,8 +98,8 @@ export default function GarmentSearchClient() {
             onClick={() => setView("runway")}
             className={`px-3 py-1 border ${
               view === "runway"
-                ? "border-zinc-100 text-zinc-100"
-                : "border-zinc-700 text-zinc-400"
+                ? "border-archive-fg text-archive-fg"
+                : "border-archive-border text-archive-muted"
             }`}
           >
             Runway
@@ -109,8 +109,8 @@ export default function GarmentSearchClient() {
             onClick={() => setView("grid")}
             className={`px-3 py-1 border ${
               view === "grid"
-                ? "border-zinc-100 text-zinc-100"
-                : "border-zinc-700 text-zinc-400"
+                ? "border-archive-fg text-archive-fg"
+                : "border-archive-border text-archive-muted"
             }`}
           >
             Grid

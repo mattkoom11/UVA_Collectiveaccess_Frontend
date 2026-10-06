@@ -61,28 +61,28 @@ export default class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen bg-zinc-950 text-zinc-50 flex items-center justify-center px-4">
+        <div className="min-h-screen bg-archive-bg text-archive-fg flex items-center justify-center px-4">
           <div className="max-w-2xl w-full text-center space-y-6">
             <div className="flex justify-center">
-              <AlertCircle className="w-16 h-16 text-zinc-400" />
+              <AlertCircle className="w-16 h-16 text-archive-muted" />
             </div>
             
             <div>
               <h1 className="text-2xl md:text-3xl font-light mb-4">
                 Something went wrong
               </h1>
-              <p className="text-zinc-400 font-light mb-6">
+              <p className="text-archive-muted font-light mb-6">
                 We encountered an unexpected error. Please try again or return to the homepage.
               </p>
             </div>
 
             {process.env.NODE_ENV === "development" && this.state.error && (
-              <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4 text-left">
-                <p className="text-sm text-zinc-300 font-mono mb-2">
+              <div className="bg-archive-surface border border-archive-border p-4 text-left">
+                <p className="text-sm text-archive-muted-subtle font-mono mb-2">
                   {this.state.error.toString()}
                 </p>
                 {this.state.errorInfo && (
-                  <details className="text-xs text-zinc-500">
+                  <details className="text-xs text-archive-muted">
                     <summary className="cursor-pointer mb-2">Stack trace</summary>
                     <pre className="overflow-auto max-h-48">
                       {this.state.errorInfo.componentStack}
@@ -95,14 +95,14 @@ export default class ErrorBoundary extends Component<Props, State> {
             <div className="flex items-center justify-center gap-4">
               <button
                 onClick={this.handleRetry}
-                className="flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg transition-colors text-sm uppercase tracking-[0.1em]"
+                className="flex items-center gap-2 px-6 py-3 bg-archive-surface-muted hover:bg-archive-border-hover border border-archive-border transition-colors text-sm uppercase tracking-[0.1em]"
               >
                 <RefreshCw className="w-4 h-4" />
                 Try Again
               </button>
               <Link
                 href="/"
-                className="flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg transition-colors text-sm uppercase tracking-[0.1em]"
+                className="flex items-center gap-2 px-6 py-3 bg-archive-surface-muted hover:bg-archive-border-hover border border-archive-border transition-colors text-sm uppercase tracking-[0.1em]"
               >
                 <Home className="w-4 h-4" />
                 Go Home

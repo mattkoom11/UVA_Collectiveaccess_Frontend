@@ -235,7 +235,6 @@ export default function MuseumHall({ garments, intro = false }: { garments: Garm
         >
           <div className="flex flex-col md:flex-row gap-6 bg-archive-surface border border-archive-border p-6 max-w-3xl w-full max-h-full overflow-y-auto">
             {(photo.imageUrl || photo.images[0]) && (
-              // eslint-disable-next-line @next/next/no-img-element -- CA media host isn't configured for next/image
               <img
                 src={photo.imageUrl || photo.images[0]}
                 alt={photo.label}

@@ -48,3 +48,7 @@ next-env.d.ts
 # line if you want to commit it as a permanent demo asset (it's ~9.5MB,
 # under the 10MB guidance) — left ignored by default since it's test data.
 /public/models/testdress0-lowpoly.glb
+
+# Local agent/tooling artifacts (workspace state, logs, PIDs)
+/.superpowers/
+/.claude/settings.local.json

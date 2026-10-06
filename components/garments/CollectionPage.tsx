@@ -216,10 +216,19 @@ export default function CollectionPage({
     return results;
   }, [allGarments, selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy, selectedDecade]);
 
-  // Reset to page 1 when filters change
-  useEffect(() => {
+  // Reset to page 1 when the filter set changes. Adjusting during render
+  // (the documented alternative to an effect) keeps the paginated slice and
+  // the filter state consistent within a single pass instead of rendering one
+  // frame of a stale page.
+  const filterSignature = [
+    selectedEra, selectedType, selectedColor, selectedMaterial, selectedDecade,
+    dateRange.start ?? "", dateRange.end ?? "", searchQuery, sortBy,
+  ].join("|");
+  const [lastFilterSignature, setLastFilterSignature] = useState(filterSignature);
+  if (filterSignature !== lastFilterSignature) {
+    setLastFilterSignature(filterSignature);
     setCurrentPage(1);
-  }, [selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy, selectedDecade]);
+  }
 
   const totalPages = Math.max(1, Math.ceil(filteredGarments.length / PAGE_SIZE));
   const paginatedGarments = useMemo(
@@ -355,7 +364,7 @@ export default function CollectionPage({
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight mb-4">
             Collection
           </h1>
-          <p className="text-sm md:text-base text-zinc-400 font-light max-w-2xl mx-auto">
+          <p className="text-sm md:text-base text-archive-muted font-light max-w-2xl mx-auto">
             A curated selection of historic garments from the University of Virginia archive
           </p>
         </div>
@@ -573,11 +582,11 @@ export default function CollectionPage({
         <div className="print-hide lg:hidden mb-12 space-y-4">
           {/* Main Filters */}
           <div className="flex flex-wrap gap-4 items-center justify-center">
-            <div className="bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded">
+            <div className="bg-archive-surface/50 border border-archive-border px-4 py-2">
               <select
                 value={selectedEra}
                 onChange={(e) => setSelectedEra(e.target.value as Era | "all")}
-                className="bg-transparent text-sm text-zinc-200 uppercase tracking-[0.1em] font-light focus:outline-none cursor-pointer"
+                className="bg-transparent text-sm text-archive-fg uppercase tracking-[0.1em] font-light focus:outline-none cursor-pointer"
               >
                 <option value="all">All Eras</option>
                 <option value="pre-1920">Pre-1920</option>
@@ -587,11 +596,11 @@ export default function CollectionPage({
               </select>
             </div>
             
-            <div className="bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded">
+            <div className="bg-archive-surface/50 border border-archive-border px-4 py-2">
               <select
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value as GarmentType | "all")}
-                className="bg-transparent text-sm text-zinc-200 uppercase tracking-[0.1em] font-light focus:outline-none cursor-pointer"
+                className="bg-transparent text-sm text-archive-fg uppercase tracking-[0.1em] font-light focus:outline-none cursor-pointer"
               >
                 <option value="all">All Types</option>
                 <option value="dress">Dress</option>
@@ -617,12 +626,12 @@ export default function CollectionPage({
             </div>
 
             {/* Sort */}
-            <div className="bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded flex items-center gap-2">
-              <ArrowUpDown className="w-4 h-4 text-zinc-400" />
+            <div className="bg-archive-surface/50 border border-archive-border px-4 py-2 flex items-center gap-2">
+              <ArrowUpDown className="w-4 h-4 text-archive-muted" />
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="bg-transparent text-sm text-zinc-200 uppercase tracking-[0.1em] font-light focus:outline-none cursor-pointer"
+                className="bg-transparent text-sm text-archive-fg uppercase tracking-[0.1em] font-light focus:outline-none cursor-pointer"
               >
                 <option value="relevance">Relevance</option>
                 <option value="date-asc">Date: Oldest First</option>
@@ -635,13 +644,13 @@ export default function CollectionPage({
             </div>
 
             {/* View Mode Toggle */}
-            <div className="bg-zinc-900/50 border border-zinc-700 rounded flex">
+            <div className="bg-archive-surface/50 border border-archive-border flex">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`px-4 py-2 transition-colors ${
-                  viewMode === "grid"
-                    ? "bg-zinc-800 text-zinc-200"
-                    : "text-zinc-400 hover:text-zinc-200"
+ viewMode === "grid"
+                    ? "bg-archive-surface-muted text-archive-fg"
+                    : "text-archive-muted hover:text-archive-fg"
                 }`}
                 aria-label="Grid view"
               >
@@ -650,9 +659,9 @@ export default function CollectionPage({
               <button
                 onClick={() => setViewMode("list")}
                 className={`px-4 py-2 transition-colors ${
-                  viewMode === "list"
-                    ? "bg-zinc-800 text-zinc-200"
-                    : "text-zinc-400 hover:text-zinc-200"
+ viewMode === "list"
+                    ? "bg-archive-surface-muted text-archive-fg"
+                    : "text-archive-muted hover:text-archive-fg"
                 }`}
                 aria-label="List view"
               >
@@ -666,8 +675,8 @@ export default function CollectionPage({
                 setSelectMode((m) => !m);
                 if (selectMode) setSelectedIds([]);
               }}
-              className={`bg-zinc-900/50 border px-4 py-2 rounded text-sm uppercase tracking-[0.1em] font-light transition-colors flex items-center gap-2 ${
-                selectMode ? "border-zinc-500 text-zinc-200 bg-zinc-800" : "border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:border-zinc-600"
+              className={`bg-archive-surface/50 border px-4 py-2 text-sm uppercase tracking-[0.1em] font-light transition-colors flex items-center gap-2 ${
+ selectMode ? "border-archive-border-hover text-archive-fg bg-archive-surface-muted" : "border-archive-border text-archive-muted hover:text-archive-fg hover:border-archive-border-hover"
               }`}
             >
               {selectMode ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
@@ -681,7 +690,7 @@ export default function CollectionPage({
                   setShowSavedSearches(!showSavedSearches);
                   setShowPresets(false);
                 }}
-                className="bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-400 hover:text-zinc-200 uppercase tracking-[0.1em] font-light hover:border-zinc-600 transition-colors flex items-center gap-2"
+                className="bg-archive-surface/50 border border-archive-border px-4 py-2 text-sm text-archive-muted hover:text-archive-fg uppercase tracking-[0.1em] font-light hover:border-archive-border-hover transition-colors flex items-center gap-2"
               >
                 <Search className="w-4 h-4" />
                 Saved Searches
@@ -692,7 +701,7 @@ export default function CollectionPage({
                     className="fixed inset-0 z-40"
                     onPointerDown={() => setShowSavedSearches(false)}
                   />
-                  <div className="absolute top-full right-0 mt-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 min-w-[250px] max-h-96 overflow-y-auto">
+                  <div className="absolute top-full right-0 mt-2 bg-archive-surface border border-archive-border shadow-xl z-50 min-w-[250px] max-h-96 overflow-y-auto">
                     <div className="p-4 space-y-3">
                       <div>
                         <button
@@ -700,7 +709,7 @@ export default function CollectionPage({
                             setShowSaveSearchDialog(true);
                             setShowSavedSearches(false);
                           }}
-                          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-zinc-800 border border-zinc-700 text-sm text-zinc-300 hover:bg-zinc-700 transition-colors rounded"
+                          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-archive-surface-muted border border-archive-border text-sm text-archive-muted-subtle hover:bg-archive-border-hover transition-colors"
                         >
                           <Save className="w-4 h-4" />
                           Save Current Search
@@ -708,13 +717,13 @@ export default function CollectionPage({
                       </div>
                       {savedSearches.length > 0 && (
                         <>
-                          <div className="border-t border-zinc-700 pt-3">
-                            <p className="text-xs uppercase tracking-[0.1em] text-zinc-400 mb-2">Saved Searches</p>
+                          <div className="border-t border-archive-border pt-3">
+                            <p className="text-xs uppercase tracking-[0.1em] text-archive-muted mb-2">Saved Searches</p>
                             {savedSearches.map((search) => (
                               <div key={search.id} className="flex items-center justify-between gap-2 mb-2">
                                 <button
                                   onClick={() => loadSavedSearch(search)}
-                                  className="flex-1 text-left text-sm text-zinc-300 hover:text-zinc-200 px-2 py-1.5 rounded hover:bg-zinc-800 transition-colors"
+                                  className="flex-1 text-left text-sm text-archive-muted-subtle hover:text-archive-fg px-2 py-1.5 hover:bg-archive-surface-muted transition-colors"
                                   title={search.query || "No query"}
                                 >
                                   {search.name}
@@ -724,7 +733,7 @@ export default function CollectionPage({
                                     deleteSavedSearch(search.id);
                                     setShowSavedSearches(false);
                                   }}
-                                  className="text-zinc-500 hover:text-zinc-300 transition-colors p-1"
+                                  className="text-archive-muted hover:text-archive-muted-subtle transition-colors p-1"
                                   aria-label="Delete search"
                                 >
                                   <X className="w-3 h-3" />
@@ -747,13 +756,13 @@ export default function CollectionPage({
                   setShowPresets(!showPresets);
                   setShowSavedSearches(false);
                 }}
-                className="bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-400 hover:text-zinc-200 uppercase tracking-[0.1em] font-light hover:border-zinc-600 transition-colors flex items-center gap-2"
+                className="bg-archive-surface/50 border border-archive-border px-4 py-2 text-sm text-archive-muted hover:text-archive-fg uppercase tracking-[0.1em] font-light hover:border-archive-border-hover transition-colors flex items-center gap-2"
               >
                 <Bookmark className="w-4 h-4" />
                 Presets
               </button>
               {showPresets && (
-                <div className="absolute top-full right-0 mt-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 min-w-[250px] max-h-96 overflow-y-auto">
+                <div className="absolute top-full right-0 mt-2 bg-archive-surface border border-archive-border shadow-xl z-50 min-w-[250px] max-h-96 overflow-y-auto">
                   <div className="p-4 space-y-3">
                     <div>
                       <input
@@ -761,7 +770,7 @@ export default function CollectionPage({
                         value={presetName}
                         onChange={(e) => setPresetName(e.target.value)}
                         placeholder="Preset name..."
-                        className="w-full bg-zinc-800 border border-zinc-700 px-3 py-2 rounded text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-600"
+                        className="w-full bg-archive-surface-muted border border-archive-border px-3 py-2 text-sm text-archive-fg placeholder-archive-muted focus:outline-none focus:border-archive-border-hover"
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             saveCurrentAsPreset();
@@ -770,20 +779,20 @@ export default function CollectionPage({
                       />
                       <button
                         onClick={saveCurrentAsPreset}
-                        className="mt-2 w-full text-xs uppercase tracking-[0.1em] text-zinc-400 hover:text-zinc-200 border border-zinc-700 px-3 py-1.5 rounded hover:border-zinc-600 transition-colors"
+                        className="mt-2 w-full text-xs uppercase tracking-[0.1em] text-archive-muted hover:text-archive-fg border border-archive-border px-3 py-1.5 hover:border-archive-border-hover transition-colors"
                       >
                         Save Current Filters
                       </button>
                     </div>
                     {presets.length > 0 && (
                       <>
-                        <div className="border-t border-zinc-700 pt-3">
-                          <p className="text-xs uppercase tracking-[0.1em] text-zinc-400 mb-2">Saved Presets</p>
+                        <div className="border-t border-archive-border pt-3">
+                          <p className="text-xs uppercase tracking-[0.1em] text-archive-muted mb-2">Saved Presets</p>
                           {presets.map((preset) => (
                             <div key={preset.id} className="flex items-center justify-between gap-2 mb-2">
                               <button
                                 onClick={() => loadPreset(preset)}
-                                className="flex-1 text-left text-sm text-zinc-300 hover:text-zinc-200 px-2 py-1.5 rounded hover:bg-zinc-800 transition-colors"
+                                className="flex-1 text-left text-sm text-archive-muted-subtle hover:text-archive-fg px-2 py-1.5 hover:bg-archive-surface-muted transition-colors"
                               >
                                 {preset.name}
                               </button>
@@ -792,7 +801,7 @@ export default function CollectionPage({
                                   deleteFilterPreset(preset.id);
                                   setShowPresets(false);
                                 }}
-                                className="text-zinc-500 hover:text-zinc-300 transition-colors p-1"
+                                className="text-archive-muted hover:text-archive-muted-subtle transition-colors p-1"
                                 aria-label="Delete preset"
                               >
                                 <X className="w-3 h-3" />
@@ -810,7 +819,7 @@ export default function CollectionPage({
             {/* Advanced Filters Toggle */}
             <button
               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              className="bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-200 uppercase tracking-[0.1em] font-light hover:border-zinc-600 transition-colors flex items-center gap-2"
+              className="bg-archive-surface/50 border border-archive-border px-4 py-2 text-sm text-archive-fg uppercase tracking-[0.1em] font-light hover:border-archive-border-hover transition-colors flex items-center gap-2"
             >
               <span>More Filters</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
@@ -818,8 +827,8 @@ export default function CollectionPage({
 
             {/* Results Count */}
             {(filteredGarments.length !== allGarments.length || searchQuery.trim().length > 0 || selectedEra !== "all" || selectedType !== "all" || selectedColor !== "all" || selectedMaterial !== "all") && (
-              <div className="bg-zinc-900/50 border border-zinc-600 px-4 py-2 rounded">
-                <span className="text-sm text-zinc-200 uppercase tracking-[0.1em] font-light">
+              <div className="bg-archive-surface/50 border border-archive-border-hover px-4 py-2">
+                <span className="text-sm text-archive-fg uppercase tracking-[0.1em] font-light">
                   {filteredGarments.length} {filteredGarments.length === 1 ? 'garment' : 'garments'}
                 </span>
               </div>
@@ -836,7 +845,7 @@ export default function CollectionPage({
                   setSelectedDecade("all");
                   setDateRange({});
                 }}
-                className="bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-400 hover:text-zinc-200 uppercase tracking-[0.1em] font-light hover:border-zinc-600 transition-colors flex items-center gap-2"
+                className="bg-archive-surface/50 border border-archive-border px-4 py-2 text-sm text-archive-muted hover:text-archive-fg uppercase tracking-[0.1em] font-light hover:border-archive-border-hover transition-colors flex items-center gap-2"
               >
                 <X className="w-4 h-4" />
                 <span>Clear</span>
@@ -846,18 +855,18 @@ export default function CollectionPage({
 
           {/* Advanced Filters Panel */}
           {showAdvancedFilters && (
-            <div className="bg-zinc-900/30 border border-zinc-800 rounded-lg p-6 space-y-4">
+            <div className="bg-archive-surface/30 border border-archive-border p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Color Filter */}
                 {availableColors.length > 0 && (
                   <div>
-                    <label className="block text-xs uppercase tracking-[0.2em] text-zinc-400 mb-2">
+                    <label className="block text-xs uppercase tracking-[0.2em] text-archive-muted mb-2">
                       Color
                     </label>
                     <select
                       value={selectedColor}
                       onChange={(e) => setSelectedColor(e.target.value)}
-                      className="w-full bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-200 focus:outline-none focus:border-zinc-600"
+                      className="w-full bg-archive-surface/50 border border-archive-border px-4 py-2 text-sm text-archive-fg focus:outline-none focus:border-archive-border-hover"
                     >
                       <option value="all">All Colors</option>
                       {availableColors.map(color => (
@@ -872,13 +881,13 @@ export default function CollectionPage({
                 {/* Material Filter */}
                 {availableMaterials.length > 0 && (
                   <div>
-                    <label className="block text-xs uppercase tracking-[0.2em] text-zinc-400 mb-2">
+                    <label className="block text-xs uppercase tracking-[0.2em] text-archive-muted mb-2">
                       Material
                     </label>
                     <select
                       value={selectedMaterial}
                       onChange={(e) => setSelectedMaterial(e.target.value)}
-                      className="w-full bg-zinc-900/50 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-200 focus:outline-none focus:border-zinc-600"
+                      className="w-full bg-archive-surface/50 border border-archive-border px-4 py-2 text-sm text-archive-fg focus:outline-none focus:border-archive-border-hover"
                     >
                       <option value="all">All Materials</option>
                       {availableMaterials.map(material => (
@@ -892,7 +901,7 @@ export default function CollectionPage({
 
                 {/* Date Range */}
                 <div>
-                  <label className="block text-xs uppercase tracking-[0.2em] text-zinc-400 mb-2">
+                  <label className="block text-xs uppercase tracking-[0.2em] text-archive-muted mb-2">
                     Date Range
                   </label>
                   <div className="flex gap-2">
@@ -901,17 +910,17 @@ export default function CollectionPage({
                       placeholder="Start Year"
                       value={dateRange.start || ''}
                       onChange={(e) => setDateRange({ ...dateRange, start: e.target.value ? parseInt(e.target.value, 10) : undefined })}
-                      className="flex-1 bg-zinc-900/50 border border-zinc-700 px-3 py-2 rounded text-sm text-zinc-200 focus:outline-none focus:border-zinc-600"
+                      className="flex-1 bg-archive-surface/50 border border-archive-border px-3 py-2 text-sm text-archive-fg focus:outline-none focus:border-archive-border-hover"
                       min="1800"
                       max="2100"
                     />
-                    <span className="text-zinc-500 self-center">–</span>
+                    <span className="text-archive-muted self-center">–</span>
                     <input
                       type="number"
                       placeholder="End Year"
                       value={dateRange.end || ''}
                       onChange={(e) => setDateRange({ ...dateRange, end: e.target.value ? parseInt(e.target.value, 10) : undefined })}
-                      className="flex-1 bg-zinc-900/50 border border-zinc-700 px-3 py-2 rounded text-sm text-zinc-200 focus:outline-none focus:border-zinc-600"
+                      className="flex-1 bg-archive-surface/50 border border-archive-border px-3 py-2 text-sm text-archive-fg focus:outline-none focus:border-archive-border-hover"
                       min="1800"
                       max="2100"
                     />
@@ -933,13 +942,13 @@ export default function CollectionPage({
               }}
             >
               <div
-                className="bg-zinc-900 border border-zinc-700 rounded-lg p-6 max-w-md w-full"
+                className="bg-archive-surface border border-archive-border p-6 max-w-md w-full"
                 onClick={(e) => e.stopPropagation()}
               >
-                <h3 className="text-lg font-light text-zinc-200 mb-4">Save Search</h3>
+                <h3 className="text-lg font-light text-archive-fg mb-4">Save Search</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs uppercase tracking-[0.1em] text-zinc-400 mb-2">
+                    <label className="block text-xs uppercase tracking-[0.1em] text-archive-muted mb-2">
                       Search Name
                     </label>
                     <input
@@ -947,7 +956,7 @@ export default function CollectionPage({
                       value={savedSearchName}
                       onChange={(e) => setSavedSearchName(e.target.value)}
                       placeholder="e.g., 1920s Silk Dresses"
-                      className="w-full bg-zinc-800 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-600"
+                      className="w-full bg-archive-surface-muted border border-archive-border px-4 py-2 text-sm text-archive-fg placeholder-archive-muted focus:outline-none focus:border-archive-border-hover"
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           saveCurrentAsSearch();
@@ -964,7 +973,7 @@ export default function CollectionPage({
                     <button
                       onClick={saveCurrentAsSearch}
                       disabled={!savedSearchName.trim()}
-                      className="flex-1 px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-200 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors rounded text-sm"
+                      className="flex-1 px-4 py-2 bg-archive-surface-muted border border-archive-border text-archive-fg hover:bg-archive-border-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
                     >
                       Save
                     </button>
@@ -973,7 +982,7 @@ export default function CollectionPage({
                         setShowSaveSearchDialog(false);
                         setSavedSearchName("");
                       }}
-                      className="px-4 py-2 bg-zinc-800 border border-zinc-700 text-zinc-200 hover:bg-zinc-700 transition-colors rounded text-sm"
+                      className="px-4 py-2 bg-archive-surface-muted border border-archive-border text-archive-fg hover:bg-archive-border-hover transition-colors text-sm"
                     >
                       Cancel
                     </button>
@@ -986,8 +995,8 @@ export default function CollectionPage({
 
         {/* Bulk action bar */}
         {selectMode && selectedIds.length > 0 && (
-          <div className="print-hide sticky top-0 z-30 mb-6 flex flex-wrap items-center justify-center gap-3 bg-zinc-950/95 border border-zinc-700 rounded-lg px-4 py-3 backdrop-blur">
-            <span className="text-sm text-zinc-300">
+          <div className="print-hide sticky top-0 z-30 mb-6 flex flex-wrap items-center justify-center gap-3 bg-archive-bg/95 border border-archive-border px-4 py-3 backdrop-blur">
+            <span className="text-sm text-archive-muted-subtle">
               {selectedIds.length} selected
             </span>
             <button
@@ -996,13 +1005,13 @@ export default function CollectionPage({
                 setBulkMessage("Added to Favorites");
                 setTimeout(() => setBulkMessage(null), 2000);
               }}
-              className="flex items-center gap-2 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-300 hover:bg-zinc-800 hover:border-zinc-600 transition-colors"
+              className="flex items-center gap-2 border border-archive-border px-4 py-2 text-sm text-archive-muted-subtle hover:bg-archive-surface-muted hover:border-archive-border-hover transition-colors"
             >
               <Heart className="w-4 h-4" />
               Add to Favorites
             </button>
             {bulkMessage && (
-              <span role="status" aria-live="polite" className="text-sm text-zinc-400">
+              <span role="status" aria-live="polite" className="text-sm text-archive-muted">
                 {bulkMessage}
               </span>
             )}
@@ -1012,7 +1021,7 @@ export default function CollectionPage({
                 if (ids.length >= 2) router.push(`/compare?ids=${ids.join(",")}`);
               }}
               disabled={selectedIds.length < 2}
-              className="flex items-center gap-2 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-300 hover:bg-zinc-800 hover:border-zinc-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 border border-archive-border px-4 py-2 text-sm text-archive-muted-subtle hover:bg-archive-surface-muted hover:border-archive-border-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <GitCompare className="w-4 h-4" />
               Compare (2–4)
@@ -1020,7 +1029,7 @@ export default function CollectionPage({
             <div className="relative">
               <button
                 onClick={() => setShowExportMenu(!showExportMenu)}
-                className="flex items-center gap-2 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-300 hover:bg-zinc-800 hover:border-zinc-600 transition-colors"
+                className="flex items-center gap-2 border border-archive-border px-4 py-2 text-sm text-archive-muted-subtle hover:bg-archive-surface-muted hover:border-archive-border-hover transition-colors"
               >
                 <Download className="w-4 h-4" />
                 Export
@@ -1028,13 +1037,13 @@ export default function CollectionPage({
               {showExportMenu && (
                 <>
                   <div className="fixed inset-0 z-40" onPointerDown={() => setShowExportMenu(false)} />
-                  <div className="absolute top-full left-0 mt-2 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50 min-w-[180px] py-2">
+                  <div className="absolute top-full left-0 mt-2 bg-archive-surface border border-archive-border shadow-xl z-50 min-w-[180px] py-2">
                     <button
                       onClick={() => {
                         exportGarmentsToJSON(selectedGarments);
                         setShowExportMenu(false);
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-archive-muted-subtle hover:bg-archive-surface-muted"
                     >
                       <FileJson className="w-4 h-4" /> JSON
                     </button>
@@ -1043,7 +1052,7 @@ export default function CollectionPage({
                         exportGarmentsToCSV(selectedGarments);
                         setShowExportMenu(false);
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-archive-muted-subtle hover:bg-archive-surface-muted"
                     >
                       <FileSpreadsheet className="w-4 h-4" /> CSV
                     </button>
@@ -1052,7 +1061,7 @@ export default function CollectionPage({
                         await exportToPDF(selectedGarments, `garments-export-${Date.now()}.pdf`);
                         setShowExportMenu(false);
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+                      className="w-full flex items-center gap-3 px-4 py-2 text-sm text-archive-muted-subtle hover:bg-archive-surface-muted"
                     >
                       <FileText className="w-4 h-4" /> PDF
                     </button>
@@ -1062,7 +1071,7 @@ export default function CollectionPage({
             </div>
             <button
               onClick={() => setSelectedIds([])}
-              className="flex items-center gap-2 border border-zinc-700 px-4 py-2 rounded text-sm text-zinc-400 hover:bg-zinc-800 hover:border-zinc-600 transition-colors"
+              className="flex items-center gap-2 border border-archive-border px-4 py-2 text-sm text-archive-muted hover:bg-archive-surface-muted hover:border-archive-border-hover transition-colors"
             >
               <X className="w-4 h-4" />
               Clear selection
@@ -1108,7 +1117,7 @@ export default function CollectionPage({
                 ) : (
                   <div
                     key={garment.id}
-                    className="group border border-zinc-800 bg-zinc-900/50 hover:border-zinc-600 transition-all duration-300 hover:bg-zinc-900 relative flex gap-6"
+                    className="group border border-archive-border bg-archive-surface/50 hover:border-archive-border-hover transition-all duration-300 hover:bg-archive-surface relative flex gap-6"
                   >
                     {selectMode && (
                       <button
@@ -1118,13 +1127,13 @@ export default function CollectionPage({
                           e.stopPropagation();
                           toggleSelect(garment.id);
                         }}
-                        className="print-hide absolute top-4 left-4 z-20 flex items-center justify-center w-8 h-8 rounded border-2 border-zinc-600 bg-zinc-900/90 hover:border-zinc-500 transition-colors"
+                        className="print-hide absolute top-4 left-4 z-20 flex items-center justify-center w-8 h-8 border-2 border-archive-border-hover bg-archive-surface/90 hover:border-archive-border-hover transition-colors"
                         aria-label={selectedIds.includes(garment.id) ? "Deselect" : "Select"}
                       >
                         {selectedIds.includes(garment.id) ? (
-                          <CheckSquare className="w-5 h-5 text-zinc-200" />
+                          <CheckSquare className="w-5 h-5 text-archive-fg" />
                         ) : (
-                          <Square className="w-5 h-5 text-zinc-500" />
+                          <Square className="w-5 h-5 text-archive-muted" />
                         )}
                       </button>
                     )}
@@ -1146,10 +1155,10 @@ export default function CollectionPage({
                       {/* Card Content */}
                       <div className="p-6 space-y-3 flex-1">
                         <div>
-                          <h2 className="text-lg md:text-xl font-light tracking-tight mb-2 group-hover:text-zinc-200 transition-colors">
+                          <h2 className="text-lg md:text-xl font-light tracking-tight mb-2 group-hover:text-archive-fg transition-colors">
                             {garment.name || garment.label || garment.editorial_title}
                           </h2>
-                          <p className="text-sm text-zinc-400 font-light">
+                          <p className="text-sm text-archive-muted font-light">
                             {garment.date || (garment.decade ? `c. ${garment.decade}` : 'Date unknown')}
                             {garment.work_type ? ` · ${garment.work_type}` : ''}
                           </p>
@@ -1157,7 +1166,7 @@ export default function CollectionPage({
 
                         {/* Description Excerpt */}
                         {(garment.tagline || garment.description || garment.aesthetic_description) && (
-                          <p className="text-xs md:text-sm text-zinc-500 font-light leading-relaxed line-clamp-3">
+                          <p className="text-xs md:text-sm text-archive-muted font-light leading-relaxed line-clamp-3">
                             {getFirstLine(garment.tagline || garment.description || garment.aesthetic_description)}
                           </p>
                         )}
@@ -1179,7 +1188,7 @@ export default function CollectionPage({
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="p-2 border border-zinc-700 rounded hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 border border-archive-border hover:bg-archive-surface-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   aria-label="Previous page"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -1194,15 +1203,15 @@ export default function CollectionPage({
                   }, [])
                   .map((item, idx) =>
                     item === "ellipsis" ? (
-                      <span key={`e-${idx}`} className="px-2 text-zinc-500">...</span>
+                      <span key={`e-${idx}`} className="px-2 text-archive-muted">...</span>
                     ) : (
                       <button
                         key={item}
                         onClick={() => setCurrentPage(item as number)}
-                        className={`min-w-[36px] h-9 rounded text-sm transition-colors ${
-                          currentPage === item
-                            ? "bg-zinc-700 text-zinc-100 border border-zinc-600"
-                            : "border border-zinc-700 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+                        className={`min-w-[36px] h-9 text-sm transition-colors ${
+ currentPage === item
+                            ? "bg-archive-border-hover text-archive-fg border border-archive-border-hover"
+                            : "border border-archive-border text-archive-muted hover:bg-archive-surface-muted hover:text-archive-fg"
                         }`}
                       >
                         {item}
@@ -1213,7 +1222,7 @@ export default function CollectionPage({
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="p-2 border border-zinc-700 rounded hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 border border-archive-border hover:bg-archive-surface-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   aria-label="Next page"
                 >
                   <ChevronRight className="w-4 h-4" />

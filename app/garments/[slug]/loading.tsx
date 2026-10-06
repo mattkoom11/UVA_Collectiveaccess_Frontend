@@ -5,15 +5,15 @@ export default function Loading() {
       <div className="h-[40vh] bg-archive-surface" />
       <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Image skeleton */}
-        <div className="aspect-[3/4] bg-archive-surface rounded" />
+        <div className="aspect-[3/4] bg-archive-surface" />
         {/* Metadata skeleton */}
         <div className="space-y-4">
-          <div className="h-8 bg-archive-surface rounded w-3/4" />
-          <div className="h-4 bg-archive-surface rounded w-1/2" />
-          <div className="h-4 bg-archive-surface rounded w-2/3" />
+          <div className="h-8 bg-archive-surface w-3/4" />
+          <div className="h-4 bg-archive-surface w-1/2" />
+          <div className="h-4 bg-archive-surface w-2/3" />
           <div className="mt-8 space-y-2">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-4 bg-archive-surface rounded w-full" />
+              <div key={i} className="h-4 bg-archive-surface w-full" />
             ))}
           </div>
         </div>

@@ -284,12 +284,6 @@ body {
     font-weight: normal;
   }
 
-  a[href^="/"]:after {
-    content: " (https://example.com" attr(href) ")";
-    font-size: 0.9em;
-    color: #666;
-  }
-
   /* Images */
   img {
     max-width: 100%;
@@ -362,26 +356,27 @@ body {
   }
 
   /* Remove backgrounds and borders */
-  .bg-zinc-950,
-  .bg-zinc-900,
-  .bg-zinc-800,
-  .border-zinc-700,
-  .border-zinc-800,
   .bg-archive-bg,
   .bg-archive-surface,
   .bg-archive-surface-muted,
-  .border-archive-border {
+  .border-archive-border,
+  .border-archive-border-hover {
     background: white !important;
     border: 1px solid #ddd !important;
   }
 
-  /* Text colors */
-  .text-zinc-400,
-  .text-zinc-500,
-  .text-zinc-300,
+  /* Text colors — every theme text token must be darkened here, otherwise
+     light-on-dark body copy prints as near-white on white paper. */
+  .text-archive-fg,
+  .text-archive-accent,
   .text-archive-muted,
   .text-archive-muted-subtle {
-    color: #333 !important;
+    color: #222 !important;
+  }
+
+  .text-archive-signal,
+  .text-archive-signal-deep {
+    color: #8a2b22 !important;
   }
 
   /* Spacing */
@@ -397,19 +392,8 @@ body {
     margin-top: 1em !important;
   }
 
-  /* Print header/footer */
-  @page {
-    @top-center {
-      content: "UVA Historic Fashion Archive";
-      font-size: 10pt;
-      color: #666;
-    }
-    @bottom-right {
-      content: "Page " counter(page) " of " counter(pages);
-      font-size: 10pt;
-      color: #666;
-    }
-  }
+  /* Print header/footer: @page margin boxes are inert in Chrome, Firefox and
+     Safari, so they were removed rather than left in as dead CSS. */
 }
 
 /* Accessibility: High Contrast Mode */
@@ -431,28 +415,29 @@ body {
   color: var(--foreground) !important;
 }
 
-.high-contrast .bg-zinc-950,
-.high-contrast .bg-zinc-900,
 .high-contrast .bg-archive-bg,
 .high-contrast .bg-archive-surface {
   background: var(--background) !important;
 }
 
-.high-contrast .bg-zinc-800,
-.high-contrast .bg-archive-surface-muted {
+.high-contrast .bg-archive-surface-muted,
+.high-contrast .bg-archive-surface-muted\/95,
+.high-contrast .bg-archive-surface\/95 {
   background: var(--surface-muted) !important;
 }
 
-.high-contrast .text-zinc-400,
-.high-contrast .text-zinc-500,
 .high-contrast .text-archive-muted,
 .high-contrast .text-archive-muted-subtle {
   color: var(--muted) !important;
 }
 
-.high-contrast .border-zinc-700,
-.high-contrast .border-zinc-800,
-.high-contrast .border-archive-border {
+.high-contrast .text-archive-fg,
+.high-contrast .text-archive-accent {
+  color: var(--foreground) !important;
+}
+
+.high-contrast .border-archive-border,
+.high-contrast .border-archive-border-hover {
   border-color: var(--foreground) !important;
 }
 

@@ -19,16 +19,16 @@ export default function ErrorState({
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       <div className="flex justify-center mb-6">
-        <AlertCircle className="w-16 h-16 text-zinc-400" aria-hidden />
+        <AlertCircle className="w-16 h-16 text-archive-muted" aria-hidden />
       </div>
-      <h2 className="text-xl md:text-2xl font-light text-zinc-200 mb-2">{title}</h2>
-      <p className="text-sm text-zinc-400 font-light max-w-md mb-8">{message}</p>
+      <h2 className="text-xl md:text-2xl font-light text-archive-fg mb-2">{title}</h2>
+      <p className="text-sm text-archive-muted font-light max-w-md mb-8">{message}</p>
       <div className="flex items-center justify-center gap-4 flex-wrap">
         {onRetry && (
           <button
             type="button"
             onClick={onRetry}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg transition-colors text-sm uppercase tracking-[0.1em] text-zinc-200"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-archive-surface-muted hover:bg-archive-border-hover border border-archive-border transition-colors text-sm uppercase tracking-[0.1em] text-archive-fg"
           >
             <RefreshCw className="w-4 h-4" />
             Try Again
@@ -37,7 +37,7 @@ export default function ErrorState({
         {showHome && (
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg transition-colors text-sm uppercase tracking-[0.1em] text-zinc-200"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-archive-surface-muted hover:bg-archive-border-hover border border-archive-border transition-colors text-sm uppercase tracking-[0.1em] text-archive-fg"
           >
             <Home className="w-4 h-4" />
             Go Home

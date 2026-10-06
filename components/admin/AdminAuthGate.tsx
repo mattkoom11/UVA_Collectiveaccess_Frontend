@@ -50,8 +50,8 @@ export default function AdminAuthGate({ children, onSignOut }: AdminAuthGateProp
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <p className="text-zinc-500 text-sm">Loading...</p>
+      <div className="min-h-screen bg-archive-bg flex items-center justify-center">
+        <p className="text-archive-muted text-sm">Loading...</p>
       </div>
     );
   }
@@ -63,7 +63,7 @@ export default function AdminAuthGate({ children, onSignOut }: AdminAuthGateProp
         <div className="fixed top-0 right-0 z-50 p-3">
           <button
             onClick={handleSignOut}
-            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded"
+            className="text-xs text-archive-muted hover:text-archive-muted-subtle transition-colors px-3 py-1.5 bg-archive-surface border border-archive-border"
           >
             Sign out
           </button>
@@ -74,15 +74,15 @@ export default function AdminAuthGate({ children, onSignOut }: AdminAuthGateProp
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-archive-bg text-archive-fg flex items-center justify-center px-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-lg p-8 space-y-6"
+        className="w-full max-w-sm bg-archive-surface border border-archive-border p-8 space-y-6"
       >
         <div className="text-center space-y-2">
-          <Lock className="w-8 h-8 mx-auto text-zinc-500" />
+          <Lock className="w-8 h-8 mx-auto text-archive-muted" />
           <h1 className="text-xl font-light tracking-tight">Admin Access</h1>
-          <p className="text-xs text-zinc-500">Enter the admin password to continue.</p>
+          <p className="text-xs text-archive-muted">Enter the admin password to continue.</p>
         </div>
 
         <div>
@@ -92,7 +92,7 @@ export default function AdminAuthGate({ children, onSignOut }: AdminAuthGateProp
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             autoFocus
-            className="w-full bg-zinc-800 border border-zinc-700 px-4 py-3 rounded text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-600"
+            className="w-full bg-archive-surface-muted border border-archive-border px-4 py-3 text-sm text-archive-fg placeholder-archive-muted focus:outline-none focus:border-archive-border-hover"
           />
         </div>
 
@@ -102,7 +102,7 @@ export default function AdminAuthGate({ children, onSignOut }: AdminAuthGateProp
 
         <button
           type="submit"
-          className="w-full py-3 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded text-sm uppercase tracking-[0.1em] transition-colors"
+          className="w-full py-3 bg-archive-surface-muted hover:bg-archive-border-hover border border-archive-border text-sm uppercase tracking-[0.1em] transition-colors"
         >
           Sign In
         </button>

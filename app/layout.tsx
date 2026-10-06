@@ -50,14 +50,21 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   hydrateGarmentsFromCA().catch((err) => {
     console.error('[CA] Background hydration failed:', err);
   });
-  // Reading headers() here opts this layout into dynamic rendering, which
-  // causes Next.js to propagate the x-nonce set by middleware to all inline
-  // <script> tags it generates — enabling the strict nonce-based CSP.
+  // Reading headers() opts this layout into dynamic rendering, which is what
+  // lets Next.js stamp the per-request x-nonce from proxy.ts onto every inline
+  // <script> it emits — the nonce-based CSP depends on it.
+  //
+  // Do NOT remove this to enable static rendering: prerendered pages bake in
+  // 7-8 inline scripts with no nonce, and `strict-dynamic` makes the browser
+  // ignore `'self'` for those, so they would all be blocked. Making these
+  // routes static requires injecting the nonce into static HTML in proxy.ts
+  // (an HTML rewrite on every request) or moving off nonce-based CSP.
   const _nonce = (await headers()).get('x-nonce');
   return (
     <html lang="en" className={`${bodoniModa.variable} ${plexSans.variable} ${plexMono.variable}`}>
       <head>
         <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="alternate" type="application/rss+xml" title="UVA Fashion Archive - New Garments" href="/feed/garments" />
         <link rel="alternate" type="application/rss+xml" title="UVA Fashion Archive - Exhibitions" href="/feed/exhibitions" />
         <link rel="alternate" type="application/rss+xml" title="UVA Fashion Archive - Learn" href="/feed/learn" />
