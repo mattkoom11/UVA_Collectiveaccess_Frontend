@@ -122,5 +122,23 @@
     "collection": "Demo",
     "accessionNumber": "DR.2023.323",
     "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied (RealityScan's raw diffuse reads dark/orange/oversaturated otherwise). This scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Seventh garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py), captured under its real accession number directly. model3d_rotationY set to -45 on 2026-09-30 via visual check, then turned a further 45 deg clockwise (top-down/turntable convention) to -90 on 2026-10-01 per Matthew's follow-up."
+  },
+  {
+    "id": "ens-2023-14",
+    "slug": "ens-2023-14",
+    "label": "ENS.2023.14 (3D Scan Demo)",
+    "name": "ENS.2023.14",
+    "era": "1980+",
+    "type": "ensemble",
+    "work_type": "Ensemble",
+    "colors": [],
+    "materials": [],
+    "images": [],
+    "model3d_url": "/models/ens-2023-14.glb",
+    "featuredOnRunway": true,
+    "model3d_rotationY": 180,
+    "collection": "Demo",
+    "accessionNumber": "ENS.2023.14",
+    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (2.7M vertices to 100k faces, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. This scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Eighth garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py), captured under its real accession number directly. model3d_rotationY set to 180 on 2026-10-07 via visual check (the scan's front faces glTF -Z)."
   }
 ]
