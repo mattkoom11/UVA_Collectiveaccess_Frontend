@@ -1,5 +1,6 @@
 import { Garment } from "@/types/garment";
 import { getEraFromDecade, getGarmentTypeFromWorkType } from "@/types/garment";
+import { getPrecomputedRelated } from "@/lib/relatedPrecomputed";
 
 /**
  * Calculate similarity score between two garments
@@ -95,7 +96,8 @@ export function getRelatedGarments(
 }
 
 /**
- * Get related garments, prioritizing explicit relations, then algorithm-based
+ * Get related garments: curator-chosen relatedIds first, then the hfa-ml re-ranker's
+ * precomputed picks (data/related.json), then the weighted score above for any slots left.
  */
 export function getEnhancedRelatedGarments(
   garment: Garment,
@@ -113,14 +115,26 @@ export function getEnhancedRelatedGarments(
     });
   }
 
-  // Then, get algorithm-based recommendations (excluding explicit ones)
-  const remainingLimit = Math.max(0, limit - explicitRelated.length);
+  // Curator picks always come first: they encode knowledge no model has.
+  const picked = new Set([garment.id, ...explicitRelated.map(g => g.id)]);
+
+  // Next, the hfa-ml re-ranker's picks, in its order (photographed garments only).
+  const learnedRelated = getPrecomputedRelated(
+    garment,
+    allGarments,
+    Math.max(0, limit - explicitRelated.length),
+    picked
+  );
+  learnedRelated.forEach(g => picked.add(g.id));
+
+  // Finally, the weighted score fills whatever is still empty, e.g. for unphotographed
+  // garments or when some recommended garments aren't loaded on this page.
+  const remainingLimit = Math.max(0, limit - explicitRelated.length - learnedRelated.length);
   if (remainingLimit > 0) {
-    const excludeIds = new Set([garment.id, ...(garment.relatedIds || [])]);
-    const candidates = allGarments.filter(g => !excludeIds.has(g.id));
+    const candidates = allGarments.filter(g => !picked.has(g.id) && !garment.relatedIds?.includes(g.id));
     algorithmRelated.push(...getRelatedGarments(garment, candidates, remainingLimit));
   }
 
-  return [...explicitRelated, ...algorithmRelated].slice(0, limit);
+  return [...explicitRelated, ...learnedRelated, ...algorithmRelated].slice(0, limit);
 }
 
