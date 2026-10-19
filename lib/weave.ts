@@ -27,7 +27,10 @@ export const MULTI_HEXES = ["#b5523b", "#3c6e8f"] as const;
 export const MIN_DENSITY = 24;
 export const MAX_DENSITY = 96;
 const REPEAT_WIDTH = 24;
-const WEFT_DARKEN = -0.35;
+// The weft is the leading warp colour shifted away from it: darkened when
+// light, lightened when dark, so it never vanishes into the loom background.
+const WEFT_SHIFT = 0.35;
+const WEFT_LIGHTEN = 0.45;
 
 // One fixed shade per code in hfa-ml's colour vocabulary ("multi" is drawn
 // as alternating MULTI_HEXES).
@@ -232,6 +235,12 @@ export function defaultDecadeIndex(decades: DecadeWeave[]): number {
   return best;
 }
 
+function weftFor(hex: string): string {
+  const n = parseInt(hex.slice(1), 16);
+  const luminance = (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
+  return luminance > 0.5 ? shadeHex(hex, -WEFT_SHIFT) : shadeHex(hex, WEFT_LIGHTEN);
+}
+
 export function clothPlan(decade: DecadeWeave, maxGarments: number, width: number, height: number): ClothPlan {
   const cols = threadDensity(decade.garments, maxGarments);
   const cell = width > 0 ? width / cols : 1;
@@ -242,7 +251,7 @@ export function clothPlan(decade: DecadeWeave, maxGarments: number, width: numbe
     rows,
     cell,
     warp: Array.from({ length: cols }, (_, x) => repeat[x % repeat.length]),
-    weftHex: shadeHex(colorHex(repeat[0]), WEFT_DARKEN),
+    weftHex: weftFor(colorHex(repeat[0])),
     structure: weaveStructure(decade.materials),
     seed: decade.decade,
   };

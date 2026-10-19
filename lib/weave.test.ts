@@ -225,6 +225,16 @@ describe("clothPlan", () => {
     expect(plan.weftHex).toMatch(/^#[0-9a-f]{6}$/);
     expect(plan.seed).toBe(1910);
   });
+  it("keeps the weft visible against a dark leading colour", () => {
+    const lum = (hex: string) => {
+      const n = parseInt(hex.slice(1), 16);
+      return 0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255);
+    };
+    const dark = clothPlan(decade({ colors: { black: 10 } }), 63, 960, 320);
+    expect(lum(dark.weftHex) - lum(colorHex("black"))).toBeGreaterThan(60);
+    const light = clothPlan(decade({ colors: { white: 10 } }), 63, 960, 320);
+    expect(lum(colorHex("white")) - lum(light.weftHex)).toBeGreaterThan(60);
+  });
   it("draws nothing for a zero-size container instead of infinite rows", () => {
     const plan = clothPlan(decade(), 63, 0, 0);
     expect(plan.rows).toBe(0);
