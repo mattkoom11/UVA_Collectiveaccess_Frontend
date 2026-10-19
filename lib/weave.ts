@@ -245,3 +245,10 @@ export function tickLabels(decades: DecadeWeave[]): TickLabel[] {
     return [{ decade: d.decade, left, align }];
   });
 }
+
+// Where decade i's count bar sits on the slider track, in percent: centred
+// on the spot the handle occupies at decade i (i / (n - 1)), one step wide.
+export function barLayout(i: number, n: number): { center: number; width: number } {
+  if (n <= 1) return { center: 50, width: 100 };
+  return { center: (i / (n - 1)) * 100, width: 100 / (n - 1) };
+}

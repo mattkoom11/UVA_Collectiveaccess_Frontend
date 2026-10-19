@@ -1,7 +1,7 @@
 "use client";
 
 import type { DecadeWeave } from "@/types/collectionWeave";
-import { decadeLabel, garmentCount, tickLabels } from "@/lib/weave";
+import { barLayout, decadeLabel, garmentCount, tickLabels } from "@/lib/weave";
 import { nudgePosition } from "@/lib/weaveBlend";
 
 interface Props {
@@ -24,14 +24,25 @@ export default function DecadeScrubber({ decades, position, onChange, onRelease 
 
   return (
     <div className="w-full">
-      <div className="flex items-end gap-px h-10" aria-hidden>
-        {decades.map((d, i) => (
-          <div
-            key={d.decade}
-            className={`flex-1 transition-colors ${i === index ? "bg-archive-fg" : "bg-archive-border"}`}
-            style={{ height: `${d.garments > 0 ? Math.max(8, (Math.log1p(d.garments) / Math.log1p(max)) * 100) : 2}%` }}
-          />
-        ))}
+      {/* Bars and labels sit on a track inset by half the handle's width, so
+          bar i is centred exactly where the handle sits at decade i. */}
+      <div className="overflow-hidden" aria-hidden>
+        <div className="relative h-10 mx-2">
+          {decades.map((d, i) => {
+            const { center, width } = barLayout(i, decades.length);
+            return (
+              <div
+                key={d.decade}
+                className={`absolute bottom-0 border-x border-transparent bg-clip-padding transition-colors ${i === index ? "bg-archive-fg" : "bg-archive-border"}`}
+                style={{
+                  left: `${center - width / 2}%`,
+                  width: `${width}%`,
+                  height: `${d.garments > 0 ? Math.max(8, (Math.log1p(d.garments) / Math.log1p(max)) * 100) : 2}%`,
+                }}
+              />
+            );
+          })}
+        </div>
       </div>
       <input
         type="range"
@@ -52,7 +63,7 @@ export default function DecadeScrubber({ decades, position, onChange, onRelease 
         aria-valuetext={`${decadeLabel(current.decade)}, ${count} ${count === 1 ? "garment" : "garments"}`}
         className="w-full mt-2 accent-archive-fg"
       />
-      <div className="relative h-5 mt-1 text-[10px] uppercase tracking-[0.2em] text-archive-muted" aria-hidden>
+      <div className="relative h-5 mt-1 mx-2 text-[10px] uppercase tracking-[0.2em] text-archive-muted" aria-hidden>
         {tickLabels(decades).map((t) => (
           <span
             key={t.decade}
