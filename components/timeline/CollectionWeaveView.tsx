@@ -25,10 +25,12 @@ interface Props {
 }
 
 export default function CollectionWeaveView({ weave, garments }: Props) {
-  const [index, setIndex] = useState(() => defaultDecadeIndex(weave.decades));
+  // Fractional while dragging (blends neighbouring decades); settles on a
+  // whole decade when the pointer is released or a key is used.
+  const [position, setPosition] = useState(() => defaultDecadeIndex(weave.decades));
   const [open3d, setOpen3d] = useState<string | null>(null);
 
-  const decade = weave.decades[index];
+  const decade = weave.decades[Math.round(position)];
   const maxGarments = useMemo(() => Math.max(0, ...weave.decades.map((d) => d.garments)), [weave]);
   const byAccession = useMemo(
     () => new Map(garments.flatMap((g) => (g.accessionNumber ? [[g.accessionNumber, g] as const] : []))),
@@ -58,9 +60,19 @@ export default function CollectionWeaveView({ weave, garments }: Props) {
 
       <div className="grid gap-8 mt-8 lg:grid-cols-[1fr_18rem]">
         <div>
-          <WovenCloth decade={decade} maxGarments={maxGarments} />
+          <WovenCloth
+            decades={weave.decades}
+            position={position}
+            maxGarments={maxGarments}
+            label={decadeSummary(decade)}
+          />
           <div className="mt-4">
-            <DecadeScrubber decades={weave.decades} index={index} onChange={setIndex} />
+            <DecadeScrubber
+              decades={weave.decades}
+              position={position}
+              onChange={setPosition}
+              onRelease={() => setPosition((p) => Math.round(p))}
+            />
           </div>
         </div>
 

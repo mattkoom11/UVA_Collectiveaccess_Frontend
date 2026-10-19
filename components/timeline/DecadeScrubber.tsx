@@ -2,18 +2,23 @@
 
 import type { DecadeWeave } from "@/types/collectionWeave";
 import { decadeLabel, garmentCount, tickLabels } from "@/lib/weave";
+import { nudgePosition } from "@/lib/weaveBlend";
 
 interface Props {
   decades: DecadeWeave[];
-  index: number;
-  onChange: (index: number) => void;
+  position: number; // fractional decade index
+  onChange: (position: number) => void;
+  onRelease: () => void; // pointer let go: the parent settles on the nearest decade
 }
 
-// A native range input over the decades, so arrows, Home, End and
-// PageUp/PageDown work as standard, above a row of bars showing how many
-// garments each decade holds (log-scaled so sparse decades stay visible).
-export default function DecadeScrubber({ decades, index, onChange }: Props) {
+// A continuous native range input over the decades, so dragging blends
+// neighbouring decades, above a row of bars showing how many garments each
+// decade holds (log-scaled so sparse decades stay visible). Keys move whole
+// decades: arrows by one, PageUp/PageDown by five, Home/End to the ends.
+export default function DecadeScrubber({ decades, position, onChange, onRelease }: Props) {
   const max = Math.max(1, ...decades.map((d) => d.garments));
+  const last = decades.length - 1;
+  const index = Math.round(position);
   const current = decades[index];
   const count = garmentCount(current);
 
@@ -31,10 +36,18 @@ export default function DecadeScrubber({ decades, index, onChange }: Props) {
       <input
         type="range"
         min={0}
-        max={decades.length - 1}
-        step={1}
-        value={index}
+        max={last}
+        step={0.01}
+        value={position}
         onChange={(e) => onChange(Number(e.target.value))}
+        onKeyDown={(e) => {
+          const next = nudgePosition(e.key, position, last);
+          if (next === null) return;
+          e.preventDefault();
+          onChange(next);
+        }}
+        onPointerUp={onRelease}
+        onPointerCancel={onRelease}
         aria-label="Decade"
         aria-valuetext={`${decadeLabel(current.decade)}, ${count} ${count === 1 ? "garment" : "garments"}`}
         className="w-full mt-2 accent-archive-fg"

@@ -1,13 +1,10 @@
 import { describe, it, expect } from "vitest";
 import type { DecadeWeave } from "@/types/collectionWeave";
 import {
-  MAX_DENSITY,
-  MIN_DENSITY,
   MULTI_HEXES,
   NEUTRAL_HEX,
   UNDYED,
   cellJitter,
-  clothPlan,
   colorHex,
   colorShares,
   decadeLabel,
@@ -17,9 +14,9 @@ import {
   shadeHex,
   structureLabel,
   tickLabels,
-  threadDensity,
   warpOver,
   warpRepeat,
+  weftFor,
   weaveStructure,
 } from "./weave";
 
@@ -129,21 +126,6 @@ describe("warpOver", () => {
   });
 });
 
-describe("threadDensity", () => {
-  it("is the minimum for an empty decade", () => {
-    expect(threadDensity(0, 100)).toBe(MIN_DENSITY);
-  });
-  it("is the maximum for the busiest decade", () => {
-    expect(threadDensity(100, 100)).toBe(MAX_DENSITY);
-  });
-  it("grows on a log scale", () => {
-    const low = threadDensity(5, 100);
-    const mid = threadDensity(30, 100);
-    expect(low).toBeGreaterThan(MIN_DENSITY);
-    expect(mid).toBeGreaterThan(low);
-    expect(mid).toBeLessThan(MAX_DENSITY);
-  });
-});
 
 describe("colorHex and shadeHex", () => {
   it("maps vocabulary colours and falls back to neutral", () => {
@@ -215,36 +197,16 @@ describe("defaultDecadeIndex", () => {
   });
 });
 
-describe("clothPlan", () => {
-  it("lays out warp threads by colour and sizes rows to fill the height", () => {
-    const plan = clothPlan(decade(), 63, 960, 320);
-    expect(plan.cols).toBe(MAX_DENSITY);
-    expect(plan.cell).toBeCloseTo(10, 9);
-    expect(plan.rows).toBe(32);
-    expect(plan.warp).toHaveLength(plan.cols);
-    expect(plan.structure).toBe("satin");
-    expect(plan.weftHex).toMatch(/^#[0-9a-f]{6}$/);
-    expect(plan.seed).toBe(1910);
+describe("weftFor", () => {
+  const lum = (hex: string) => {
+    const n = parseInt(hex.slice(1), 16);
+    return 0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255);
+  };
+  it("lightens the weft under a dark leading colour", () => {
+    expect(lum(weftFor(colorHex("black"))) - lum(colorHex("black"))).toBeGreaterThan(60);
   });
-  it("keeps the weft visible against a dark leading colour", () => {
-    const lum = (hex: string) => {
-      const n = parseInt(hex.slice(1), 16);
-      return 0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255);
-    };
-    const dark = clothPlan(decade({ colors: { black: 10 } }), 63, 960, 320);
-    expect(lum(dark.weftHex) - lum(colorHex("black"))).toBeGreaterThan(60);
-    const light = clothPlan(decade({ colors: { white: 10 } }), 63, 960, 320);
-    expect(lum(colorHex("white")) - lum(light.weftHex)).toBeGreaterThan(60);
-  });
-  it("draws nothing for a zero-size container instead of infinite rows", () => {
-    const plan = clothPlan(decade(), 63, 0, 0);
-    expect(plan.rows).toBe(0);
-    expect(Number.isFinite(plan.cell)).toBe(true);
-  });
-  it("weaves undyed thread for a decade without colours", () => {
-    const plan = clothPlan(decade({ garments: 0, colors: {}, materials: {} }), 63, 480, 160);
-    expect(plan.cols).toBe(MIN_DENSITY);
-    expect(new Set(plan.warp)).toEqual(new Set([UNDYED]));
+  it("darkens the weft under a light leading colour", () => {
+    expect(lum(colorHex("white")) - lum(weftFor(colorHex("white")))).toBeGreaterThan(60);
   });
 });
 
