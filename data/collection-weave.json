@@ -1,0 +1,750 @@
+{
+ "generated": "2026-10-19",
+ "source": "ci-fixture",
+ "rows": 481,
+ "dated": 448,
+ "century_only": 30,
+ "undated": 3,
+ "decades": [
+  {
+   "decade": 1770,
+   "garments": 0.4,
+   "colors": {
+    "white": 0.4
+   },
+   "materials": {
+    "cotton": 0.25,
+    "lace": 0.15
+   },
+   "techniques": {}
+  },
+  {
+   "decade": 1780,
+   "garments": 0.8,
+   "colors": {
+    "white": 0.8
+   },
+   "materials": {
+    "cotton": 0.5,
+    "lace": 0.3
+   },
+   "techniques": {}
+  },
+  {
+   "decade": 1790,
+   "garments": 0.8,
+   "colors": {
+    "white": 0.8
+   },
+   "materials": {
+    "cotton": 0.5,
+    "lace": 0.3
+   },
+   "techniques": {}
+  },
+  {
+   "decade": 1800,
+   "garments": 0.8,
+   "colors": {
+    "white": 0.8
+   },
+   "materials": {
+    "cotton": 0.5,
+    "lace": 0.3
+   },
+   "techniques": {}
+  },
+  {
+   "decade": 1810,
+   "garments": 0.8,
+   "colors": {
+    "white": 0.8
+   },
+   "materials": {
+    "cotton": 0.5,
+    "lace": 0.3
+   },
+   "techniques": {}
+  },
+  {
+   "decade": 1820,
+   "garments": 0.664,
+   "colors": {
+    "black": 0.164,
+    "white": 0.4
+   },
+   "materials": {
+    "cotton": 0.25,
+    "lace": 0.15,
+    "silk": 0.082,
+    "wool": 0.082
+   },
+   "techniques": {
+    "embroidery": 0.164
+   }
+  },
+  {
+   "decade": 1830,
+   "garments": 0.364,
+   "colors": {
+    "black": 0.164
+   },
+   "materials": {
+    "silk": 0.082,
+    "wool": 0.082
+   },
+   "techniques": {
+    "embroidery": 0.164
+   }
+  },
+  {
+   "decade": 1840,
+   "garments": 0.364,
+   "colors": {
+    "black": 0.164
+   },
+   "materials": {
+    "silk": 0.082,
+    "wool": 0.082
+   },
+   "techniques": {
+    "embroidery": 0.164
+   }
+  },
+  {
+   "decade": 1850,
+   "garments": 1.841,
+   "colors": {
+    "black": 0.36,
+    "brown": 0.161,
+    "gold": 0.161,
+    "green": 0.323,
+    "white": 0.44
+   },
+   "materials": {
+    "cotton": 0.383,
+    "lace": 0.187,
+    "leather": 0.161,
+    "satin": 0.323,
+    "silk": 0.505,
+    "wool": 0.082
+   },
+   "techniques": {
+    "crocheting": 0.196,
+    "embroidery": 0.164,
+    "pleating": 0.763
+   }
+  },
+  {
+   "decade": 1860,
+   "garments": 3.158,
+   "colors": {
+    "black": 0.604,
+    "brown": 1.07,
+    "gold": 0.161,
+    "green": 0.323,
+    "white": 0.44
+   },
+   "materials": {
+    "cotton": 1.292,
+    "lace": 0.431,
+    "leather": 0.161,
+    "satin": 0.323,
+    "silk": 0.505,
+    "wool": 0.082
+   },
+   "techniques": {
+    "beading": 0.082,
+    "crocheting": 0.278,
+    "embroidery": 0.164,
+    "pleating": 0.763
+   }
+  },
+  {
+   "decade": 1870,
+   "garments": 4.93,
+   "colors": {
+    "black": 1.424,
+    "brown": 0.352,
+    "gold": 0.261,
+    "green": 0.373,
+    "red": 0.122,
+    "tan": 0.15,
+    "white": 1.524
+   },
+   "materials": {
+    "cotton": 0.924,
+    "lace": 0.553,
+    "leather": 0.765,
+    "linen": 0.05,
+    "satin": 0.404,
+    "silk": 1.112,
+    "velvet": 0.476,
+    "wool": 0.182
+   },
+   "techniques": {
+    "beading": 0.182,
+    "crocheting": 0.278,
+    "embroidery": 0.558,
+    "painting": 0.1,
+    "pleating": 1.464
+   }
+  },
+  {
+   "decade": 1880,
+   "garments": 11.26,
+   "colors": {
+    "beige": 0.476,
+    "black": 2.965,
+    "blue": 0.366,
+    "brown": 0.692,
+    "gold": 0.412,
+    "gray": 0.244,
+    "green": 0.132,
+    "red": 0.244,
+    "tan": 0.776,
+    "white": 3.592
+   },
+   "materials": {
+    "cotton": 2.55,
+    "lace": 1.067,
+    "leather": 2.693,
+    "linen": 0.1,
+    "metal": 0.196,
+    "satin": 0.114,
+    "silk": 1.569,
+    "velvet": 0.696,
+    "wool": 0.306
+   },
+   "techniques": {
+    "beading": 1.136,
+    "crocheting": 0.4,
+    "embroidery": 0.756,
+    "painting": 0.2,
+    "pleating": 2.329,
+    "quilting": 0.476
+   }
+  },
+  {
+   "decade": 1890,
+   "garments": 27.588,
+   "colors": {
+    "beige": 0.476,
+    "black": 5.959,
+    "blue": 1.836,
+    "brown": 2.108,
+    "gold": 0.396,
+    "gray": 0.747,
+    "green": 0.222,
+    "red": 0.804,
+    "tan": 0.776,
+    "white": 9.965
+   },
+   "materials": {
+    "cotton": 7.646,
+    "crepe": 0.159,
+    "lace": 3.014,
+    "leather": 2.677,
+    "linen": 0.222,
+    "metal": 0.519,
+    "satin": 1.883,
+    "silk": 5.814,
+    "velvet": 2.107,
+    "wool": 0.859
+   },
+   "techniques": {
+    "applique": 0.303,
+    "beading": 1.761,
+    "crocheting": 0.4,
+    "embroidery": 3.485,
+    "painting": 0.2,
+    "pleating": 4.746,
+    "printing": 1.147,
+    "quilting": 0.476,
+    "weaving": 1.122
+   }
+  },
+  {
+   "decade": 1900,
+   "garments": 37.716,
+   "colors": {
+    "beige": 0.048,
+    "black": 10.862,
+    "blue": 2.493,
+    "brown": 0.822,
+    "gold": 1.128,
+    "gray": 0.274,
+    "green": 0.222,
+    "navy": 0.476,
+    "red": 0.604,
+    "tan": 1.705,
+    "white": 13.74
+   },
+   "materials": {
+    "cotton": 9.391,
+    "crepe": 0.159,
+    "felt": 0.323,
+    "glass": 0.238,
+    "lace": 4.431,
+    "leather": 1.101,
+    "linen": 3.274,
+    "metal": 1.494,
+    "satin": 1.743,
+    "silk": 7.883,
+    "velvet": 2.562,
+    "wool": 0.835
+   },
+   "techniques": {
+    "applique": 0.03,
+    "beading": 2.964,
+    "braiding": 0.323,
+    "crocheting": 0.678,
+    "embroidery": 5.675,
+    "painting": 0.2,
+    "pleating": 2.958,
+    "printing": 2.47,
+    "quilting": 0.048,
+    "weaving": 0.122
+   }
+  },
+  {
+   "decade": 1910,
+   "garments": 51.313,
+   "colors": {
+    "black": 17.364,
+    "blue": 2.481,
+    "brown": 1.727,
+    "gold": 2.199,
+    "gray": 0.363,
+    "green": 0.915,
+    "navy": 1.385,
+    "orange": 0.476,
+    "pink": 2.193,
+    "red": 0.762,
+    "tan": 1.658,
+    "white": 11.968,
+    "yellow": 0.635
+   },
+   "materials": {
+    "chiffon": 2.478,
+    "cotton": 7.579,
+    "crepe": 0.557,
+    "elastic": 0.278,
+    "felt": 1.592,
+    "glass": 0.238,
+    "lace": 6.785,
+    "leather": 1.875,
+    "linen": 3.386,
+    "metal": 3.459,
+    "satin": 2.71,
+    "silk": 8.976,
+    "velvet": 4.161,
+    "wool": 2.004
+   },
+   "techniques": {
+    "beading": 4.819,
+    "braiding": 0.799,
+    "crocheting": 0.249,
+    "embroidery": 3.771,
+    "painting": 0.2,
+    "pleating": 4.377,
+    "printing": 2.39,
+    "weaving": 0.122
+   }
+  },
+  {
+   "decade": 1920,
+   "garments": 47.597,
+   "colors": {
+    "black": 15.526,
+    "blue": 3.212,
+    "brown": 3.044,
+    "gold": 3.042,
+    "gray": 0.704,
+    "green": 0.778,
+    "navy": 1.986,
+    "orange": 0.931,
+    "pink": 2.431,
+    "red": 1.649,
+    "tan": 0.65,
+    "white": 8.328,
+    "yellow": 0.716
+   },
+   "materials": {
+    "chiffon": 4.227,
+    "cotton": 4.497,
+    "crepe": 2.541,
+    "elastic": 0.439,
+    "felt": 1.228,
+    "glass": 0.185,
+    "lace": 4.185,
+    "leather": 1.506,
+    "linen": 1.23,
+    "metal": 3.479,
+    "satin": 3.198,
+    "silk": 7.648,
+    "velvet": 5.187,
+    "wool": 2.914
+   },
+   "techniques": {
+    "beading": 4.448,
+    "braiding": 0.799,
+    "crocheting": 0.02,
+    "embroidery": 3.505,
+    "knitting": 0.244,
+    "painting": 0.1,
+    "pleating": 3.842,
+    "printing": 2.003,
+    "weaving": 0.122
+   }
+  },
+  {
+   "decade": 1930,
+   "garments": 61.745,
+   "colors": {
+    "black": 17.737,
+    "blue": 3.554,
+    "brown": 3.809,
+    "gold": 2.782,
+    "gray": 1.446,
+    "green": 1.347,
+    "navy": 1.796,
+    "orange": 0.442,
+    "pink": 5.309,
+    "purple": 0.238,
+    "red": 3.967,
+    "rust": 1.385,
+    "tan": 0.855,
+    "white": 5.436,
+    "yellow": 2.046
+   },
+   "materials": {
+    "chiffon": 3.946,
+    "cotton": 6.975,
+    "crepe": 2.935,
+    "elastic": 0.189,
+    "felt": 1.335,
+    "glass": 0.161,
+    "lace": 5.92,
+    "leather": 2.001,
+    "linen": 0.859,
+    "metal": 3.588,
+    "satin": 6.495,
+    "silk": 10.032,
+    "taffeta": 0.455,
+    "velvet": 7.863,
+    "wool": 2.36
+   },
+   "techniques": {
+    "applique": 0.909,
+    "beading": 2.509,
+    "braiding": 0.08,
+    "embroidery": 3.194,
+    "knitting": 0.244,
+    "pleating": 1.349,
+    "printing": 9.287,
+    "weaving": 0.012
+   }
+  },
+  {
+   "decade": 1940,
+   "garments": 63.84,
+   "colors": {
+    "beige": 0.714,
+    "black": 15.015,
+    "blue": 3.566,
+    "brown": 4.743,
+    "gold": 3.686,
+    "gray": 2.32,
+    "green": 1.925,
+    "multi": 1.017,
+    "navy": 4.246,
+    "orange": 0.349,
+    "pink": 3.017,
+    "purple": 0.238,
+    "red": 6.678,
+    "rust": 1.281,
+    "tan": 1.81,
+    "white": 7.262,
+    "yellow": 1.402
+   },
+   "materials": {
+    "brocade": 0.323,
+    "chiffon": 0.575,
+    "cotton": 9.061,
+    "crepe": 3.985,
+    "elastic": 0.161,
+    "felt": 2.344,
+    "glass": 0.161,
+    "lace": 2.809,
+    "leather": 1.759,
+    "linen": 0.799,
+    "metal": 4.49,
+    "rayon": 0.333,
+    "satin": 2.733,
+    "silk": 6.341,
+    "taffeta": 0.045,
+    "velvet": 9.714,
+    "wool": 6.423
+   },
+   "techniques": {
+    "applique": 0.091,
+    "beading": 5.173,
+    "embroidery": 1.406,
+    "knitting": 1.153,
+    "pleating": 1.133,
+    "printing": 7.993
+   }
+  },
+  {
+   "decade": 1950,
+   "garments": 77.135,
+   "colors": {
+    "beige": 0.714,
+    "black": 12.728,
+    "blue": 5.753,
+    "brown": 6.858,
+    "gold": 6.698,
+    "gray": 2.823,
+    "green": 3.613,
+    "multi": 0.198,
+    "navy": 5.09,
+    "orange": 1.572,
+    "pink": 4.834,
+    "purple": 0.955,
+    "red": 4.796,
+    "rust": 0.762,
+    "tan": 2.267,
+    "turquoise": 0.931,
+    "white": 7.866,
+    "yellow": 3.049
+   },
+   "materials": {
+    "brocade": 0.799,
+    "chiffon": 0.262,
+    "cotton": 8.385,
+    "crepe": 3.19,
+    "elastic": 0.016,
+    "felt": 6.761,
+    "glass": 0.016,
+    "lace": 1.117,
+    "leather": 0.887,
+    "linen": 0.556,
+    "metal": 6.141,
+    "satin": 5.14,
+    "silk": 4.405,
+    "velvet": 9.795,
+    "wool": 7.821
+   },
+   "techniques": {
+    "beading": 6.887,
+    "embroidery": 2.851,
+    "knitting": 0.335,
+    "pleating": 1.018,
+    "printing": 6.517,
+    "quilting": 0.476,
+    "weaving": 0.323
+   }
+  },
+  {
+   "decade": 1960,
+   "garments": 32.781,
+   "colors": {
+    "beige": 0.071,
+    "black": 3.618,
+    "blue": 3.119,
+    "brown": 1.173,
+    "gold": 3.751,
+    "gray": 0.804,
+    "green": 5.142,
+    "multi": 0.108,
+    "navy": 2.172,
+    "orange": 0.582,
+    "pink": 1.216,
+    "purple": 0.522,
+    "red": 2.113,
+    "rust": 0.071,
+    "tan": 0.317,
+    "turquoise": 0.522,
+    "white": 3.446,
+    "yellow": 2.043
+   },
+   "materials": {
+    "brocade": 0.799,
+    "chiffon": 0.238,
+    "cotton": 3.168,
+    "crepe": 1.216,
+    "felt": 2.395,
+    "lace": 0.31,
+    "leather": 1.614,
+    "linen": 0.476,
+    "metal": 3.277,
+    "satin": 1.793,
+    "silk": 2.828,
+    "velvet": 3.216,
+    "wool": 3.201
+   },
+   "techniques": {
+    "beading": 2.203,
+    "embroidery": 1.359,
+    "knitting": 0.024,
+    "painting": 0.909,
+    "pleating": 1.022,
+    "printing": 4.474,
+    "quilting": 0.476,
+    "weaving": 0.323
+   }
+  },
+  {
+   "decade": 1970,
+   "garments": 10.789,
+   "colors": {
+    "black": 0.819,
+    "blue": 0.918,
+    "brown": 0.057,
+    "gold": 0.623,
+    "gray": 0.287,
+    "green": 1.938,
+    "multi": 0.011,
+    "navy": 0.439,
+    "orange": 0.048,
+    "pink": 0.406,
+    "purple": 0.048,
+    "red": 1.366,
+    "tan": 0.573,
+    "turquoise": 0.048,
+    "white": 2.165,
+    "yellow": 0.478
+   },
+   "materials": {
+    "brocade": 0.08,
+    "chiffon": 0.024,
+    "cotton": 4.062,
+    "crepe": 0.091,
+    "felt": 0.189,
+    "lace": 0.024,
+    "leather": 1.698,
+    "linen": 0.048,
+    "metal": 0.758,
+    "satin": 0.143,
+    "silk": 1.273,
+    "velvet": 0.674,
+    "wool": 0.745
+   },
+   "techniques": {
+    "beading": 0.169,
+    "embroidery": 0.12,
+    "painting": 0.091,
+    "pleating": 0.522,
+    "printing": 3.048,
+    "quilting": 0.048,
+    "weaving": 0.323
+   }
+  },
+  {
+   "decade": 1980,
+   "garments": 5.859,
+   "colors": {
+    "black": 1.07,
+    "blue": 0.722,
+    "brown": 0.323,
+    "gold": 0.355,
+    "gray": 0.023,
+    "green": 0.115,
+    "navy": 0.208,
+    "pink": 0.323,
+    "red": 0.339,
+    "tan": 0.748,
+    "white": 0.371,
+    "yellow": 0.032
+   },
+   "materials": {
+    "cotton": 0.706,
+    "lace": 0.909,
+    "leather": 1.702,
+    "linen": 0.476,
+    "metal": 0.632,
+    "silk": 0.112,
+    "velvet": 0.524,
+    "wool": 0.476
+   },
+   "techniques": {
+    "pleating": 0.048,
+    "printing": 0.171,
+    "weaving": 0.032
+   }
+  },
+  {
+   "decade": 1990,
+   "garments": 3.672,
+   "colors": {
+    "black": 0.823,
+    "blue": 0.5,
+    "brown": 0.323,
+    "gold": 0.323,
+    "navy": 0.2,
+    "pink": 0.323,
+    "red": 0.244,
+    "tan": 0.5,
+    "white": 0.024
+   },
+   "materials": {
+    "cotton": 0.048,
+    "lace": 0.091,
+    "leather": 1.611,
+    "linen": 0.476,
+    "metal": 0.599,
+    "velvet": 0.476,
+    "wool": 0.048
+   },
+   "techniques": {}
+  },
+  {
+   "decade": 2000,
+   "garments": 1.419,
+   "colors": {
+    "black": 0.37,
+    "blue": 0.048,
+    "brown": 0.323,
+    "gold": 0.323,
+    "pink": 0.032,
+    "red": 0.244,
+    "tan": 0.048
+   },
+   "materials": {
+    "leather": 1.106,
+    "linen": 0.048,
+    "metal": 0.185,
+    "velvet": 0.048
+   },
+   "techniques": {}
+  },
+  {
+   "decade": 2010,
+   "garments": 0.341,
+   "colors": {
+    "black": 0.032,
+    "brown": 0.032,
+    "gold": 0.032,
+    "red": 0.244
+   },
+   "materials": {
+    "leather": 0.325,
+    "metal": 0.016
+   },
+   "techniques": {}
+  },
+  {
+   "decade": 2020,
+   "garments": 0.024,
+   "colors": {
+    "red": 0.024
+   },
+   "materials": {
+    "leather": 0.024
+   },
+   "techniques": {}
+  }
+ ],
+ "scanned": {}
+}
