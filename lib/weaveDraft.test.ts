@@ -125,6 +125,22 @@ describe("decadeSwatch", () => {
     expect(d.palette[d.warpColor[0]].code).toBe("undyed");
   });
 
+  it("shortens a wide Jacquard swatch to stay under the cell cap", () => {
+    const d = decadeSwatch(decade(1910), "jacquard", { ends: 220 * 12 });
+    expect(d.ends).toBe(2640);
+    expect(d.picks).toBe(Math.floor(4_000_000 / 2640));
+    expect(d.ends * d.picks).toBeLessThanOrEqual(4_000_000);
+  });
+
+  it("names the two multi-coloured yarns apart", () => {
+    const multi = decadeSwatch(decade(1910, { colors: { multi: 1 } }), "shaft");
+    expect(multi.palette[multi.warpColor[0]].code).toBe("multi A");
+    expect(multi.palette[multi.warpColor[1]].code).toBe("multi B");
+    const t = collectionTapestry([decade(1900, { colors: { multi: 1 } })], "shaft");
+    const names = new Set(Array.from(t.weftColor, (c) => t.palette[c].code));
+    expect(names).toEqual(new Set(["undyed (ecru)", "multi A", "multi B"]));
+  });
+
   it("refuses drafts too small for the shafts or too large to build", () => {
     expect(() => decadeSwatch(decade(1910), "shaft", { ends: 4 })).toThrow(RangeError);
     expect(() => decadeSwatch(decade(1910), "jacquard", { ends: 4000, picks: 1001 })).toThrow(RangeError);

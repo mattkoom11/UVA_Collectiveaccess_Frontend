@@ -53,9 +53,18 @@ describe("weavingNotes", () => {
 
   it("summarises a swatch's warp colours and single weft", () => {
     const notes = weavingNotes(decadeSwatch(decade(1910), "shaft"), META, "shaft");
-    expect(notes).toContain("black: 180 ends");
-    expect(notes).toContain("white: 60 ends");
+    expect(notes).toContain("Warp: repeat these 24 ends 10 times: 18 black, 6 white");
     expect(notes).toContain("picks 1–240: black weft");
+  });
+
+  it("says how to make a tapestry weft-faced, but not for a swatch", () => {
+    expect(weavingNotes(tapestry, META, "shaft")).toContain("beat firmly");
+    expect(weavingNotes(decadeSwatch(decade(1910), "shaft"), META, "shaft")).not.toContain("beat firmly");
+  });
+
+  it("notes a leftover part-repeat at the edge of the warp", () => {
+    const notes = weavingNotes(decadeSwatch(decade(1910), "shaft", { ends: 250 }), META, "shaft");
+    expect(notes).toContain("Warp: repeat these 24 ends 10 times: 18 black, 6 white, then the first 10 ends once more");
   });
 
   it("warns about sample data only when it is sample data", () => {

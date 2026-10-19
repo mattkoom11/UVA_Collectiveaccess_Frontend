@@ -9,15 +9,34 @@ import { sourceLine, type DraftMeta } from "./wif";
 const TC2_EPI_PER_MODULE = 15;
 const TC2_WIDTH_INCHES = 14.5;
 
+// The shortest run of ends the warp repeats, so the notes can give the
+// stripe order a weaver threads, not just colour totals.
+function warpPeriod(warp: Uint8Array): number {
+  for (let p = 1; p < warp.length; p++) {
+    let repeats = true;
+    for (let x = p; x < warp.length && repeats; x++) repeats = warp[x] === warp[x % p];
+    if (repeats) return p;
+  }
+  return warp.length;
+}
+
 function warpLines(draft: Draft): string[] {
-  const counts = new Map<number, number>();
-  for (const c of draft.warpColor) counts.set(c, (counts.get(c) ?? 0) + 1);
-  if (counts.size === 1) return [`Warp: all ${draft.ends} ends ${draft.palette[draft.warpColor[0]].code}.`];
+  const warp = draft.warpColor;
+  if (warp.every((c) => c === warp[0])) return [`Warp: all ${draft.ends} ends ${draft.palette[warp[0]].code}.`];
+  const period = warpPeriod(warp);
+  const runs: string[] = [];
+  let start = 0;
+  for (let x = 1; x <= period; x++) {
+    if (x < period && warp[x] === warp[start]) continue;
+    runs.push(`${x - start} ${draft.palette[warp[start]].code}`);
+    start = x;
+  }
+  const times = Math.floor(draft.ends / period);
+  const rest = draft.ends % period;
   return [
-    "Warp, in repeating colour bands:",
-    ...[...counts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .map(([c, n]) => `  ${draft.palette[c].code}: ${n} ends`),
+    `Warp: repeat these ${period} ends ${times} ${times === 1 ? "time" : "times"}: ${runs.join(", ")}${
+      rest ? `, then the first ${rest} ends once more` : ""
+    }.`,
   ];
 }
 
@@ -73,6 +92,11 @@ export function weavingNotes(draft: Draft, meta: DraftMeta, profile: LoomProfile
     `Size: ${draft.ends} ends × ${draft.picks} picks.`,
     ...setup,
     "Orientation: pick 1 is woven first; pick 1 is the bottom row of the lift-plan image.",
+    ...(draft.bands.length > 0
+      ? [
+          "Tapestry: sett the warp open and beat firmly so the weft covers it. The colour bands are weft-faced; plain-weave decades show the ecru warp unless packed this way.",
+        ]
+      : []),
     "",
     ...warpLines(draft),
     "",

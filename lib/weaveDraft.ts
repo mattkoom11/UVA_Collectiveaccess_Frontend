@@ -56,6 +56,12 @@ const MIN_ENDS = 8; // at least one full repeat of the widest shaft weave
 
 const mod = (n: number, m: number) => ((n % m) + m) % m;
 
+// "multi" alternates two yarns (colorHex by cell parity); name them apart so
+// the weaving notes say which one to throw.
+function threadName(code: string, cell: number): string {
+  return code === "multi" ? (mod(cell, 2) === 0 ? "multi A" : "multi B") : code;
+}
+
 export function draftWeave(s: WeaveStructure): DraftWeave {
   return s === "gauze" || s === "knit" ? "plain" : s;
 }
@@ -130,14 +136,16 @@ export function decadeSwatch(
   opts: { ends?: number; picks?: number } = {},
 ): Draft {
   const ends = opts.ends ?? defaultEnds(profile);
-  const picks = opts.picks ?? ends;
+  // Square by default, but never past the cell cap: a 12-module Jacquard
+  // swatch (2640 ends) would otherwise be ~7M cells.
+  const picks = opts.picks ?? Math.min(ends, Math.floor(MAX_CELLS / ends));
   checkSize(ends, picks);
 
   const palette = new Palette();
   const repeat = warpRepeat(colorShares(decade));
   const warpColor = Uint8Array.from({ length: ends }, (_, x) => {
     const code = repeat[x % repeat.length];
-    return palette.add(code, colorHex(code, x));
+    return palette.add(threadName(code, x), colorHex(code, x));
   });
   const lead = repeat[0];
   const weft = palette.add(`${lead} weft`, weftFor(colorHex(lead)));
@@ -190,7 +198,7 @@ export function collectionTapestry(
       const stripes = warpRepeat(colorShares(d), BAND_PICKS);
       for (const code of stripes) {
         const pick = rows.length;
-        rows.push({ weave, facing: "weft", color: palette.add(code, colorHex(code, pick)) });
+        rows.push({ weave, facing: "weft", color: palette.add(threadName(code, pick), colorHex(code, pick)) });
       }
     }
     bands.push({ decade: d.decade, firstPick, lastPick: rows.length });
