@@ -7,6 +7,7 @@ import {
   blendDecades,
   cellStructure,
   clothRows,
+  commitPosition,
   hexToRgb,
   initialState,
   nudgePosition,
@@ -209,5 +210,57 @@ describe("nudgePosition", () => {
   it("ignores other keys", () => {
     expect(nudgePosition("a", 3, 10)).toBeNull();
     expect(nudgePosition("Tab", 3, 10)).toBeNull();
+  });
+});
+
+describe("commitPosition", () => {
+  it("snaps a small nudge one whole decade in its direction (screen-reader swipes)", () => {
+    expect(commitPosition(13, 13.01, 25)).toBe(14);
+    expect(commitPosition(13, 12.99, 25)).toBe(12);
+  });
+  it("rounds a longer drag to the nearest decade", () => {
+    expect(commitPosition(13, 15.2, 25)).toBe(15);
+    expect(commitPosition(13, 10.6, 25)).toBe(11);
+  });
+  it("keeps a whole decade and clamps at the ends", () => {
+    expect(commitPosition(13, 13, 25)).toBe(13);
+    expect(commitPosition(25, 25.004, 25)).toBe(25);
+    expect(commitPosition(0, -0.01, 25)).toBe(0);
+  });
+});
+
+describe("reversing a weave change", () => {
+  const plain = weaveTarget(decade(1900, { materials: { cotton: 1 } }), 10);
+  const satin = weaveTarget(decade(1900, { materials: { silk: 1 } }), 10);
+  const grid = (s: WeaveState) =>
+    Array.from({ length: 400 }, (_, i) => cellStructure(s, i % 20, Math.floor(i / 20), 7));
+
+  it("runs the change backwards instead of popping cells", () => {
+    const mid: WeaveState = { ...initialState(plain), from: "plain", to: "satin", flip: 0.5 };
+    const before = grid(mid);
+    const { state } = stepToward(mid, plain, 1 / 60);
+    const after = grid(state);
+    // Going back to plain, cells may only return to plain; none may newly show satin.
+    after.forEach((s, i) => {
+      if (s === "satin") expect(before[i]).toBe("satin");
+    });
+    const changed = after.filter((s, i) => s !== before[i]).length;
+    expect(changed).toBeLessThan(20);
+  });
+
+  it("finishes a reversal on the original pattern", () => {
+    let s: WeaveState = { ...initialState(plain), from: "plain", to: "satin", flip: 0.5 };
+    let settled = false;
+    for (let i = 0; i < 600 && !settled; i++) ({ state: s, settled } = stepToward(s, plain, 1 / 60));
+    expect(settled).toBe(true);
+    expect(new Set(grid(s))).toEqual(new Set(["plain"]));
+  });
+
+  it("still starts a fresh change for a third pattern from what is showing", () => {
+    const wool = weaveTarget(decade(1900, { materials: { wool: 1 } }), 10);
+    const mid: WeaveState = { ...initialState(plain), from: "plain", to: "satin", flip: 0.7 };
+    const { state } = stepToward(mid, wool, 1 / 60);
+    expect(state.from).toBe("satin");
+    expect(state.to).toBe("twill");
   });
 });
