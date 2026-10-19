@@ -16,6 +16,7 @@ import {
 import { scannedInDecade } from "@/lib/collectionWeave";
 import WovenCloth from "./WovenCloth";
 import DecadeScrubber from "./DecadeScrubber";
+import WeaveExport from "./WeaveExport";
 
 const Garment3DViewer = dynamic(() => import("@/components/garments/Garment3DViewer"), { ssr: false });
 
@@ -74,6 +75,9 @@ export default function CollectionWeaveView({ weave, garments }: Props) {
               onCommit={setPosition}
             />
           </div>
+          <div className="mt-6">
+            <WeaveExport mode="collection" decades={weave.decades} source={weave.source} dataDate={weave.generated} />
+          </div>
         </div>
 
         <aside className="border border-archive-border p-5 text-sm text-archive-muted space-y-4 self-start">
@@ -100,6 +104,7 @@ export default function CollectionWeaveView({ weave, garments }: Props) {
             </ul>
           )}
           {decade.garments > 0 && <p>{structureLabel(weaveStructure(decade.materials))}</p>}
+          <WeaveExport mode="decade" decade={decade} source={weave.source} dataDate={weave.generated} />
         </aside>
       </div>
 
