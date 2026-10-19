@@ -11,21 +11,10 @@ export interface Share {
   share: number;
 }
 
-export interface ClothPlan {
-  cols: number; // warp threads across the width
-  rows: number; // weft rows needed to fill the height
-  cell: number; // CSS pixels per thread
-  warp: string[]; // colour code per column
-  weftHex: string;
-  structure: WeaveStructure;
-  seed: number;
-}
 
 export const UNDYED = "undyed";
 export const NEUTRAL_HEX = "#8a8278";
 export const MULTI_HEXES = ["#b5523b", "#3c6e8f"] as const;
-export const MIN_DENSITY = 24;
-export const MAX_DENSITY = 96;
 const REPEAT_WIDTH = 24;
 // The weft is the leading warp colour shifted away from it: darkened when
 // light, lightened when dark, so it never vanishes into the loom background.
@@ -165,11 +154,6 @@ export function warpOver(structure: WeaveStructure, x: number, y: number): boole
   }
 }
 
-export function threadDensity(garments: number, maxGarments: number): number {
-  if (garments <= 0 || maxGarments <= 0) return MIN_DENSITY;
-  const t = Math.log1p(Math.min(garments, maxGarments)) / Math.log1p(maxGarments);
-  return Math.round(MIN_DENSITY + (MAX_DENSITY - MIN_DENSITY) * t);
-}
 
 export function colorHex(code: string, cell = 0): string {
   if (code === "multi") return MULTI_HEXES[mod(cell, 2)];
@@ -235,27 +219,12 @@ export function defaultDecadeIndex(decades: DecadeWeave[]): number {
   return best;
 }
 
-function weftFor(hex: string): string {
+export function weftFor(hex: string): string {
   const n = parseInt(hex.slice(1), 16);
   const luminance = (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
   return luminance > 0.5 ? shadeHex(hex, -WEFT_SHIFT) : shadeHex(hex, WEFT_LIGHTEN);
 }
 
-export function clothPlan(decade: DecadeWeave, maxGarments: number, width: number, height: number): ClothPlan {
-  const cols = threadDensity(decade.garments, maxGarments);
-  const cell = width > 0 ? width / cols : 1;
-  const rows = width > 0 && height > 0 ? Math.ceil(height / cell) : 0;
-  const repeat = warpRepeat(colorShares(decade));
-  return {
-    cols,
-    rows,
-    cell,
-    warp: Array.from({ length: cols }, (_, x) => repeat[x % repeat.length]),
-    weftHex: weftFor(colorHex(repeat[0])),
-    structure: weaveStructure(decade.materials),
-    seed: decade.decade,
-  };
-}
 
 export interface TickLabel {
   decade: number;
