@@ -63,6 +63,7 @@ export interface Garment {
   context?: string; // Historical/social context
   model3d_url?: string; // URL to photogrammetry 3D model
   model3d_rotationY?: number; // Degrees to spin the scan around its vertical axis so its front faces the camera/runway (scan exports have an arbitrary front direction baked in)
+  height_cm?: number; // Real height of the garment as displayed on its form, in cm. Drives true-scale AR; falls back to DRESS_FORM_HEIGHT_CM in lib/arScale.ts
   models?: GarmentModel[]; // Every 3D file on the CA record; model3d_url holds the preview one
   featuredOnRunway?: boolean; // CA web_display_settings.featured_on_runway
   runwayOrder?: number; // CA web_display_settings.homepage_order: position along the runway within an era

@@ -15,6 +15,7 @@ import { getAnalytics } from "@/lib/analytics";
 import ErrorBoundary from "./ErrorBoundary";
 
 const Garment3DViewer = dynamic(() => import("./Garment3DViewer"), { ssr: false });
+const ARViewButton = dynamic(() => import("./ARViewButton"), { ssr: false });
 
 interface GarmentDetailClientProps {
   garment: Garment;
@@ -202,6 +203,9 @@ export default function GarmentDetailClient({ garment, relatedGarments }: Garmen
                       garment={garment}
                     />
                   </ErrorBoundary>
+                  <div className="mt-4">
+                    <ARViewButton garment={garment} />
+                  </div>
                 </div>
               )}
 
