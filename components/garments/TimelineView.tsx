@@ -8,11 +8,12 @@ import GarmentCard from "./GarmentCard";
 
 interface TimelineViewProps {
   garments: Garment[];
+  title?: string;
 }
 
 type ZoomLevel = "decade" | "year" | "era";
 
-export default function TimelineView({ garments }: TimelineViewProps) {
+export default function TimelineView({ garments, title = "Timeline View" }: TimelineViewProps) {
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>("decade");
   const [selectedEras, setSelectedEras] = useState<Set<Era>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
@@ -152,7 +153,7 @@ export default function TimelineView({ garments }: TimelineViewProps) {
       <div className="mb-12">
         <div className="text-center mb-8">
           <h2 className="text-3xl md:text-4xl font-light tracking-tight mb-4">
-            Timeline View
+            {title}
           </h2>
           <p className="text-sm text-archive-muted font-light">
             Explore garments chronologically across fashion eras

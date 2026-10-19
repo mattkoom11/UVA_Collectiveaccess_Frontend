@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { loadCollectionWeave, scannedInDecade } from "./collectionWeave";
+import { loadCollectionWeave, scannedGarments, scannedInDecade } from "./collectionWeave";
+import type { Garment } from "@/types/garment";
 
 const decade = (d: number, garments = 3) => ({
   decade: d,
@@ -77,5 +78,24 @@ describe("scannedInDecade", () => {
   });
   it("excludes decades outside every range", () => {
     expect(scannedInDecade(scanned, 1930)).toEqual([]);
+  });
+});
+
+describe("scannedGarments", () => {
+  const g = (id: string, accessionNumber?: string, model3d_url?: string) =>
+    ({ id, slug: id, label: id, images: [], accessionNumber, model3d_url }) as Garment;
+
+  it("keeps only garments with a 3D model whose accession is in the scanned map", () => {
+    const garments = [
+      g("a", "DR.1", "/models/a.glb"),
+      g("b", "DR.2", "/models/b.glb"),
+      g("c", "DR.1"),
+      g("d", undefined, "/models/d.glb"),
+    ];
+    const kept = scannedGarments(garments, { "DR.1": { earliest: 1910, latest: 1920 } });
+    expect(kept.map((x) => x.id)).toEqual(["a"]);
+  });
+  it("is empty when nothing is scanned", () => {
+    expect(scannedGarments([g("a", "DR.1", "/m.glb")], {})).toEqual([]);
   });
 });

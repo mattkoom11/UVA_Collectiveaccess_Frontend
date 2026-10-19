@@ -156,13 +156,25 @@ export function stepToward(
   const thickness = approach(state.thickness, target.thickness, alpha, MIN_THICKNESS_SPEED * dt);
 
   let { from, to, flip } = state;
-  if (target.structure !== to) {
-    // Start the new change from whichever pattern is mostly showing now.
+  let direction = 1;
+  if (target.structure === to) {
+    direction = 1;
+  } else if (target.structure === from && flip < 1) {
+    // Scrubbed back mid-change: run the same change backwards, so cells
+    // return in reverse order instead of popping.
+    direction = -1;
+  } else {
+    // A new pattern: start from whichever pattern is mostly showing now.
     from = flip >= 0.5 ? to : from;
     to = target.structure;
     flip = 0;
   }
-  flip = Math.min(1, flip + dt / FLIP_SECONDS);
+  flip = clamp(flip + (direction * dt) / FLIP_SECONDS, 0, 1);
+  if (flip === 0) {
+    // A reversal finished: the original pattern is fully back.
+    to = from;
+    flip = 1;
+  }
 
   const next: WeaveState = { colors, weft, thickness, from, to, flip };
   const settled =
@@ -200,4 +212,15 @@ export function nudgePosition(key: string, position: number, last: number): numb
   const step = KEY_STEPS[key];
   if (step === undefined) return null;
   return clamp(Math.round(position) + step, 0, last);
+}
+
+// Where the slider settles when a value is committed (pointer released, or a
+// screen reader's increment). A nudge smaller than half a decade moves one
+// whole decade in its direction, so assistive-tech swipes of one native step
+// (0.01) still change decade; a longer drag rounds to the nearest.
+export function commitPosition(lastWhole: number, value: number, last: number): number {
+  const v = clamp(value, 0, last);
+  const d = v - lastWhole;
+  if (d !== 0 && Math.abs(d) < 0.5) return clamp(lastWhole + Math.sign(d), 0, last);
+  return Math.round(v);
 }

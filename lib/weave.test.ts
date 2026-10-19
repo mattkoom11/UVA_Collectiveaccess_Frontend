@@ -12,6 +12,7 @@ import {
   defaultDecadeIndex,
   garmentCount,
   shadeHex,
+  barLayout,
   structureLabel,
   tickLabels,
   warpOver,
@@ -233,5 +234,16 @@ describe("tickLabels", () => {
   });
   it("centres the only decade", () => {
     expect(tickLabels(decades(1900, 1900))).toEqual([{ decade: 1900, left: 50, align: "center" }]);
+  });
+});
+
+describe("barLayout", () => {
+  it("centres each bar where the slider handle sits for that decade", () => {
+    expect(barLayout(0, 5)).toEqual({ center: 0, width: 25 });
+    expect(barLayout(2, 5)).toEqual({ center: 50, width: 25 });
+    expect(barLayout(4, 5)).toEqual({ center: 100, width: 25 });
+  });
+  it("fills the track for a single decade", () => {
+    expect(barLayout(0, 1)).toEqual({ center: 50, width: 100 });
   });
 });

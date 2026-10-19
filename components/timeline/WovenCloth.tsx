@@ -57,6 +57,8 @@ export default function WovenCloth({ decades, position, maxGarments, label }: Pr
     let raf = 0;
     let settling = false;
     let weaving = false; // the first loom weave is running
+    let visible = true; // on screen (the loop pauses while scrolled away)
+    let pending = false; // a change arrived while off screen
     let lastFrame = 0;
 
     // Resizing a canvas clears it, so only resize when the size changed.
@@ -78,6 +80,12 @@ export default function WovenCloth({ decades, position, maxGarments, label }: Pr
     const settle = (now: number) => {
       const goal = targetRef.current;
       if (!goal) return;
+      if (!visible) {
+        // Pause off screen; the IntersectionObserver resumes from here.
+        settling = false;
+        pending = true;
+        return;
+      }
       const result = stepToward(state, goal, (now - lastFrame) / 1000);
       lastFrame = now;
       state = result.state;
@@ -98,6 +106,10 @@ export default function WovenCloth({ decades, position, maxGarments, label }: Pr
         return;
       }
       if (settling || weaving) return; // the running loop reads the new target itself
+      if (!visible) {
+        pending = true;
+        return;
+      }
       settling = true;
       lastFrame = performance.now();
       raf = requestAnimationFrame(settle);
@@ -138,9 +150,35 @@ export default function WovenCloth({ decades, position, maxGarments, label }: Pr
     });
     observer.observe(wrap);
 
+    const visibility = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible && pending) {
+        pending = false;
+        kickRef.current?.();
+      }
+    });
+    visibility.observe(wrap);
+
+    // Moving the window to a screen with a different pixel density doesn't
+    // resize the box, so watch the density itself and re-render sharply.
+    let densityQuery: MediaQueryList | null = null;
+    const onDensityChange = () => {
+      layout();
+      if (!settling && !weaving) paintAll();
+      watchDensity();
+    };
+    const watchDensity = () => {
+      densityQuery?.removeEventListener("change", onDensityChange);
+      densityQuery = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+      densityQuery.addEventListener("change", onDensityChange);
+    };
+    watchDensity();
+
     return () => {
       cancelAnimationFrame(raf);
       observer.disconnect();
+      visibility.disconnect();
+      densityQuery?.removeEventListener("change", onDensityChange);
       kickRef.current = null;
     };
   }, []);

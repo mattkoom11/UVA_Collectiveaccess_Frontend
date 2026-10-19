@@ -2,7 +2,7 @@ import { hydrateGarmentsFromCA, getAllGarments } from "@/lib/garments";
 import PageLayout from "@/components/layout/PageLayout";
 import TimelineView from "@/components/garments/TimelineView";
 import CollectionWeaveView from "@/components/timeline/CollectionWeaveView";
-import { loadCollectionWeave } from "@/lib/collectionWeave";
+import { loadCollectionWeave, scannedGarments } from "@/lib/collectionWeave";
 import weaveData from "@/data/collection-weave.json";
 
 export const dynamic = "force-dynamic";
@@ -15,13 +15,15 @@ export default async function TimelinePage() {
 
   return (
     <PageLayout>
-      {weave && (
+      {weave ? (
         <div className="max-w-7xl mx-auto px-4 pt-12 md:pt-20">
-          <CollectionWeaveView weave={weave} garments={allGarments} />
-          <h2 className="text-xs uppercase tracking-[0.2em] text-archive-muted">Garments on the site</h2>
+          {/* Only the scanned garments it can show as 3D cards, not the whole list again */}
+          <CollectionWeaveView weave={weave} garments={scannedGarments(allGarments, weave.scanned)} />
         </div>
+      ) : (
+        <h1 className="sr-only">Timeline</h1>
       )}
-      <TimelineView garments={allGarments} />
+      <TimelineView garments={allGarments} title={weave ? "Garments on the site" : undefined} />
     </PageLayout>
   );
 }

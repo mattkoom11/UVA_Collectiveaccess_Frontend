@@ -71,7 +71,7 @@ export default function CollectionWeaveView({ weave, garments }: Props) {
               decades={weave.decades}
               position={position}
               onChange={setPosition}
-              onRelease={() => setPosition((p) => Math.round(p))}
+              onCommit={setPosition}
             />
           </div>
         </div>
