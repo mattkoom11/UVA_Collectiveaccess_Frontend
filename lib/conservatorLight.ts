@@ -70,3 +70,12 @@ export function shouldSweep(
 export function clampElevation(deg: number): number {
   return Math.min(MAX_ELEVATION_DEG, Math.max(MIN_ELEVATION_DEG, deg));
 }
+
+// Spoken value for the light dial, e.g. "135°, front right". Sides are
+// relative to the viewer's starting camera (the dial's bottom).
+const SIDES = ["behind", "back right", "right", "front right", "front", "front left", "left", "back left"];
+
+export function describeAzimuth(azimuthDeg: number): string {
+  const deg = Math.round(normalizeDeg(azimuthDeg)) % 360;
+  return `${deg}°, ${SIDES[Math.round(deg / 45) % 8]}`;
+}

@@ -6,6 +6,7 @@ import {
   MIN_ELEVATION_DEG,
   advanceAzimuth,
   clampElevation,
+  describeAzimuth,
   initialLightState,
   lightPosition,
   normalizeDeg,
@@ -113,5 +114,23 @@ describe("initialLightState", () => {
   });
   it("returns a fresh object each call", () => {
     expect(initialLightState()).not.toBe(initialLightState());
+  });
+});
+
+describe("describeAzimuth", () => {
+  it.each([
+    [0, "0°, behind"],
+    [45, "45°, back right"],
+    [90, "90°, right"],
+    [135, "135°, front right"],
+    [180, "180°, front"],
+    [225, "225°, front left"],
+    [270, "270°, left"],
+    [315, "315°, back left"],
+    [350, "350°, behind"],
+    [112.4, "112°, right"],
+    [113, "113°, front right"],
+  ])("describes %s", (deg, text) => {
+    expect(describeAzimuth(deg)).toBe(text);
   });
 });

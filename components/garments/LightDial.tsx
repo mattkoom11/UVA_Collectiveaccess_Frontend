@@ -7,6 +7,7 @@ import {
   MAX_ELEVATION_DEG,
   MIN_ELEVATION_DEG,
   clampElevation,
+  describeAzimuth,
   normalizeDeg,
   pointerToAzimuth,
   type ConservatorLightState,
@@ -33,17 +34,21 @@ export default function LightDial({ stateRef }: Props) {
   useEffect(() => {
     let raf = 0;
     const tick = () => {
-      const azimuth = stateRef.current.azimuthDeg;
-      if (armRef.current) armRef.current.style.transform = `rotate(${azimuth}deg)`;
-      dialRef.current?.setAttribute("aria-valuenow", String(Math.round(azimuth)));
+      if (armRef.current) armRef.current.style.transform = `rotate(${stateRef.current.azimuthDeg}deg)`;
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [stateRef]);
 
+  // The slider's value is only updated after the visitor moves it: updating
+  // it on every frame of the sweep would make screen readers read out a
+  // constant stream of numbers.
   const markInteraction = () => {
     stateRef.current.lastInteractAtMs = performance.now();
+    const azimuth = stateRef.current.azimuthDeg;
+    dialRef.current?.setAttribute("aria-valuenow", String(Math.round(azimuth)));
+    dialRef.current?.setAttribute("aria-valuetext", describeAzimuth(azimuth));
   };
 
   const steerTo = (e: PointerEvent<HTMLDivElement>) => {
@@ -98,6 +103,7 @@ export default function LightDial({ stateRef }: Props) {
         aria-valuemin={0}
         aria-valuemax={359}
         aria-valuenow={DEFAULT_AZIMUTH_DEG}
+        aria-valuetext={describeAzimuth(DEFAULT_AZIMUTH_DEG)}
         className="relative w-24 h-24 rounded-full border border-archive-border cursor-grab active:cursor-grabbing touch-none select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-archive-accent"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}

@@ -21,7 +21,7 @@ This is sub-project A of a larger set of frontend ideas (timeline morph, collect
 ### Success criteria
 
 - Conservator mode visibly shows fabric folds and surface relief on every garment with a GLB, on desktop and mobile.
-- AR places a garment at its real height on Android (Scene Viewer / WebXR) and iOS (Quick Look).
+- AR places a garment at its real height on Android (WebXR) and iOS (Quick Look). Scene Viewer is excluded until the GLBs are exported in metres: it receives only the raw file URL and ignores the runtime scale and orientation, so a raw scan would appear 24–46 m tall.
 - Garments without a GLB, devices without AR, and visitors with `prefers-reduced-motion` all get a working, sensible experience.
 
 ---
@@ -73,7 +73,7 @@ The existing gallery lights move into a `GalleryLighting` component inside the s
 
 ### Behaviour
 - A **"View in your space"** button appears under the viewer when the garment has a `model3d_url`.
-- **Touch device** (`navigator.maxTouchPoints > 0` and `(pointer: coarse)` matches): tapping opens a full-screen sheet containing `<model-viewer>` with `ar`, `ar-modes="webxr scene-viewer quick-look"`, `ar-scale="fixed"`, and the garment's GLB. A **"Place in your room"** button (model-viewer's `ar-button` slot, shown only when `canActivateAR` is true) starts AR. AR can't start automatically because the library loads asynchronously, which uses up the tap's user-gesture activation. If the model loads and `canActivateAR` is false, the sheet says "AR isn't supported on this device" and still shows the garment in 3D.
+- **Touch device** (`navigator.maxTouchPoints > 0` and `(pointer: coarse)` matches): tapping opens a full-screen sheet containing `<model-viewer>` with `ar`, `ar-modes="webxr quick-look"` (`AR_MODES` in `lib/arScale.ts`), `ar-scale="fixed"`, and the garment's GLB. A **"Place in your room"** button (model-viewer's `ar-button` slot, shown only when `canActivateAR` is true) starts AR. AR can't start automatically because the library loads asynchronously, which uses up the tap's user-gesture activation. If the model loads and `canActivateAR` is false, the sheet says "AR isn't supported on this device" and still shows the garment in 3D.
 - **Other devices (desktop):** the button opens a popover with a QR code for the current garment page URL and the line "Open on your phone to see it in your room".
 - The device check uses the pointer heuristic rather than `canActivateAR`, because that property only exists after model-viewer has loaded, and desktop visitors should never download it.
 - iOS USDZ is generated on the fly by model-viewer; no new files go in `public/models/`.

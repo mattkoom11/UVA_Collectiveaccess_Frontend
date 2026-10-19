@@ -38,3 +38,9 @@ export function modelViewerOrientation(rotationYDeg = 0): string {
 export function prefersARSheet(env: { maxTouchPoints: number; coarsePointer: boolean }): boolean {
   return env.maxTouchPoints > 0 && env.coarsePointer;
 }
+
+// AR modes handed to model-viewer. Scene Viewer is left out: it receives only
+// the raw GLB URL, so it ignores the runtime scale and orientation above and
+// would show a raw scan (24–46 units tall) tens of metres high, unresizable
+// under ar-scale="fixed". Add it back once the GLBs are exported in metres.
+export const AR_MODES = "webxr quick-look";

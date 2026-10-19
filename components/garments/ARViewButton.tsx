@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { Box, X } from "lucide-react";
 import type { Garment } from "@/types/garment";
 import type { ModelViewerElement } from "@/types/model-viewer";
-import { arScaleFactor, modelViewerOrientation, prefersARSheet, targetHeightCm } from "@/lib/arScale";
+import { AR_MODES, arScaleFactor, modelViewerOrientation, prefersARSheet, targetHeightCm } from "@/lib/arScale";
 import { loadModelViewer } from "@/lib/loadModelViewer";
+import { trapFocusIndex } from "@/lib/focusTrap";
 import ARQRCode from "./ARQRCode";
 
 type Mode = "closed" | "sheet" | "qr";
@@ -25,6 +26,8 @@ export default function ARViewButton({ garment }: Props) {
   const [arUnavailable, setArUnavailable] = useState(false);
   const [pageUrl, setPageUrl] = useState("");
   const viewerRef = useRef<ModelViewerElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   // Load the library when the sheet opens (and again on "Try again")
   useEffect(() => {
@@ -62,6 +65,35 @@ export default function ARViewButton({ garment }: Props) {
     viewer.addEventListener("load", onLoad);
     return () => viewer.removeEventListener("load", onLoad);
   }, [mode, loadState, garment]);
+
+  // The sheet is a real modal: focus moves into it, Tab stays inside it, the
+  // page behind it stops scrolling, and focus returns to the trigger on close
+  useEffect(() => {
+    if (mode !== "sheet") return;
+    const opener = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      const sheet = sheetRef.current;
+      if (e.key !== "Tab" || !sheet) return;
+      const focusables = Array.from(
+        sheet.querySelectorAll<HTMLElement>('button, [href], input, model-viewer, [tabindex]:not([tabindex="-1"])'),
+      );
+      const next = trapFocusIndex(focusables.indexOf(document.activeElement as HTMLElement), focusables.length, e.shiftKey);
+      if (next === null) return;
+      e.preventDefault();
+      focusables[next].focus();
+    };
+    document.addEventListener("keydown", onKey);
+
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previousOverflow;
+      opener?.focus();
+    };
+  }, [mode]);
 
   // Escape closes the sheet or the QR popover
   useEffect(() => {
@@ -129,11 +161,12 @@ export default function ARViewButton({ garment }: Props) {
           role="dialog"
           aria-modal="true"
           aria-label={`${garment.label} in augmented reality`}
+          ref={sheetRef}
           className="fixed inset-0 z-50 flex flex-col bg-archive-bg"
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-archive-border">
             <p className="text-xs uppercase tracking-[0.2em] text-archive-fg">{garment.label}</p>
-            <button type="button" onClick={close} aria-label="Close" className="text-archive-fg">
+            <button ref={closeRef} type="button" onClick={close} aria-label="Close" className="text-archive-fg">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -164,7 +197,7 @@ export default function ARViewButton({ garment }: Props) {
                 src={garment.model3d_url}
                 alt={garment.label}
                 ar
-                ar-modes="webxr scene-viewer quick-look"
+                ar-modes={AR_MODES}
                 ar-scale="fixed"
                 camera-controls
                 orientation={modelViewerOrientation(garment.model3d_rotationY)}

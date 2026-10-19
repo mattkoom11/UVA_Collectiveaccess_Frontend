@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  AR_MODES,
   DRESS_FORM_HEIGHT_CM,
   arScaleFactor,
   modelViewerOrientation,
@@ -58,5 +59,17 @@ describe("prefersARSheet", () => {
   });
   it("is false for a touchscreen laptop driven by a mouse", () => {
     expect(prefersARSheet({ maxTouchPoints: 10, coarsePointer: false })).toBe(false);
+  });
+});
+
+describe("AR_MODES", () => {
+  // Scene Viewer receives only the raw GLB URL: it ignores model-viewer's
+  // runtime scale and orientation, so raw scans (24–46 units tall) would
+  // appear tens of metres tall and could not be resized under ar-scale="fixed".
+  it("excludes scene-viewer until the GLBs are pre-scaled to metres", () => {
+    expect(AR_MODES.split(" ")).not.toContain("scene-viewer");
+  });
+  it("keeps WebXR and Quick Look, which both apply the runtime transform", () => {
+    expect(AR_MODES.split(" ")).toEqual(["webxr", "quick-look"]);
   });
 });
