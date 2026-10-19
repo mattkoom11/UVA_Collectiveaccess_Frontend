@@ -1,7 +1,7 @@
 "use client";
 
 import type { DecadeWeave } from "@/types/collectionWeave";
-import { decadeLabel, garmentCount } from "@/lib/weave";
+import { decadeLabel, garmentCount, tickLabels } from "@/lib/weave";
 
 interface Props {
   decades: DecadeWeave[];
@@ -40,17 +40,15 @@ export default function DecadeScrubber({ decades, index, onChange }: Props) {
         className="w-full mt-2 accent-archive-fg"
       />
       <div className="relative h-5 mt-1 text-[10px] uppercase tracking-[0.2em] text-archive-muted" aria-hidden>
-        {decades.map((d, i) =>
-          d.decade % 50 === 0 ? (
-            <span
-              key={d.decade}
-              className="absolute -translate-x-1/2"
-              style={{ left: `${decades.length === 1 ? 50 : (i / (decades.length - 1)) * 100}%` }}
-            >
-              {d.decade}
-            </span>
-          ) : null,
-        )}
+        {tickLabels(decades).map((t) => (
+          <span
+            key={t.decade}
+            className={`absolute ${t.align === "center" ? "-translate-x-1/2" : t.align === "end" ? "-translate-x-full" : ""}`}
+            style={{ left: `${t.left}%` }}
+          >
+            {t.decade}
+          </span>
+        ))}
       </div>
     </div>
   );

@@ -16,6 +16,7 @@ import {
   garmentCount,
   shadeHex,
   structureLabel,
+  tickLabels,
   threadDensity,
   warpOver,
   warpRepeat,
@@ -244,5 +245,31 @@ describe("clothPlan", () => {
     const plan = clothPlan(decade({ garments: 0, colors: {}, materials: {} }), 63, 480, 160);
     expect(plan.cols).toBe(MIN_DENSITY);
     expect(new Set(plan.warp)).toEqual(new Set([UNDYED]));
+  });
+});
+
+describe("tickLabels", () => {
+  const decades = (from: number, to: number) =>
+    Array.from({ length: (to - from) / 10 + 1 }, (_, i) => ({
+      decade: from + i * 10,
+      garments: 1,
+      colors: {},
+      materials: {},
+      techniques: {},
+    }));
+
+  it("labels every half-century at its slider position", () => {
+    const ticks = tickLabels(decades(1770, 2020));
+    expect(ticks.map((t) => t.decade)).toEqual([1800, 1850, 1900, 1950, 2000]);
+    expect(ticks[0].left).toBeCloseTo((3 / 25) * 100, 9);
+    expect(ticks.every((t) => t.align === "center")).toBe(true);
+  });
+  it("anchors labels at the ends inside the track so they can't overflow", () => {
+    const ticks = tickLabels(decades(1750, 1900));
+    expect(ticks[0]).toEqual({ decade: 1750, left: 0, align: "start" });
+    expect(ticks.at(-1)).toEqual({ decade: 1900, left: 100, align: "end" });
+  });
+  it("centres the only decade", () => {
+    expect(tickLabels(decades(1900, 1900))).toEqual([{ decade: 1900, left: 50, align: "center" }]);
   });
 });

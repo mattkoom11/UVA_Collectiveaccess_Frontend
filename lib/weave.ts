@@ -256,3 +256,23 @@ export function clothPlan(decade: DecadeWeave, maxGarments: number, width: numbe
     seed: decade.decade,
   };
 }
+
+export interface TickLabel {
+  decade: number;
+  left: number; // percent along the slider track
+  align: "start" | "center" | "end";
+}
+
+// Half-century labels under the decade slider, positioned like the thumb
+// (index / (n - 1)). Labels at either end are anchored inside the track so
+// they never overflow the page gutter on a phone.
+export function tickLabels(decades: DecadeWeave[]): TickLabel[] {
+  const last = decades.length - 1;
+  return decades.flatMap((d, i) => {
+    if (d.decade % 50 !== 0) return [];
+    if (last === 0) return [{ decade: d.decade, left: 50, align: "center" as const }];
+    const left = (i / last) * 100;
+    const align = i === 0 ? "start" : i === last ? "end" : "center";
+    return [{ decade: d.decade, left, align }];
+  });
+}
