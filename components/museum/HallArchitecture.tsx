@@ -11,15 +11,24 @@ import {
   RIGHT_WALL_X,
   RUNWAY_WIDTH,
   type HallLayout,
+  type HallSegment,
 } from "@/lib/hallLayout";
+import { SEGMENT_PALETTES } from "@/lib/hallLighting";
+import SegmentBanner from "./SegmentBanner";
 
 const HALL_WIDTH = RIGHT_WALL_X - LEFT_WALL_X;
 const HALL_CENTER_X = (RIGHT_WALL_X + LEFT_WALL_X) / 2;
 const SPOT_SPACING = 1.1;
 const RUNWAY_START_Z = 0.5;
+const FILL_INTENSITY = 10;
+// The low quality tier drops environment reflections, and with them the
+// gloss: without an environment map, metalness only darkens a surface.
+const GLOSSY_RUNWAY = { roughness: 0.22, metalness: 0.25 };
+const GLOSSY_FLOOR = { roughness: 0.32, metalness: 0.2 };
+const MATTE = { roughness: 0.75, metalness: 0 };
 
-// The overhead grid of stage lights: small glowing discs on the ceiling,
-// drawn as one instanced mesh so hundreds cost a single draw call.
+// The overhead grid of stage lights: small discs glowing faintly on the dark
+// ceiling, drawn as one instanced mesh so hundreds cost a single draw call.
 function SpotGrid({ fromZ, toZ }: { fromZ: number; toZ: number }) {
   const ref = useRef<InstancedMesh>(null);
   const positions = useMemo(() => {
@@ -46,31 +55,31 @@ function SpotGrid({ fromZ, toZ }: { fromZ: number; toZ: number }) {
   return (
     <instancedMesh ref={ref} args={[undefined, undefined, positions.length]} frustumCulled={false}>
       <circleGeometry args={[0.055, 12]} />
-      <meshBasicMaterial color="#fffaf0" toneMapped={false} />
+      <meshBasicMaterial color="#4a4740" toneMapped={false} />
     </instancedMesh>
   );
 }
 
-// One raised platform per era. Each starts where the previous wing ended,
+// One raised platform per segment. Each starts where the previous one ended,
 // so the runway runs continuously and steps up at the start of every era.
-function RunwaySteps({ layout }: { layout: HallLayout }) {
+function RunwaySteps({ layout, segments, glossy }: { layout: HallLayout; segments: HallSegment[]; glossy: boolean }) {
   return (
     <>
-      {layout.wings.map((wing, i) => {
-        const fromZ = i === 0 ? RUNWAY_START_Z : layout.wings[i - 1].zEnd;
-        const toZ = i === layout.wings.length - 1 ? layout.hallEndZ + 1 : wing.zEnd;
+      {segments.map((segment, i) => {
+        const fromZ = i === 0 ? RUNWAY_START_Z : segments[i - 1].zEnd;
+        const toZ = i === segments.length - 1 ? layout.hallEndZ + 1 : segment.zEnd;
         const length = fromZ - toZ;
         const centerZ = (fromZ + toZ) / 2;
-        const h = wing.platformHeight;
+        const h = segment.platformHeight;
         return (
-          <group key={wing.era} position={[0, 0, centerZ]}>
+          <group key={segment.key} position={[0, 0, centerZ]}>
             <mesh position={[0, h / 2, 0]}>
               <boxGeometry args={[RUNWAY_WIDTH, h, length]} />
               <meshStandardMaterial color="#232326" roughness={0.6} metalness={0.1} />
             </mesh>
             <mesh position={[0, h + 0.005, 0]} rotation={[-Math.PI / 2, 0, 0]}>
               <planeGeometry args={[RUNWAY_WIDTH, length]} />
-              <meshStandardMaterial color="#6e6e73" roughness={0.22} metalness={0.25} />
+              <meshStandardMaterial color="#6e6e73" {...(glossy ? GLOSSY_RUNWAY : MATTE)} />
             </mesh>
             {/* Lit edge along the aisle side, like the lip of a show runway. */}
             <mesh position={[RUNWAY_WIDTH / 2 - 0.02, h + 0.01, 0]}>
@@ -86,9 +95,13 @@ function RunwaySteps({ layout }: { layout: HallLayout }) {
 
 export default function HallArchitecture({
   layout,
+  segments,
+  glossy,
   onFloorClick,
 }: {
   layout: HallLayout;
+  segments: HallSegment[];
+  glossy: boolean;
   onFloorClick: (e: ThreeEvent<MouseEvent>) => void;
 }) {
   const length = ENTRANCE_DEPTH - layout.hallEndZ;
@@ -96,25 +109,41 @@ export default function HallArchitecture({
 
   return (
     <group>
-      <ambientLight intensity={0.3} />
-      <hemisphereLight args={["#ffffff", "#1a1a1c", 0.55]} />
+      {/* A dark room: garments are lit by their pools and the spotlights. */}
+      <ambientLight intensity={0.08} />
+      <hemisphereLight args={["#ffffff", "#1a1a1c", 0.15]} />
+
+      {/* Each segment's character: a tinted fill from above, and its banner. */}
+      {segments.map((segment) => (
+        <group key={segment.key}>
+          <pointLight
+            position={[1.5, HALL_HEIGHT - 0.4, (segment.zStart + segment.zEnd) / 2]}
+            color={SEGMENT_PALETTES[segment.key].fill}
+            intensity={FILL_INTENSITY}
+            decay={2}
+          />
+          <SegmentBanner segment={segment} />
+        </group>
+      ))}
 
       {/* What polished surfaces reflect: long light strips overhead, like the
           show-light grid. Built in the scene, so there's no image to fetch. */}
-      <Environment resolution={128} environmentIntensity={0.7}>
-        <color attach="background" args={["#0b0b0c"]} />
-        {[-2.2, 0, 2.2, 4.4].map((x) => (
-          <Lightformer
-            key={x}
-            form="rect"
-            intensity={2}
-            color="#fff6ea"
-            position={[x, 5, 0]}
-            rotation-x={Math.PI / 2}
-            scale={[0.35, 80, 1]}
-          />
-        ))}
-      </Environment>
+      {glossy && (
+        <Environment resolution={128} environmentIntensity={0.7}>
+          <color attach="background" args={["#0b0b0c"]} />
+          {[-2.2, 0, 2.2, 4.4].map((x) => (
+            <Lightformer
+              key={x}
+              form="rect"
+              intensity={2}
+              color="#fff6ea"
+              position={[x, 5, 0]}
+              rotation-x={Math.PI / 2}
+              scale={[0.35, 80, 1]}
+            />
+          ))}
+        </Environment>
+      )}
 
       {/* Polished concrete floor; clicking it walks there. */}
       <mesh
@@ -123,7 +152,7 @@ export default function HallArchitecture({
         onClick={onFloorClick}
       >
         <planeGeometry args={[HALL_WIDTH, length]} />
-        <meshStandardMaterial color="#3a3a3e" roughness={0.32} metalness={0.2} />
+        <meshStandardMaterial color="#3a3a3e" {...(glossy ? GLOSSY_FLOOR : MATTE)} />
       </mesh>
 
       <mesh position={[HALL_CENTER_X, HALL_HEIGHT, centerZ]} rotation={[Math.PI / 2, 0, 0]}>
@@ -149,7 +178,7 @@ export default function HallArchitecture({
       </mesh>
 
       <SpotGrid fromZ={ENTRANCE_DEPTH} toZ={layout.hallEndZ} />
-      <RunwaySteps layout={layout} />
+      <RunwaySteps layout={layout} segments={segments} glossy={glossy} />
     </group>
   );
 }

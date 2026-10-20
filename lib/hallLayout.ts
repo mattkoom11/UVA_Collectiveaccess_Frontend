@@ -1,9 +1,11 @@
 import type { Garment } from "@/types/garment";
 import type { MuseumLayout, Wing } from "@/lib/museum";
+import type { SegmentKey } from "@/lib/hallLighting";
 
 // World units are meters. The visitor walks toward -z, down an aisle to the
-// right (+x) of a raised runway at x = 0. Wing I starts at z = 0; the space
-// between z = 0 and ENTRANCE_DEPTH is the entrance lobby.
+// right (+x) of a raised runway at x = 0. The runway starts at z = 0, with the
+// New Acquisitions stage if there is one, else Wing I; the space between
+// z = 0 and ENTRANCE_DEPTH is the entrance lobby.
 
 export type Vec3 = [number, number, number];
 
@@ -22,17 +24,21 @@ export const FLAGSHIP_HEIGHT = 1.7;
 export const LIGHTBOX_WIDTH = 1.1;
 export const LIGHTBOX_HEIGHT = 1.4;
 
-const WING_GAP = 3;
+export const WING_GAP = 3;
 const BACK_WALL_MARGIN = 3;
 const MIN_WING_LENGTH = 14;
-// A wing with nothing to show yet stays in the sequence but short, so the
-// visitor isn't walking a long empty stretch to reach the next era.
-const EMPTY_WING_LENGTH = 6;
+// A wing with nothing to show yet stays in the sequence as a short stub, so
+// the visitor isn't walking a long empty stretch to reach the next era.
+const EMPTY_WING_LENGTH = 3;
 const FLAGSHIP_SPACING = 6;
 const LIGHTBOX_SPACING = 1.6;
 const LIGHTBOX_MARGIN = 1;
 const LIGHTBOX_ROW_Y = [1.55, 3.15];
 const WALL_INSET = 0.06;
+
+// wingIndexAt's answers outside the four wings.
+export const STAGE_INDEX = -2;
+export const LOBBY_INDEX = -1;
 
 export interface FlagshipSlot {
   garment: Garment;
@@ -49,20 +55,41 @@ export interface LightboxSlot {
   wall: "left" | "right";
 }
 
+export interface HallStage {
+  zStart: number;
+  zEnd: number;
+  platformHeight: number;
+  flagshipSlots: FlagshipSlot[];
+}
+
 export interface HallWing extends Wing {
   index: number;
   zStart: number;
   zEnd: number;
   platformHeight: number;
+  // Nothing to show yet: a short stub with a "Coming soon" banner.
+  comingSoon: boolean;
   flagshipSlots: FlagshipSlot[];
   lightboxSlots: LightboxSlot[];
 }
 
 export interface HallLayout {
+  // The New Acquisitions stage before Wing I; null when nothing is undated.
+  stage: HallStage | null;
   wings: HallWing[];
   hallEndZ: number;
   bounds: { minX: number; maxX: number; minZ: number; maxZ: number };
   start: { position: Vec3; yaw: number };
+}
+
+/** One stretch of runway, in walking order: the stage (if any), then Wings I–IV. */
+export interface HallSegment {
+  key: SegmentKey;
+  zStart: number;
+  zEnd: number;
+  platformHeight: number;
+  flagshipSlots: FlagshipSlot[];
+  wing: HallWing | null; // null for the New Acquisitions stage
 }
 
 // Four lightboxes per column: both rows on the near (right) wall, then both
@@ -75,17 +102,21 @@ const COLUMN_SLOTS: { wall: "left" | "right"; row: number }[] = [
   { wall: "left", row: 1 },
 ];
 
+function isEmpty(wing: Wing): boolean {
+  return wing.flagships.length === 0 && wing.lightboxes.length === 0;
+}
+
 function wingLength(wing: Wing): number {
-  if (wing.flagships.length === 0 && wing.lightboxes.length === 0) return EMPTY_WING_LENGTH;
+  if (isEmpty(wing)) return EMPTY_WING_LENGTH;
   const forFlagships = wing.flagships.length * FLAGSHIP_SPACING;
   const columns = Math.ceil(wing.lightboxes.length / COLUMN_SLOTS.length);
   const forLightboxes = columns * LIGHTBOX_SPACING + LIGHTBOX_MARGIN * 2;
   return Math.max(MIN_WING_LENGTH, forFlagships, forLightboxes);
 }
 
-function placeFlagships(wing: Wing, zStart: number, length: number, platformHeight: number): FlagshipSlot[] {
-  const count = wing.flagships.length;
-  return wing.flagships.map((garment, i) => {
+function placeFlagships(flagships: Garment[], zStart: number, length: number, platformHeight: number): FlagshipSlot[] {
+  const count = flagships.length;
+  return flagships.map((garment, i) => {
     const z = zStart - ((i + 0.5) * length) / count;
     return {
       garment,
@@ -116,19 +147,34 @@ function placeLightboxes(wing: Wing, zStart: number): LightboxSlot[] {
   });
 }
 
+function buildStage(acquisitions: Garment[]): HallStage | null {
+  if (acquisitions.length === 0) return null;
+  const length = Math.max(MIN_WING_LENGTH, acquisitions.length * FLAGSHIP_SPACING);
+  return {
+    zStart: 0,
+    zEnd: -length,
+    platformHeight: PLATFORM_BASE_HEIGHT,
+    flagshipSlots: placeFlagships(acquisitions, 0, length, PLATFORM_BASE_HEIGHT),
+  };
+}
+
 /** Turns the wing assignment into positions in the 3D hall. */
 export function buildHallLayout(museum: MuseumLayout): HallLayout {
-  let zStart = 0;
+  const stage = buildStage(museum.acquisitions);
+  // With a stage, Wing I starts after it, one step up; without, at z = 0.
+  let zStart = stage ? stage.zEnd - WING_GAP : 0;
+  const firstStep = stage ? 1 : 0;
   const wings: HallWing[] = museum.wings.map((wing, index) => {
     const length = wingLength(wing);
-    const platformHeight = PLATFORM_BASE_HEIGHT + index * PLATFORM_STEP;
+    const platformHeight = PLATFORM_BASE_HEIGHT + (index + firstStep) * PLATFORM_STEP;
     const hallWing: HallWing = {
       ...wing,
       index,
       zStart,
       zEnd: zStart - length,
       platformHeight,
-      flagshipSlots: placeFlagships(wing, zStart, length, platformHeight),
+      comingSoon: isEmpty(wing),
+      flagshipSlots: placeFlagships(wing.flagships, zStart, length, platformHeight),
       lightboxSlots: placeLightboxes(wing, zStart),
     };
     zStart = hallWing.zEnd - WING_GAP;
@@ -139,6 +185,7 @@ export function buildHallLayout(museum: MuseumLayout): HallLayout {
   const hallEndZ = (lastWing ? lastWing.zEnd : 0) - BACK_WALL_MARGIN;
 
   return {
+    stage,
     wings,
     hallEndZ,
     bounds: { minX: AISLE_MIN_X, maxX: AISLE_MAX_X, minZ: hallEndZ + 1, maxZ: ENTRANCE_DEPTH - 1 },
@@ -146,16 +193,31 @@ export function buildHallLayout(museum: MuseumLayout): HallLayout {
   };
 }
 
+export function hallSegments(layout: HallLayout): HallSegment[] {
+  const wings = layout.wings.map((wing): HallSegment => ({
+    key: wing.era,
+    zStart: wing.zStart,
+    zEnd: wing.zEnd,
+    platformHeight: wing.platformHeight,
+    flagshipSlots: wing.flagshipSlots,
+    wing,
+  }));
+  if (!layout.stage) return wings;
+  const { zStart, zEnd, platformHeight, flagshipSlots } = layout.stage;
+  return [{ key: "acquisitions", zStart, zEnd, platformHeight, flagshipSlots, wing: null }, ...wings];
+}
+
 /**
- * Which wing the visitor is in at depth z: -1 in the entrance lobby. In the
- * gap between two wings the visitor is still in the one they are leaving.
+ * Where the visitor is at depth z: LOBBY_INDEX in the entrance lobby,
+ * STAGE_INDEX on the New Acquisitions stage, else the wing index. In a gap
+ * the visitor is still in the segment they are leaving.
  */
 export function wingIndexAt(layout: HallLayout, z: number): number {
-  if (z > 0) return -1;
+  if (z > 0) return LOBBY_INDEX;
   for (let i = layout.wings.length - 1; i >= 0; i--) {
     if (z <= layout.wings[i].zStart) return i;
   }
-  return -1;
+  return layout.stage ? STAGE_INDEX : LOBBY_INDEX;
 }
 
 export function clampToBounds(layout: HallLayout, x: number, z: number): [number, number] {

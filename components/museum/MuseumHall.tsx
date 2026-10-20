@@ -5,15 +5,48 @@ import Link from "next/link";
 import { Canvas, type ThreeEvent } from "@react-three/fiber";
 import { Vector3 } from "three";
 import { buildMuseumLayout } from "@/lib/museum";
-import { EYE_HEIGHT, buildHallLayout, clampToBounds, wingIndexAt, type FlagshipSlot } from "@/lib/hallLayout";
+import {
+  EYE_HEIGHT,
+  LOBBY_INDEX,
+  STAGE_INDEX,
+  buildHallLayout,
+  clampToBounds,
+  hallSegments,
+  wingIndexAt,
+  type FlagshipSlot,
+  type HallLayout,
+} from "@/lib/hallLayout";
+import { SEGMENT_PALETTES } from "@/lib/hallLighting";
 import type { Garment } from "@/types/garment";
 import HallArchitecture from "./HallArchitecture";
+import LightPool from "./LightPool";
+import SpotlightPool from "./SpotlightPool";
+import { useHallQuality } from "./useHallQuality";
 import HallControls from "./HallControls";
 import InspectControls, { type CameraPose } from "./InspectControls";
 import FlagshipGarment from "./FlagshipGarment";
 import Lightbox from "./Lightbox";
+import ArrivalShot from "./ArrivalShot";
 
 const CLICK_TOLERANCE_PX = 6;
+const ARRIVAL_SEEN_KEY = "hall-arrival-seen";
+
+// Storage can throw (blocked site data); the shot then plays every visit.
+function arrivalSeen(): boolean {
+  try {
+    return sessionStorage.getItem(ARRIVAL_SEEN_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
+function markArrivalSeen() {
+  try {
+    sessionStorage.setItem(ARRIVAL_SEEN_KEY, "1");
+  } catch {
+    // Nothing to remember it in.
+  }
+}
 
 interface Inspection {
   slot: FlagshipSlot;
@@ -38,21 +71,63 @@ function Placard({ garment }: { garment: Garment }) {
   );
 }
 
+// What the "you are here" label says for a wingIndexAt answer.
+function locationLabel(layout: HallLayout, index: number): { title: string; detail?: string } {
+  if (index === STAGE_INDEX) return { title: "New Acquisitions · Recently scanned, research in progress" };
+  const wing = index >= 0 ? layout.wings[index] : null;
+  if (!wing) return { title: "Entrance" };
+  if (wing.comingSoon) return { title: `Wing ${wing.numeral} · ${wing.label} · Coming soon` };
+  return {
+    title: `Wing ${wing.numeral} · ${wing.label}`,
+    detail: `${wing.flagshipSlots.length} on the runway · ${wing.lightboxSlots.length} on the walls`,
+  };
+}
+
 export default function MuseumHall({ garments, intro = false }: { garments: Garment[]; intro?: boolean }) {
   const layout = useMemo(() => buildHallLayout(buildMuseumLayout(garments)), [garments]);
-  const [wingIndex, setWingIndex] = useState(-1);
+  const segments = useMemo(() => hallSegments(layout), [layout]);
+  const quality = useHallQuality();
+  const litSlots = useMemo(
+    () =>
+      segments.flatMap((s) =>
+        s.flagshipSlots.map((slot) => ({
+          id: slot.garment.id,
+          position: slot.position,
+          color: SEGMENT_PALETTES[s.key].spot,
+        })),
+      ),
+    [segments],
+  );
+  const [wingIndex, setWingIndex] = useState(LOBBY_INDEX);
   const [inspection, setInspection] = useState<Inspection | null>(null);
   const [photo, setPhoto] = useState<Garment | null>(null);
   const [ready, setReady] = useState(false);
   const [introDismissed, setIntroDismissed] = useState(false);
+  // The first homepage visit of a session opens with a glide into the hall.
+  const [arriving, setArriving] = useState(() => intro && !arrivalSeen());
   const walkTargetRef = useRef<Vector3 | null>(null);
   const returnPoseRef = useRef<CameraPose | null>(null);
+  // The press that skips the arrival shot shouldn't also walk or open a garment.
+  const pressBeganArriving = useRef(false);
+
+  useEffect(() => {
+    const onDown = () => {
+      pressBeganArriving.current = arriving;
+    };
+    window.addEventListener("pointerdown", onDown, true);
+    return () => window.removeEventListener("pointerdown", onDown, true);
+  }, [arriving]);
+
+  const finishArrival = useCallback(() => {
+    setArriving(false);
+    markArrivalSeen();
+  }, []);
 
   const walking = inspection === null && photo === null;
   const inspecting = inspection?.phase === "enter" ? inspection.slot : null;
   // Walking controls pause during inspection, so follow the garment's wing.
   const shownWingIndex = inspecting ? wingIndexAt(layout, inspecting.position[2]) : wingIndex;
-  const wing = shownWingIndex >= 0 ? layout.wings[shownWingIndex] : null;
+  const location = locationLabel(layout, shownWingIndex);
 
   const leaveInspection = useCallback(() => {
     setInspection((current) => (current ? { ...current, phase: "exit" } : null));
@@ -68,22 +143,27 @@ export default function MuseumHall({ garments, intro = false }: { garments: Garm
     return () => window.removeEventListener("keydown", onKey);
   }, [photo, leaveInspection]);
 
+  // Clicks act only while walking, and never for the press that skipped the arrival shot.
+  const canAct = () => walking && !arriving && !pressBeganArriving.current;
+
   const handleFloorClick = (e: ThreeEvent<MouseEvent>) => {
-    if (!walking || e.delta > CLICK_TOLERANCE_PX) return;
+    if (!canAct() || e.delta > CLICK_TOLERANCE_PX) return;
     const [x, z] = clampToBounds(layout, e.point.x, e.point.z);
     walkTargetRef.current = new Vector3(x, EYE_HEIGHT, z);
   };
 
   const handleSelectFlagship = (slot: FlagshipSlot) => {
-    if (walking) setInspection({ slot, phase: "enter" });
+    if (canAct()) setInspection({ slot, phase: "enter" });
   };
 
   const handleSelectPhoto = (garment: Garment) => {
-    if (walking) setPhoto(garment);
+    if (canAct()) setPhoto(garment);
   };
 
-  // The welcome panel closes once the visitor enters, or walks into Wing I.
-  const showIntro = intro && ready && !introDismissed && wingIndex < 0 && walking;
+  // The welcome panel closes once the visitor enters, or sets off walking.
+  const showIntro = intro && ready && !introDismissed && wingIndex === LOBBY_INDEX && walking;
+
+  const dismissIntro = useCallback(() => setIntroDismissed(true), []);
 
   const enterGalleries = () => {
     setIntroDismissed(true);
@@ -98,7 +178,7 @@ export default function MuseumHall({ garments, intro = false }: { garments: Garm
       <Canvas
         // Giving a rotation stops R3F aiming the camera at the origin.
         camera={{ fov: 62, near: 0.05, far: 140, position: layout.start.position, rotation: [0, layout.start.yaw, 0] }}
-        dpr={[1, 1.75]}
+        dpr={quality.dpr}
         gl={{ antialias: true, powerPreference: "high-performance" }}
         style={{ touchAction: "none" }}
         onCreated={({ gl }) => {
@@ -109,10 +189,23 @@ export default function MuseumHall({ garments, intro = false }: { garments: Garm
         <color attach="background" args={["#0b0b0c"]} />
         <fog attach="fog" args={["#0b0b0c", 16, 75]} />
 
-        <HallArchitecture layout={layout} onFloorClick={handleFloorClick} />
+        <HallArchitecture
+          layout={layout}
+          segments={segments}
+          glossy={quality.glossyRunway}
+          onFloorClick={handleFloorClick}
+        />
+        <SpotlightPool slots={litSlots} count={quality.spotlights} />
 
-        {layout.wings.map((w) =>
-          w.flagshipSlots.map((slot) => (
+        {/* Outside any Suspense: lit from the first frame, and still there if a scan fails. */}
+        {segments.map((s) =>
+          s.flagshipSlots.map((slot) => (
+            <LightPool key={`pool-${slot.garment.id}`} position={slot.position} color={SEGMENT_PALETTES[s.key].wash} />
+          )),
+        )}
+
+        {segments.map((s) =>
+          s.flagshipSlots.map((slot) => (
             <FlagshipGarment
               key={slot.garment.id}
               slot={slot}
@@ -127,7 +220,13 @@ export default function MuseumHall({ garments, intro = false }: { garments: Garm
           )),
         )}
 
-        <HallControls layout={layout} enabled={walking} walkTargetRef={walkTargetRef} onWingChange={setWingIndex} />
+        <HallControls
+          layout={layout}
+          enabled={walking && !arriving}
+          walkTargetRef={walkTargetRef}
+          onWingChange={setWingIndex}
+          onStepIn={dismissIntro}
+        />
         {inspection && (
           <InspectControls
             key={`${inspection.slot.garment.id}-${inspection.phase}`}
@@ -137,63 +236,59 @@ export default function MuseumHall({ garments, intro = false }: { garments: Garm
             onExited={() => setInspection(null)}
           />
         )}
+        {arriving && <ArrivalShot start={layout.start} onDone={finishArrival} />}
       </Canvas>
 
       {/* Where you are: the one place the accent color marks "you are here". */}
       <div
-        className={`pointer-events-none absolute top-5 left-5 md:top-6 md:left-8 ${showIntro ? "invisible" : ""}`}
+        className={`pointer-events-none absolute top-5 left-5 md:top-6 md:left-8 transition-opacity duration-500 motion-reduce:transition-none ${showIntro ? "opacity-0" : "delay-100"}`}
         aria-live="polite"
       >
         <p className="eyebrow flex items-center gap-2 text-archive-fg">
           <span className="w-2 h-2 rounded-full bg-archive-signal" aria-hidden="true" />
-          {wing ? `Wing ${wing.numeral} · ${wing.label}` : "Entrance"}
+          {location.title}
         </p>
-        {wing && (
-          <p className="text-xs text-archive-muted mt-1.5 pl-4">
-            {wing.flagshipSlots.length} on the runway · {wing.lightboxSlots.length} on the walls
-          </p>
-        )}
+        {location.detail && <p className="text-xs text-archive-muted mt-1.5 pl-4">{location.detail}</p>}
       </div>
 
       {intro && (
+        // Lifts away and fades as the visitor steps in, rather than vanishing.
+        // Hidden, it stays in the DOM so the heading remains for screen
+        // readers; the paragraph and buttons go inert.
         <div
-          className={
-            showIntro
-              ? "absolute inset-x-0 bottom-0 md:inset-y-0 md:right-auto md:w-[min(34rem,50%)] flex flex-col justify-end md:justify-center gap-6 p-6 pb-10 md:p-16 bg-gradient-to-t md:bg-gradient-to-r from-archive-bg via-archive-bg/85 to-transparent"
-              : "sr-only"
-          }
+          className={`absolute inset-x-0 bottom-0 md:inset-y-0 md:right-auto md:w-[min(34rem,50%)] flex flex-col justify-end md:justify-center gap-6 p-6 pb-10 md:p-16 bg-gradient-to-t md:bg-gradient-to-r from-archive-bg via-archive-bg/85 to-transparent transition-[opacity,translate] duration-700 ease-out motion-reduce:transition-none ${showIntro ? "" : "opacity-0 -translate-y-4 pointer-events-none"} ${showIntro && arriving ? "pointer-events-none animate-[fade-in_2s_ease-out_2s_both]" : ""}`}
         >
           <p className="eyebrow text-archive-signal">The Museum</p>
           <h1 className="font-serif italic text-5xl md:text-6xl leading-[1.02] text-archive-fg">
             Step into the archive.
           </h1>
-          {showIntro && (
-            <>
-              <p className="text-base leading-relaxed text-archive-muted-subtle max-w-sm">
-                Walk the galleries wing by wing, through a century of dress from hand-stitched silk to the present day.
-              </p>
-              <div className="flex flex-wrap items-center gap-6">
-                <button
-                  type="button"
-                  onClick={enterGalleries}
-                  className="text-xs uppercase tracking-[0.16em] text-archive-fg border-b border-archive-signal pb-1.5"
-                >
-                  Enter the galleries →
-                </button>
-                <Link
-                  href="/collection"
-                  className="text-xs uppercase tracking-[0.16em] text-archive-muted hover:text-archive-fg transition-colors"
-                >
-                  Browse the collection
-                </Link>
-              </div>
-            </>
-          )}
+          <div inert={!showIntro} className="contents">
+            <p className="text-base leading-relaxed text-archive-muted-subtle max-w-sm">
+              Walk the galleries wing by wing, through a century of dress from hand-stitched silk to the present day.
+            </p>
+            <div className="flex flex-wrap items-center gap-6">
+              <button
+                type="button"
+                onClick={enterGalleries}
+                className="text-xs uppercase tracking-[0.16em] text-archive-fg border-b border-archive-signal pb-1.5"
+              >
+                Enter the galleries →
+              </button>
+              <Link
+                href="/collection"
+                className="text-xs uppercase tracking-[0.16em] text-archive-muted hover:text-archive-fg transition-colors"
+              >
+                Browse the collection
+              </Link>
+            </div>
+          </div>
         </div>
       )}
 
-      {walking && ready && !showIntro && (
-        <p className="pointer-events-none absolute bottom-5 inset-x-0 text-center eyebrow px-4">
+      {walking && ready && (
+        <p
+          className={`pointer-events-none absolute bottom-5 inset-x-0 text-center eyebrow px-4 transition-opacity duration-500 motion-reduce:transition-none ${showIntro || arriving ? "opacity-0" : "delay-100"}`}
+        >
           <span className="pointer-coarse:hidden">
             Drag to look · Click the floor to walk · WASD to move · Click a garment to inspect
           </span>
@@ -265,6 +360,18 @@ export default function MuseumHall({ garments, intro = false }: { garments: Garm
 
       {/* The hall as a plain list, for screen readers and keyboard users. */}
       <nav aria-label="Garments in the hall" className="sr-only">
+        {layout.stage && (
+          <div>
+            <h2>New Acquisitions</h2>
+            <ul>
+              {layout.stage.flagshipSlots.map(({ garment }) => (
+                <li key={garment.id}>
+                  <Link href={`/garments/${garment.slug}`}>{garment.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         {layout.wings.map((w) => (
           <div key={w.era}>
             <h2>Wing {w.numeral}, {w.label}</h2>

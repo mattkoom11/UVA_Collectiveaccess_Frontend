@@ -11,6 +11,8 @@ const WALK_SPEED = 3.2; // meters per second
 const RUN_MULTIPLIER = 2;
 const GLIDE_RATE = 3.5;
 const MAX_GLIDE_SPEED = 9;
+// How far from the start pose counts as having set off into the hall.
+const STEP_IN_DISTANCE = 1;
 
 // code → [strafe, forward]
 const KEY_DIRECTIONS: Record<string, [number, number]> = {
@@ -38,11 +40,14 @@ export default function HallControls({
   enabled,
   walkTargetRef,
   onWingChange,
+  onStepIn,
 }: {
   layout: HallLayout;
   enabled: boolean;
   walkTargetRef: RefObject<Vector3 | null>;
   onWingChange: (index: number) => void;
+  // Called once, when the visitor first walks away from the start pose.
+  onStepIn?: () => void;
 }) {
   const { camera, gl } = useThree();
   const yaw = useRef(layout.start.yaw);
@@ -50,6 +55,7 @@ export default function HallControls({
   const keys = useRef(new Set<string>());
   const running = useRef(false);
   const currentWing = useRef<number | null>(null);
+  const steppedIn = useRef(false);
 
   // Take the look angles from wherever the camera is facing: the start pose
   // (set on the Canvas camera) at first, or the view left by an inspection.
@@ -171,6 +177,14 @@ export default function HallControls({
     if (wing !== currentWing.current) {
       currentWing.current = wing;
       onWingChange(wing);
+    }
+
+    if (!steppedIn.current) {
+      const [startX, , startZ] = layout.start.position;
+      if (Math.hypot(x - startX, z - startZ) > STEP_IN_DISTANCE) {
+        steppedIn.current = true;
+        onStepIn?.();
+      }
     }
   });
 

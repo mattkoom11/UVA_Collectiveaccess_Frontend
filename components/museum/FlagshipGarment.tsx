@@ -1,11 +1,11 @@
 "use client";
 
-import { Suspense, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useMemo } from "react";
 import type { ThreeEvent } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
-import { Box3, Object3D, SpotLight } from "three";
+import { Box3 } from "three";
 import ErrorBoundary from "@/components/garments/ErrorBoundary";
-import { FLAGSHIP_HEIGHT, HALL_HEIGHT, fitToHeight, type FlagshipSlot } from "@/lib/hallLayout";
+import { FLAGSHIP_HEIGHT, fitToHeight, type FlagshipSlot } from "@/lib/hallLayout";
 import { getDetailModelUrl, getPreviewModelUrl } from "@/lib/museum";
 
 // Clicks that moved more than this many pixels were drags (looking around).
@@ -25,30 +25,6 @@ function Placeholder() {
       <cylinderGeometry args={[0.18, 0.32, FLAGSHIP_HEIGHT, 16]} />
       <meshStandardMaterial color="#1e1e21" roughness={0.8} />
     </mesh>
-  );
-}
-
-// A spotlight from the ceiling grid, aimed at the garment.
-function GarmentSpotlight() {
-  const light = useRef<SpotLight>(null);
-  const [target] = useState(() => new Object3D());
-  useLayoutEffect(() => {
-    if (light.current) light.current.target = target;
-  }, [target]);
-  return (
-    <>
-      <primitive object={target} position={[0, FLAGSHIP_HEIGHT * 0.55, 0]} />
-      <spotLight
-        ref={light}
-        position={[0.9, HALL_HEIGHT - 0.3, 0.4]}
-        angle={0.42}
-        penumbra={0.6}
-        intensity={45}
-        distance={12}
-        decay={2}
-        color="#fff6ea"
-      />
-    </>
   );
 }
 
@@ -78,7 +54,6 @@ export default function FlagshipGarment({
 
   return (
     <group position={slot.position} rotation={[0, slot.rotationY, 0]}>
-      <GarmentSpotlight />
       <group
         rotation={[0, facing, 0]}
         onClick={handleClick}
