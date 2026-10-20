@@ -20,9 +20,12 @@ export interface Wing extends WingDefinition {
 }
 
 export interface MuseumLayout {
+  // Undated flagships: scanned, but not yet placed in an era. They stand on
+  // the New Acquisitions stage until research gives them a date.
+  acquisitions: Garment[];
   wings: Wing[];
-  // Public garments the hall can't place: no date to put them in a wing, or
-  // no 3D file and no photo to show. They still appear in Collection.
+  // Public garments the hall can't place: undated pieces with no 3D file, or
+  // pieces with no 3D file and no photo to show. They still appear in Collection.
   unplaced: Garment[];
 }
 
@@ -94,18 +97,21 @@ function byRunwayOrder(a: Garment, b: Garment): number {
  * Sorts garments into the museum's four era wings. Every wing is always
  * present, in chronological order, even when empty, so the runway keeps its
  * shape as the collection grows. Flagships stand on the runway; everything
- * else with a photo hangs as a lightbox on the wing's walls.
+ * else with a photo hangs as a lightbox on the wing's walls. Undated
+ * flagships go to New Acquisitions instead of a wing.
  */
 export function buildMuseumLayout(garments: Garment[]): MuseumLayout {
   const wings: Wing[] = WINGS.map((w) => ({ ...w, flagships: [], lightboxes: [] }));
   const wingByEra = new Map(wings.map((w) => [w.era, w]));
+  const acquisitions: Garment[] = [];
   const unplaced: Garment[] = [];
 
   for (const garment of garments) {
     const era = getEra(garment);
     const wing = era ? wingByEra.get(era) : undefined;
     if (!wing) {
-      unplaced.push(garment);
+      if (!era && isFlagship(garment)) acquisitions.push(garment);
+      else unplaced.push(garment);
     } else if (isFlagship(garment)) {
       wing.flagships.push(garment);
     } else if (hasPhoto(garment)) {
@@ -115,10 +121,11 @@ export function buildMuseumLayout(garments: Garment[]): MuseumLayout {
     }
   }
 
+  acquisitions.sort(byRunwayOrder);
   for (const wing of wings) {
     wing.flagships.sort(byRunwayOrder);
     wing.lightboxes.sort(byYearThenLabel);
   }
 
-  return { wings, unplaced };
+  return { acquisitions, wings, unplaced };
 }

@@ -148,10 +148,14 @@ interface Garment {
 ## Key Pages & Features
 
 ### `/` — Home Page
-- The homepage is the museum's entrance: a walkable 3D hall (`components/museum/MuseumHall.tsx`) with a welcome panel
-- One continuous runway through four era wings (Pre-1920 → 1980+), stepping up a level per era
+- The homepage is the museum's entrance: a walkable 3D hall (`components/museum/MuseumHall.tsx`) with a welcome panel that lifts away once the visitor enters or walks 1 m
+- One continuous runway: a **New Acquisitions** stage first (undated flagships — no era, no date — stand here until research dates them), then four era wings (Pre-1920 → 1980+), stepping up a level per segment
+- Era wings with nothing to show yet are 3 m "Coming soon" stubs
 - Flagships (CA `featured_on_runway` = yes + a loadable 3D file) stand frozen on the runway; click to orbit and zoom in place
 - Photo-only garments hang as lightboxes on the walls, loading as the visitor approaches
+- Lighting: a dark room, a light pool under every flagship, and a fill light, light color and hanging banner per segment (`lib/hallLighting.ts` palettes). A fixed pool of real spotlights follows the nearest garments, so lighting cost doesn't grow with the collection
+- Quality tier, decided once on mount: phones, viewports under 768 px or ≤ 4 CPU cores get 2 spotlights, DPR ≤ 1.25 and a matte runway; everything else gets 4 spotlights, DPR ≤ 1.75 and glossy reflections
+- Arrival shot: the first homepage visit of a browser session cranes the camera down from the back of the lobby (~4 s; `sessionStorage` key `hall-arrival-seen`). Any pointer, key, wheel or touch input skips it to the same end pose
 - Drag to look, click the floor to walk, WASD/arrows to move
 - No WebGL, or `prefers-reduced-motion`, redirects to `/collection`
 - `/runway` and `/hall` redirect to `/` (`next.config.ts`); `/backstage/:id` redirects to the garment's record
@@ -194,11 +198,15 @@ interface Garment {
 
 | Component | Description |
 |-----------|-------------|
-| `MuseumHall` | The walkable hall: scene, overlays, inspect/lightbox state. Layout comes from `lib/museum.ts` (wings, flagship rule) and `lib/hallLayout.ts` (positions) |
-| `HallArchitecture` | Floor, walls, ceiling spot grid, stepped runway, lighting |
+| `MuseumHall` | The walkable hall: scene, overlays, inspect/lightbox/arrival state. Layout comes from `lib/museum.ts` (acquisitions, wings, flagship rule) and `lib/hallLayout.ts` (positions, segments); lighting data from `lib/hallLighting.ts` (palettes, light budget, quality tier) |
+| `HallArchitecture` | Floor, walls, ceiling spot grid, stepped runway, room lights, per-segment fill light and banner |
+| `SegmentBanner` | Hanging numeral/title over each segment's start, drawn once to a `CanvasTexture` in the site fonts (drei `Text` would fetch a CDN font) |
+| `LightPool` | Additive light pool on the runway under each flagship; the only per-garment lighting cost |
+| `SpotlightPool` / `useLightBudget` | A fixed number of always-mounted spotlights, re-assigned every 200 ms to the nearest flagships with a short cross-fade |
 | `FlagshipGarment` | A fitted GLB on the runway; swaps in the `full_detail` file while inspected |
 | `Lightbox` | Backlit wall panel; photo loads by distance (needs CORS on the photo host) |
 | `HallControls` / `InspectControls` | Walking, and the fly-in / orbit / fly-back inspection |
+| `ArrivalShot` | The first-visit camera crane-down (`lib/arrivalShot.ts` path); disables `HallControls` while it runs |
 | `Garment3DViewer` | Single garment GLTF viewer |
 
 ---

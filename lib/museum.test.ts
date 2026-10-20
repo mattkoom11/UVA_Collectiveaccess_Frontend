@@ -102,6 +102,41 @@ describe("buildMuseumLayout", () => {
     const { wings } = buildMuseumLayout([]);
     expect(wings.map((w) => w.era)).toEqual(WINGS.map((w) => w.era));
     expect(wings.map((w) => w.numeral)).toEqual(["I", "II", "III", "IV"]);
+    expect(buildMuseumLayout([]).acquisitions).toEqual([]);
+  });
+
+  it("puts undated flagships in New Acquisitions", () => {
+    const g = makeGarment({ id: "a", featuredOnRunway: true, ...MODEL });
+    const { acquisitions, wings, unplaced } = buildMuseumLayout([g]);
+    expect(acquisitions.map((x) => x.id)).toEqual(["a"]);
+    expect(unplaced).toEqual([]);
+    expect(wings.every((w) => w.flagships.length === 0 && w.lightboxes.length === 0)).toBe(true);
+  });
+
+  it("keeps undated photo-only pieces unplaced", () => {
+    const g = makeGarment({ id: "p", ...PHOTO });
+    const { acquisitions, unplaced } = buildMuseumLayout([g]);
+    expect(acquisitions).toEqual([]);
+    expect(unplaced.map((x) => x.id)).toEqual(["p"]);
+  });
+
+  it("keeps dated flagships in their wing", () => {
+    const g = makeGarment({ id: "d", era: "pre-1920", featuredOnRunway: true, ...MODEL });
+    const { acquisitions, wings } = buildMuseumLayout([g]);
+    expect(acquisitions).toEqual([]);
+    expect(wings.find((w) => w.era === "pre-1920")!.flagships.map((x) => x.id)).toEqual(["d"]);
+  });
+
+  // Acquisitions are undated by definition, so the fallback order is by label.
+  it("orders acquisitions by curator runwayOrder, then label", () => {
+    const base = { featuredOnRunway: true, ...MODEL };
+    const garments = [
+      makeGarment({ id: "late", label: "Zed", ...base }),
+      makeGarment({ id: "second", runwayOrder: 2, ...base }),
+      makeGarment({ id: "early", label: "Alpha", ...base }),
+      makeGarment({ id: "first", runwayOrder: 1, ...base }),
+    ];
+    expect(buildMuseumLayout(garments).acquisitions.map((g) => g.id)).toEqual(["first", "second", "early", "late"]);
   });
 
   it("puts flagships on the runway and photo pieces on the walls", () => {

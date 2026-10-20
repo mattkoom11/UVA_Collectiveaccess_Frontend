@@ -5,18 +5,23 @@ import {
   ENTRANCE_DEPTH,
   LEFT_WALL_X,
   PLATFORM_BASE_HEIGHT,
+  LOBBY_INDEX,
   PLATFORM_STEP,
   RIGHT_WALL_X,
+  STAGE_INDEX,
+  WING_GAP,
   buildHallLayout,
   clampToBounds,
   fitToHeight,
+  hallSegments,
   wingIndexAt,
 } from "./hallLayout";
 import { buildMuseumLayout } from "./museum";
 import type { Era, Garment } from "@/types/garment";
 
 let nextId = 0;
-function garment(era: Era, kind: "flagship" | "photo", overrides: Partial<Garment> = {}): Garment {
+// An undefined era makes an undated garment.
+function garment(era: Era | undefined, kind: "flagship" | "photo", overrides: Partial<Garment> = {}): Garment {
   const id = String(++nextId);
   return {
     id,
@@ -45,10 +50,43 @@ describe("buildHallLayout", () => {
     expect(hallEndZ).toBeLessThan(wings[3].zEnd);
   });
 
-  it("keeps empty wings short and wings with garments at a minimum walkable length", () => {
+  it("keeps empty wings as short coming-soon stubs and wings with garments at a minimum walkable length", () => {
     const { wings } = layoutFor([garment("1950-1980", "photo")]);
-    expect(wings[0].zStart - wings[0].zEnd).toBe(6);
+    expect(wings[0].zStart - wings[0].zEnd).toBe(3);
+    expect(wings[0].comingSoon).toBe(true);
     expect(wings[2].zStart - wings[2].zEnd).toBeGreaterThanOrEqual(14);
+    expect(wings[2].comingSoon).toBe(false);
+  });
+
+  it("has no stage, and wings from z = 0, when nothing is undated", () => {
+    const { stage, wings } = layoutFor([garment("1920-1950", "flagship")]);
+    expect(stage).toBeNull();
+    expect(wings[0].zStart).toBe(0);
+    expect(wings[0].platformHeight).toBeCloseTo(PLATFORM_BASE_HEIGHT);
+  });
+
+  it("places the New Acquisitions stage before Wing I, sized to its garments", () => {
+    const one = layoutFor([garment(undefined, "flagship")]).stage!;
+    expect(one.zStart).toBe(0);
+    expect(one.zStart - one.zEnd).toBe(14);
+    expect(one.platformHeight).toBe(PLATFORM_BASE_HEIGHT);
+
+    const three = layoutFor([1, 2, 3].map(() => garment(undefined, "flagship"))).stage!;
+    expect(three.zStart - three.zEnd).toBe(18);
+    expect(three.flagshipSlots).toHaveLength(3);
+    for (const slot of three.flagshipSlots) {
+      expect(slot.position[1]).toBe(PLATFORM_BASE_HEIGHT);
+      expect(slot.position[2]).toBeLessThan(three.zStart);
+      expect(slot.position[2]).toBeGreaterThan(three.zEnd);
+    }
+  });
+
+  it("starts Wing I WING_GAP after the stage, with each wing one step up from it", () => {
+    const { stage, wings } = layoutFor([garment(undefined, "flagship")]);
+    expect(wings[0].zStart).toBe(stage!.zEnd - WING_GAP);
+    wings.forEach((w, i) => {
+      expect(w.platformHeight).toBeCloseTo(PLATFORM_BASE_HEIGHT + (i + 1) * PLATFORM_STEP);
+    });
   });
 
   it("stands flagships on the runway, facing the aisle, spread along the wing", () => {
@@ -116,11 +154,26 @@ describe("buildHallLayout", () => {
   });
 });
 
+describe("hallSegments", () => {
+  it("lists the stage first, then the four wings", () => {
+    const layout = layoutFor([garment(undefined, "flagship")]);
+    const segments = hallSegments(layout);
+    expect(segments.map((s) => s.key)).toEqual(["acquisitions", "pre-1920", "1920-1950", "1950-1980", "1980+"]);
+    expect(segments[0].wing).toBeNull();
+    expect(segments[0].flagshipSlots).toBe(layout.stage!.flagshipSlots);
+    expect(segments[1].wing).toBe(layout.wings[0]);
+  });
+
+  it("lists only the wings when there is no stage", () => {
+    expect(hallSegments(layoutFor([])).map((s) => s.key)).toEqual(["pre-1920", "1920-1950", "1950-1980", "1980+"]);
+  });
+});
+
 describe("wingIndexAt", () => {
   const layout = layoutFor([]);
 
-  it("is -1 in the entrance lobby", () => {
-    expect(wingIndexAt(layout, 3)).toBe(-1);
+  it("is LOBBY_INDEX in the entrance lobby", () => {
+    expect(wingIndexAt(layout, 3)).toBe(LOBBY_INDEX);
   });
 
   it("finds the wing the visitor is standing in", () => {
@@ -132,6 +185,26 @@ describe("wingIndexAt", () => {
   it("stays in the wing being left while crossing the gap to the next", () => {
     const gapZ = (layout.wings[0].zEnd + layout.wings[1].zStart) / 2;
     expect(wingIndexAt(layout, gapZ)).toBe(0);
+  });
+});
+
+describe("wingIndexAt with a New Acquisitions stage", () => {
+  const layout = layoutFor([garment(undefined, "flagship"), garment(undefined, "flagship")]);
+  const stage = layout.stage!;
+
+  it("is STAGE_INDEX on the stage and LOBBY_INDEX before it", () => {
+    expect(wingIndexAt(layout, (stage.zStart + stage.zEnd) / 2)).toBe(STAGE_INDEX);
+    expect(wingIndexAt(layout, 3)).toBe(LOBBY_INDEX);
+  });
+
+  it("stays on the stage while crossing the gap to Wing I", () => {
+    expect(wingIndexAt(layout, (stage.zEnd + layout.wings[0].zStart) / 2)).toBe(STAGE_INDEX);
+  });
+
+  it("finds each wing after the stage", () => {
+    for (const w of layout.wings) {
+      expect(wingIndexAt(layout, (w.zStart + w.zEnd) / 2)).toBe(w.index);
+    }
   });
 });
 
