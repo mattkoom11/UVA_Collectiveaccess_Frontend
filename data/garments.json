@@ -158,5 +158,41 @@
     "collection": "Demo",
     "accessionNumber": "DR.2026.118",
     "description": "RealityScan photogrammetry export (2026-10-12), decimated directly from the dense textured scan to 100k faces with RealityScan's own UVs and 4K texture via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. Z-up export, so a -90 deg rotation about X was applied. Ninth garment in the pilot dataset (features.csv). The skirt fabric is textureless at the pixel level, so its surface is noisier than the bodice; a projected-pattern reshoot is planned. Not yet in the collection spreadsheet, so era is the demo placeholder. model3d_rotationY set to 180 on 2026-10-12 from headless Blender renders at 0/90/180/270 (front visible at 180); then corrected to 135 (45 deg clockwise from a top-down/turntable view, per Matthew) the same day."
+  },
+  {
+    "id": "dr-2025-432",
+    "slug": "dr-2025-432",
+    "label": "DR.2025.432 (3D Scan Demo)",
+    "name": "DR.2025.432",
+    "era": "1980+",
+    "type": "dress",
+    "work_type": "Dress",
+    "colors": [],
+    "materials": [],
+    "images": [],
+    "model3d_url": "/models/dr-2025-432.glb",
+    "featuredOnRunway": true,
+    "model3d_rotationY": 0,
+    "collection": "Demo",
+    "accessionNumber": "DR.2025.432",
+    "description": "RealityScan photogrammetry export (2026-10-19), decimated directly from the dense textured scan (2.5M vertices to 100k faces, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. Z-up export, so a -90 deg rotation about X was applied. Tenth garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py). Not yet in the collection spreadsheet, so era is the demo placeholder. model3d_rotationY set to 0 on 2026-10-19 from headless Blender renders at 45 deg steps (front visible at 0)."
+  },
+  {
+    "id": "dr-2025-433",
+    "slug": "dr-2025-433",
+    "label": "DR.2025.433 (3D Scan Demo)",
+    "name": "DR.2025.433",
+    "era": "1980+",
+    "type": "dress",
+    "work_type": "Dress",
+    "colors": [],
+    "materials": [],
+    "images": [],
+    "model3d_url": "/models/dr-2025-433.glb",
+    "featuredOnRunway": true,
+    "model3d_rotationY": 0,
+    "collection": "Demo",
+    "accessionNumber": "DR.2025.433",
+    "description": "RealityScan photogrammetry export (2026-10-19), decimated directly from the dense textured scan (2.5M vertices to 100k faces, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. Z-up export, so a -90 deg rotation about X was applied. Eleventh garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py). Not yet in the collection spreadsheet, so era is the demo placeholder. model3d_rotationY set to 0 on 2026-10-19 from headless Blender renders at 45 deg steps (front visible at 0)."
   }
 ]
