@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint --max-warnings=0",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "optimize-models": "scripts/optimize-models.sh"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

@@ -268,6 +268,7 @@ npm run dev      # http://localhost:3000
 npm run build
 npm run start
 npm run lint
+npm run optimize-models   # meshopt-compress new GLBs in public/models (textures untouched)
 ```
 
 ---

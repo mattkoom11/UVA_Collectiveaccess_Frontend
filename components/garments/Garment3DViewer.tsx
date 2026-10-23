@@ -14,6 +14,8 @@ import LightDial from "./LightDial";
 import { initialLightState, type ConservatorLightState } from "@/lib/conservatorLight";
 import { ensureSmoothNormals } from "@/lib/meshNormals";
 import { setSurfaceOnly, type MaterialStore } from "@/lib/surfaceMaterial";
+import { getSegmentKey } from "@/lib/museum";
+import RunwayStage from "@/components/museum/RunwayStage";
 
 interface Props {
   modelUrl?: string;
@@ -117,20 +119,6 @@ function PlaceholderModel({ garment }: { garment?: Garment }) {
   return <DemoGarment position={[0, 0, 0]} rotation={false} color={garmentColor} scale={1.2} />;
 }
 
-// Soft, even gallery-style lighting rather than moody spotlights
-function GalleryLighting() {
-  return (
-    <>
-      <ambientLight intensity={0.9} />
-      <spotLight position={[5, 5, 5]} angle={0.6} penumbra={0.8} intensity={0.7} color="#fff8ec" castShadow />
-      <spotLight position={[-5, 5, -5]} angle={0.6} penumbra={0.8} intensity={0.5} color="#fff8ec" castShadow />
-      <pointLight position={[-5, 3, -5]} intensity={0.3} color="#fffaf0" />
-      <pointLight position={[5, 3, -5]} intensity={0.3} color="#fffaf0" />
-      <pointLight position={[0, 8, 0]} intensity={0.25} color="#fffaf0" />
-    </>
-  );
-}
-
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 function subscribeReducedMotion(onChange: () => void) {
@@ -174,8 +162,8 @@ export default function Garment3DViewer({ modelUrl, garmentId, garment }: Props)
 
   return (
     <div
-      className={`w-full h-[600px] md:h-[800px] lg:h-[900px] overflow-hidden border border-stone-300 shadow-2xl relative transition-colors duration-500 ${
-        conservator ? "bg-neutral-950" : "bg-gradient-to-b from-stone-200 via-stone-100 to-stone-200"
+      className={`w-full h-[600px] md:h-[800px] lg:h-[900px] overflow-hidden border border-archive-border shadow-2xl relative transition-colors duration-500 ${
+        conservator ? "bg-neutral-950" : "bg-[#0b0b0c]"
       }`}
     >
       <Canvas shadows>
@@ -192,17 +180,14 @@ export default function Garment3DViewer({ modelUrl, garmentId, garment }: Props)
           dampingFactor={0.05}
         />
 
-        {conservator ? (
-          <ConservatorLighting stateRef={lightState} reducedMotion={reducedMotion} />
-        ) : (
-          <GalleryLighting />
-        )}
+        {conservator && <ConservatorLighting stateRef={lightState} reducedMotion={reducedMotion} />}
 
-        {/* Ground plane — light gallery-floor tone instead of a dark stage */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]} receiveShadow>
-          <planeGeometry args={[20, 20]} />
-          <meshStandardMaterial color="#d8d2c4" roughness={0.9} />
-        </mesh>
+        {/* The runway's look, lit in the garment's segment colors */}
+        <RunwayStage
+          segment={garment ? getSegmentKey(garment) : "acquisitions"}
+          groundY={GROUND_Y}
+          lit={!conservator}
+        />
 
         {/* Model */}
         <Suspense fallback={<LoadingModel />}>

@@ -23,9 +23,9 @@ const RUNWAY_START_Z = 0.5;
 const FILL_INTENSITY = 10;
 // The low quality tier drops environment reflections, and with them the
 // gloss: without an environment map, metalness only darkens a surface.
-const GLOSSY_RUNWAY = { roughness: 0.22, metalness: 0.25 };
-const GLOSSY_FLOOR = { roughness: 0.32, metalness: 0.2 };
-const MATTE = { roughness: 0.75, metalness: 0 };
+export const GLOSSY_RUNWAY = { roughness: 0.22, metalness: 0.25 };
+export const GLOSSY_FLOOR = { roughness: 0.32, metalness: 0.2 };
+export const MATTE = { roughness: 0.75, metalness: 0 };
 
 // The overhead grid of stage lights: small discs glowing faintly on the dark
 // ceiling, drawn as one instanced mesh so hundreds cost a single draw call.

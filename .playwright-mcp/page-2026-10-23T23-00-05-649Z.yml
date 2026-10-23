@@ -1,0 +1,209 @@
+- generic [active] [ref=f2e1]:
+  - link "Skip to main content" [ref=f2e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f2e3]:
+    - banner [ref=f2e4]:
+      - generic [ref=f2e5]:
+        - generic [ref=f2e6]:
+          - link "UVA Fashion Archive" [ref=f2e7] [cursor=pointer]:
+            - /url: /
+          - navigation [ref=f2e8]:
+            - link "Home" [ref=f2e9] [cursor=pointer]:
+              - /url: /
+            - link "Collection" [ref=f2e10] [cursor=pointer]:
+              - /url: /collection
+            - link "Timeline" [ref=f2e11] [cursor=pointer]:
+              - /url: /timeline
+            - link "Favorites" [ref=f2e12] [cursor=pointer]:
+              - /url: /favorites
+            - link "Exhibitions" [ref=f2e13] [cursor=pointer]:
+              - /url: /exhibitions
+            - link "Learn" [ref=f2e14] [cursor=pointer]:
+              - /url: /learn
+            - link "About" [ref=f2e15] [cursor=pointer]:
+              - /url: /about
+        - generic [ref=f2e18]:
+          - textbox "Search garments… (press / to focus)" [ref=f2e19]
+          - button "Search" [ref=f2e20]
+    - navigation [ref=f2e23]:
+      - generic [ref=f2e25]:
+        - link "Home" [ref=f2e27] [cursor=pointer]:
+          - /url: /
+        - link "Admin" [ref=f2e31] [cursor=pointer]:
+          - /url: /admin
+        - link "Orientation" [ref=f2e35] [cursor=pointer]:
+          - /url: /admin/orientation
+    - main [ref=f2e36]:
+      - generic [ref=f2e37]:
+        - button "Sign out" [ref=f2e78]
+        - generic [ref=f2e80]:
+          - link "Admin" [ref=f2e81] [cursor=pointer]:
+            - /url: /admin
+          - generic [ref=f2e84]:
+            - heading "Garment Orientation" [level=1] [ref=f2e85]
+            - paragraph [ref=f2e86]: 12 of 13 reviewed. Unreviewed garments stay off the runway.
+          - generic [ref=f2e87]:
+            - list [ref=f2e88]:
+              - listitem [ref=f2e89]:
+                - button "Reviewed Test Dress 0 demo-testdress0 135°" [ref=f2e90]:
+                  - img "Reviewed" [ref=f2e91]
+                  - generic [ref=f2e93]:
+                    - generic [ref=f2e94]: Test Dress 0
+                    - generic [ref=f2e95]: demo-testdress0
+                  - generic [ref=f2e96]: 135°
+              - listitem [ref=f2e97]:
+                - button "Reviewed OTW.2023.780 demo-testdress1 5°" [ref=f2e98]:
+                  - img "Reviewed" [ref=f2e99]
+                  - generic [ref=f2e101]:
+                    - generic [ref=f2e102]: OTW.2023.780
+                    - generic [ref=f2e103]: demo-testdress1
+                  - generic [ref=f2e104]: 5°
+              - listitem [ref=f2e105]:
+                - button "Reviewed ENS.2023.8029 demo-testdress2 -135°" [ref=f2e106]:
+                  - img "Reviewed" [ref=f2e107]
+                  - generic [ref=f2e109]:
+                    - generic [ref=f2e110]: ENS.2023.8029
+                    - generic [ref=f2e111]: demo-testdress2
+                  - generic [ref=f2e112]: "-135°"
+              - listitem [ref=f2e113]:
+                - button "Reviewed OTW.2025.243 demo-testdress3 -80°" [ref=f2e114]:
+                  - img "Reviewed" [ref=f2e115]
+                  - generic [ref=f2e117]:
+                    - generic [ref=f2e118]: OTW.2025.243
+                    - generic [ref=f2e119]: demo-testdress3
+                  - generic [ref=f2e120]: "-80°"
+              - listitem [ref=f2e121]:
+                - button "Reviewed BD.2026.125 bd-2026-125 180°" [ref=f2e122]:
+                  - img "Reviewed" [ref=f2e123]
+                  - generic [ref=f2e125]:
+                    - generic [ref=f2e126]: BD.2026.125
+                    - generic [ref=f2e127]: bd-2026-125
+                  - generic [ref=f2e128]: 180°
+              - listitem [ref=f2e129]:
+                - button "Reviewed DR.2023.17 dr-2023-17 -5°" [ref=f2e130]:
+                  - img "Reviewed" [ref=f2e131]
+                  - generic [ref=f2e133]:
+                    - generic [ref=f2e134]: DR.2023.17
+                    - generic [ref=f2e135]: dr-2023-17
+                  - generic [ref=f2e136]: "-5°"
+              - listitem [ref=f2e137]:
+                - button "Reviewed DR.2023.323 dr-2023-323 -105°" [ref=f2e138]:
+                  - img "Reviewed" [ref=f2e139]
+                  - generic [ref=f2e141]:
+                    - generic [ref=f2e142]: DR.2023.323
+                    - generic [ref=f2e143]: dr-2023-323
+                  - generic [ref=f2e144]: "-105°"
+              - listitem [ref=f2e145]:
+                - button "Reviewed ENS.2023.14 ens-2023-14 -155°" [ref=f2e146]:
+                  - img "Reviewed" [ref=f2e147]
+                  - generic [ref=f2e149]:
+                    - generic [ref=f2e150]: ENS.2023.14
+                    - generic [ref=f2e151]: ens-2023-14
+                  - generic [ref=f2e152]: "-155°"
+              - listitem [ref=f2e153]:
+                - button "Reviewed DR.2026.118 dr-2026-118 140°" [ref=f2e154]:
+                  - img "Reviewed" [ref=f2e155]
+                  - generic [ref=f2e157]:
+                    - generic [ref=f2e158]: DR.2026.118
+                    - generic [ref=f2e159]: dr-2026-118
+                  - generic [ref=f2e160]: 140°
+              - listitem [ref=f2e161]:
+                - button "Reviewed DR.2025.432 dr-2025-432 40°" [ref=f2e162]:
+                  - img "Reviewed" [ref=f2e163]
+                  - generic [ref=f2e165]:
+                    - generic [ref=f2e166]: DR.2025.432
+                    - generic [ref=f2e167]: dr-2025-432
+                  - generic [ref=f2e168]: 40°
+              - listitem [ref=f2e169]:
+                - button "Reviewed DR.2025.433 dr-2025-433 -20°" [ref=f2e170]:
+                  - img "Reviewed" [ref=f2e171]
+                  - generic [ref=f2e173]:
+                    - generic [ref=f2e174]: DR.2025.433
+                    - generic [ref=f2e175]: dr-2025-433
+                  - generic [ref=f2e176]: "-20°"
+              - listitem [ref=f2e177]:
+                - button "Reviewed ENS.2026.124 ens-2026-124 35°" [ref=f2e178]:
+                  - img "Reviewed" [ref=f2e179]
+                  - generic [ref=f2e181]:
+                    - generic [ref=f2e182]: ENS.2026.124
+                    - generic [ref=f2e183]: ens-2026-124
+                  - generic [ref=f2e184]: 35°
+              - listitem [ref=f2e185]:
+                - button "Not reviewed DR.2025.443 dr-2025-443 0°" [ref=f2e186]:
+                  - img "Not reviewed" [ref=f2e187]
+                  - generic [ref=f2e189]:
+                    - generic [ref=f2e190]: DR.2025.443
+                    - generic [ref=f2e191]: dr-2025-443
+                  - generic [ref=f2e192]: 0°
+            - generic [ref=f2e193]:
+              - generic [ref=f2e194]:
+                - heading "DR.2025.443" [level=2] [ref=f2e195]
+                - paragraph [ref=f2e196]: Not reviewed · stored 0° → draft 0°
+              - generic [ref=f2e197]:
+                - figure "Front (6:00) yaw 0°" [ref=f2e198]:
+                  - generic [ref=f2e203]:
+                    - generic [ref=f2e204]: Front (6:00)
+                    - generic [ref=f2e205]: yaw 0°
+                - figure "Runway (4:30) yaw 45°" [ref=f2e206]:
+                  - generic [ref=f2e211]:
+                    - generic [ref=f2e212]: Runway (4:30)
+                    - generic [ref=f2e213]: yaw 45°
+                - figure "Item page (7:30) yaw -45°" [ref=f2e214]:
+                  - generic [ref=f2e219]:
+                    - generic [ref=f2e220]: Item page (7:30)
+                    - generic [ref=f2e221]: yaw -45°
+              - paragraph [ref=f2e222]: "The camera stands where the visitor does. The gold line marks where the front should face: straight at the camera in the front view, toward its right on the runway, its left on the item page."
+              - generic [ref=f2e223]:
+                - button "−45°" [ref=f2e224]
+                - button "−5°" [ref=f2e225]
+                - button "+5°" [ref=f2e226]
+                - button "+45°" [ref=f2e227]
+                - button "Reset" [disabled] [ref=f2e228]
+                - button "Approve" [ref=f2e232]
+    - contentinfo [ref=f2e40]:
+      - generic [ref=f2e41]:
+        - generic [ref=f2e42]:
+          - generic [ref=f2e43]:
+            - generic [ref=f2e44]: The Archive
+            - paragraph [ref=f2e45]: A curated collection of historic garments from the University of Virginia.
+          - navigation "Explore" [ref=f2e46]:
+            - heading "Explore" [level=4] [ref=f2e47]
+            - link "Collection" [ref=f2e48] [cursor=pointer]:
+              - /url: /collection
+            - link "Timeline" [ref=f2e49] [cursor=pointer]:
+              - /url: /timeline
+            - link "Exhibitions" [ref=f2e50] [cursor=pointer]:
+              - /url: /exhibitions
+            - link "Statistics" [ref=f2e51] [cursor=pointer]:
+              - /url: /statistics
+          - navigation "About" [ref=f2e52]:
+            - heading "About" [level=4] [ref=f2e53]
+            - link "About" [ref=f2e54] [cursor=pointer]:
+              - /url: /learn
+            - link "Contact" [ref=f2e55] [cursor=pointer]:
+              - /url: /learn#contact
+            - link "Credits" [ref=f2e56] [cursor=pointer]:
+              - /url: /learn#credits
+            - link "Accessibility" [ref=f2e57] [cursor=pointer]:
+              - /url: "#"
+        - generic [ref=f2e58]:
+          - generic [ref=f2e59]: UVA Historic Clothing Collection
+          - generic [ref=f2e60]: © 2026 University of Virginia
+    - generic [ref=f2e236]:
+      - generic [ref=f2e237]:
+        - generic [ref=f2e242]:
+          - heading "Install UVA Fashion Archive" [level=3] [ref=f2e243]
+          - paragraph [ref=f2e244]: Add to your home screen for quick access
+        - button "Dismiss" [ref=f2e245]
+      - generic [ref=f2e249]:
+        - button "Install" [ref=f2e250]
+        - button "Not now" [ref=f2e251]
+    - button "Accessibility settings" [ref=f2e62]
+  - button "Open Next.js Dev Tools" [ref=f2e252] [cursor=pointer]:
+    - generic [ref=f2e255]:
+      - text: Compiling
+      - generic [ref=f2e256]:
+        - generic [ref=f2e257]: .
+        - generic [ref=f2e258]: .
+        - generic [ref=f2e259]: .
+  - alert [ref=f2e260]

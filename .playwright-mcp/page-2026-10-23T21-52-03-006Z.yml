@@ -1,0 +1,64 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - link "UVA Fashion Archive" [ref=e7] [cursor=pointer]:
+            - /url: /
+          - navigation [ref=e8]:
+            - link "Home" [ref=e9] [cursor=pointer]:
+              - /url: /
+            - link "Collection" [ref=e10] [cursor=pointer]:
+              - /url: /collection
+            - link "Timeline" [ref=e11] [cursor=pointer]:
+              - /url: /timeline
+            - link "Favorites" [ref=e12] [cursor=pointer]:
+              - /url: /favorites
+            - link "Exhibitions" [ref=e13] [cursor=pointer]:
+              - /url: /exhibitions
+            - link "Learn" [ref=e14] [cursor=pointer]:
+              - /url: /learn
+            - link "About" [ref=e15] [cursor=pointer]:
+              - /url: /about
+        - generic [ref=e18]:
+          - textbox "Search garments… (press / to focus)" [ref=e19]
+          - button "Search" [ref=e20]
+    - navigation [ref=e23]:
+      - generic [ref=e25]:
+        - link "Home" [ref=e27] [cursor=pointer]:
+          - /url: /
+        - link "Compare" [ref=e31] [cursor=pointer]:
+          - /url: /compare
+    - main [ref=e32]
+    - contentinfo [ref=e80]:
+      - generic [ref=e81]:
+        - generic [ref=e82]:
+          - generic [ref=e83]:
+            - generic [ref=e84]: The Archive
+            - paragraph [ref=e85]: A curated collection of historic garments from the University of Virginia.
+          - navigation "Explore" [ref=e86]:
+            - heading "Explore" [level=4] [ref=e87]
+            - link "Collection" [ref=e88] [cursor=pointer]:
+              - /url: /collection
+            - link "Timeline" [ref=e89] [cursor=pointer]:
+              - /url: /timeline
+            - link "Exhibitions" [ref=e90] [cursor=pointer]:
+              - /url: /exhibitions
+            - link "Statistics" [ref=e91] [cursor=pointer]:
+              - /url: /statistics
+          - navigation "About" [ref=e92]:
+            - heading "About" [level=4] [ref=e93]
+            - link "About" [ref=e94] [cursor=pointer]:
+              - /url: /learn
+            - link "Contact" [ref=e95] [cursor=pointer]:
+              - /url: /learn#contact
+            - link "Credits" [ref=e96] [cursor=pointer]:
+              - /url: /learn#credits
+            - link "Accessibility" [ref=e97] [cursor=pointer]:
+              - /url: "#"
+        - generic [ref=e98]:
+          - generic [ref=e99]: UVA Historic Clothing Collection
+          - generic [ref=e100]: © 2026 University of Virginia
+    - button "Accessibility settings" [ref=e102]
