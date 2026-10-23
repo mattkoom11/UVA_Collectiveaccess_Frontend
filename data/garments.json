@@ -183,5 +183,22 @@
     "collection": "Demo",
     "accessionNumber": "DR.2025.433",
     "description": "RealityScan photogrammetry export (2026-10-19), decimated directly from the dense textured scan (2.5M vertices to 100k faces, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. Z-up export, so a -90 deg rotation about X was applied. Eleventh garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py). Not yet in the collection spreadsheet, so era is the demo placeholder. model3d_rotationY set to 0 on 2026-10-19 from headless Blender renders at 45 deg steps (front visible at 0)."
+  },
+  {
+    "id": "ens-2026-124",
+    "slug": "ens-2026-124",
+    "label": "ENS.2026.124 (3D Scan Demo)",
+    "name": "ENS.2026.124",
+    "type": "ensemble",
+    "work_type": "Ensemble",
+    "colors": [],
+    "materials": [],
+    "images": [],
+    "model3d_url": "/models/ens-2026-124.glb",
+    "featuredOnRunway": true,
+    "model3d_rotationY": 45,
+    "collection": "Demo",
+    "accessionNumber": "ENS.2026.124",
+    "description": "RealityScan photogrammetry export (2026-10-23), decimated directly from the dense textured scan (2.5M vertices to 100k faces, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. Z-up export, so a -90 deg rotation about X was applied. Twelfth garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py); one component, watertight, no weld needed. Not yet in the collection spreadsheet. model3d_rotationY set to 45 on 2026-10-23 from headless Blender renders at 45 deg steps, calibrated against DR.2026.118's confirmed 135."
   }
 ]
