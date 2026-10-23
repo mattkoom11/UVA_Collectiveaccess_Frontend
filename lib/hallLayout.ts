@@ -121,8 +121,10 @@ function placeFlagships(flagships: Garment[], zStart: number, length: number, pl
     return {
       garment,
       position: [0, platformHeight, z],
-      // Model fronts face +z; turn them to face the aisle (+x).
-      rotationY: Math.PI / 2,
+      // Model fronts face +z; turn them halfway to the aisle (+x), so with the
+      // visitor's walking direction (-z) at 12:00 they face 4:30: angled
+      // toward the aisle and back toward the approaching visitor.
+      rotationY: Math.PI / 4,
       inspect: {
         position: [AISLE_MIN_X + 0.4, platformHeight + 1.25, z],
         target: [0, platformHeight + FLAGSHIP_HEIGHT / 2, z],

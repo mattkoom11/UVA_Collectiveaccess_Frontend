@@ -89,7 +89,7 @@ describe("buildHallLayout", () => {
     });
   });
 
-  it("stands flagships on the runway, facing the aisle, spread along the wing", () => {
+  it("stands flagships on the runway, facing 4:30 toward the aisle, spread along the wing", () => {
     const { wings } = layoutFor([garment("1920-1950", "flagship"), garment("1920-1950", "flagship")]);
     const wing = wings[1];
     expect(wing.flagshipSlots).toHaveLength(2);
@@ -98,7 +98,7 @@ describe("buildHallLayout", () => {
       expect(slot.position[1]).toBe(wing.platformHeight);
       expect(slot.position[2]).toBeLessThan(wing.zStart);
       expect(slot.position[2]).toBeGreaterThan(wing.zEnd);
-      expect(slot.rotationY).toBeCloseTo(Math.PI / 2);
+      expect(slot.rotationY).toBeCloseTo(Math.PI / 4);
     }
     const [a, b] = wing.flagshipSlots;
     expect(a.position[2]).toBeGreaterThan(b.position[2]);
