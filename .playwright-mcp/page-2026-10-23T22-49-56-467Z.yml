@@ -1,0 +1,187 @@
+- generic [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - link "UVA Fashion Archive" [ref=e7] [cursor=pointer]:
+            - /url: /
+          - navigation [ref=e8]:
+            - link "Home" [ref=e9] [cursor=pointer]:
+              - /url: /
+            - link "Collection" [ref=e10] [cursor=pointer]:
+              - /url: /collection
+            - link "Timeline" [ref=e11] [cursor=pointer]:
+              - /url: /timeline
+            - link "Favorites" [ref=e12] [cursor=pointer]:
+              - /url: /favorites
+            - link "Exhibitions" [ref=e13] [cursor=pointer]:
+              - /url: /exhibitions
+            - link "Learn" [ref=e14] [cursor=pointer]:
+              - /url: /learn
+            - link "About" [ref=e15] [cursor=pointer]:
+              - /url: /about
+        - generic [ref=e18]:
+          - textbox "Search garments… (press / to focus)" [ref=e19]
+          - button "Search" [ref=e20]
+    - navigation [ref=e23]:
+      - generic [ref=e25]:
+        - link "Home" [ref=e27] [cursor=pointer]:
+          - /url: /
+        - link "Admin" [ref=e31] [cursor=pointer]:
+          - /url: /admin
+        - link "Orientation" [ref=e35] [cursor=pointer]:
+          - /url: /admin/orientation
+    - main [ref=e36]:
+      - generic [ref=e37]:
+        - button "Sign out" [ref=e79]
+        - generic [ref=e81]:
+          - link "Admin" [ref=e82] [cursor=pointer]:
+            - /url: /admin
+          - generic [ref=e85]:
+            - heading "Garment Orientation" [level=1] [ref=e86]
+            - paragraph [ref=e87]: 0 of 12 reviewed. Unreviewed garments stay off the runway.
+          - generic [ref=e88]:
+            - list [ref=e89]:
+              - listitem [ref=e90]:
+                - button "Not reviewed Test Dress 0 (3D Scan Demo) demo-testdress0 135°" [ref=e91]:
+                  - img "Not reviewed" [ref=e92]
+                  - generic [ref=e94]:
+                    - generic [ref=e95]: Test Dress 0 (3D Scan Demo)
+                    - generic [ref=e96]: demo-testdress0
+                  - generic [ref=e97]: 135°
+              - listitem [ref=e98]:
+                - button "Not reviewed Test Dress 1 (3D Scan Demo) demo-testdress1 0°" [ref=e99]:
+                  - img "Not reviewed" [ref=e100]
+                  - generic [ref=e102]:
+                    - generic [ref=e103]: Test Dress 1 (3D Scan Demo)
+                    - generic [ref=e104]: demo-testdress1
+                  - generic [ref=e105]: 0°
+              - listitem [ref=e106]:
+                - button "Not reviewed Test Dress 2 (3D Scan Demo) demo-testdress2 225°" [ref=e107]:
+                  - img "Not reviewed" [ref=e108]
+                  - generic [ref=e110]:
+                    - generic [ref=e111]: Test Dress 2 (3D Scan Demo)
+                    - generic [ref=e112]: demo-testdress2
+                  - generic [ref=e113]: 225°
+              - listitem [ref=e114]:
+                - button "Not reviewed Test Dress 3 (3D Scan Demo) demo-testdress3 270°" [ref=e115]:
+                  - img "Not reviewed" [ref=e116]
+                  - generic [ref=e118]:
+                    - generic [ref=e119]: Test Dress 3 (3D Scan Demo)
+                    - generic [ref=e120]: demo-testdress3
+                  - generic [ref=e121]: 270°
+              - listitem [ref=e122]:
+                - button "Not reviewed BD.2026.125 (3D Scan Demo) bd-2026-125 180°" [ref=e123]:
+                  - img "Not reviewed" [ref=e124]
+                  - generic [ref=e126]:
+                    - generic [ref=e127]: BD.2026.125 (3D Scan Demo)
+                    - generic [ref=e128]: bd-2026-125
+                  - generic [ref=e129]: 180°
+              - listitem [ref=e130]:
+                - button "Not reviewed DR.2023.17 (3D Scan Demo) dr-2023-17 0°" [ref=e131]:
+                  - img "Not reviewed" [ref=e132]
+                  - generic [ref=e134]:
+                    - generic [ref=e135]: DR.2023.17 (3D Scan Demo)
+                    - generic [ref=e136]: dr-2023-17
+                  - generic [ref=e137]: 0°
+              - listitem [ref=e138]:
+                - button "Not reviewed DR.2023.323 (3D Scan Demo) dr-2023-323 -90°" [ref=e139]:
+                  - img "Not reviewed" [ref=e140]
+                  - generic [ref=e142]:
+                    - generic [ref=e143]: DR.2023.323 (3D Scan Demo)
+                    - generic [ref=e144]: dr-2023-323
+                  - generic [ref=e145]: "-90°"
+              - listitem [ref=e146]:
+                - button "Not reviewed ENS.2023.14 (3D Scan Demo) ens-2023-14 180°" [ref=e147]:
+                  - img "Not reviewed" [ref=e148]
+                  - generic [ref=e150]:
+                    - generic [ref=e151]: ENS.2023.14 (3D Scan Demo)
+                    - generic [ref=e152]: ens-2023-14
+                  - generic [ref=e153]: 180°
+              - listitem [ref=e154]:
+                - button "Not reviewed DR.2026.118 (3D Scan Demo) dr-2026-118 135°" [ref=e155]:
+                  - img "Not reviewed" [ref=e156]
+                  - generic [ref=e158]:
+                    - generic [ref=e159]: DR.2026.118 (3D Scan Demo)
+                    - generic [ref=e160]: dr-2026-118
+                  - generic [ref=e161]: 135°
+              - listitem [ref=e162]:
+                - button "Not reviewed DR.2025.432 (3D Scan Demo) dr-2025-432 0°" [ref=e163]:
+                  - img "Not reviewed" [ref=e164]
+                  - generic [ref=e166]:
+                    - generic [ref=e167]: DR.2025.432 (3D Scan Demo)
+                    - generic [ref=e168]: dr-2025-432
+                  - generic [ref=e169]: 0°
+              - listitem [ref=e170]:
+                - button "Not reviewed DR.2025.433 (3D Scan Demo) dr-2025-433 0°" [ref=e171]:
+                  - img "Not reviewed" [ref=e172]
+                  - generic [ref=e174]:
+                    - generic [ref=e175]: DR.2025.433 (3D Scan Demo)
+                    - generic [ref=e176]: dr-2025-433
+                  - generic [ref=e177]: 0°
+              - listitem [ref=e178]:
+                - button "Not reviewed ENS.2026.124 (3D Scan Demo) ens-2026-124 45°" [ref=e179]:
+                  - img "Not reviewed" [ref=e180]
+                  - generic [ref=e182]:
+                    - generic [ref=e183]: ENS.2026.124 (3D Scan Demo)
+                    - generic [ref=e184]: ens-2026-124
+                  - generic [ref=e185]: 45°
+            - generic [ref=e186]:
+              - generic [ref=e187]:
+                - heading "DR.2026.118 (3D Scan Demo)" [level=2] [ref=e188]
+                - paragraph [ref=e189]: Not reviewed · stored 135° → draft 135°
+              - generic [ref=e190]:
+                - figure "Front (6:00) yaw 135°" [ref=e220]:
+                  - generic [ref=e196]:
+                    - generic [ref=e197]: Front (6:00)
+                    - generic [ref=e198]: yaw 135°
+                - figure "Runway (4:30) yaw 180°" [ref=e221]:
+                  - generic [ref=e204]:
+                    - generic [ref=e205]: Runway (4:30)
+                    - generic [ref=e206]: yaw 180°
+                - figure "Item page (7:30) yaw 90°" [ref=e222]:
+                  - generic [ref=e227]:
+                    - generic [ref=e228]: Item page (7:30)
+                    - generic [ref=e229]: yaw 90°
+              - paragraph [ref=e207]: "The camera stands where the visitor does. The gold line marks where the front should face: straight at the camera in the front view, toward its right on the runway, its left on the item page."
+              - generic [ref=e208]:
+                - button "−45°" [ref=e209]
+                - button "−5°" [ref=e210]
+                - button "+5°" [active] [ref=e211]
+                - button "+45°" [ref=e212]
+                - button "Reset" [disabled] [ref=e213]
+                - button "Approve" [ref=e217]
+    - contentinfo [ref=e40]:
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - generic [ref=e44]: The Archive
+            - paragraph [ref=e45]: A curated collection of historic garments from the University of Virginia.
+          - navigation "Explore" [ref=e46]:
+            - heading "Explore" [level=4] [ref=e47]
+            - link "Collection" [ref=e48] [cursor=pointer]:
+              - /url: /collection
+            - link "Timeline" [ref=e49] [cursor=pointer]:
+              - /url: /timeline
+            - link "Exhibitions" [ref=e50] [cursor=pointer]:
+              - /url: /exhibitions
+            - link "Statistics" [ref=e51] [cursor=pointer]:
+              - /url: /statistics
+          - navigation "About" [ref=e52]:
+            - heading "About" [level=4] [ref=e53]
+            - link "About" [ref=e54] [cursor=pointer]:
+              - /url: /learn
+            - link "Contact" [ref=e55] [cursor=pointer]:
+              - /url: /learn#contact
+            - link "Credits" [ref=e56] [cursor=pointer]:
+              - /url: /learn#credits
+            - link "Accessibility" [ref=e57] [cursor=pointer]:
+              - /url: "#"
+        - generic [ref=e58]:
+          - generic [ref=e59]: UVA Historic Clothing Collection
+          - generic [ref=e60]: © 2026 University of Virginia
+    - button "Accessibility settings" [ref=e62]
+  - button "Open Next.js Dev Tools" [ref=e74] [cursor=pointer]
+  - alert [ref=e78]

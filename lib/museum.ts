@@ -1,4 +1,5 @@
 import { type Era, type Garment, type GarmentModel, getEraFromDecade } from "@/types/garment";
+import type { SegmentKey } from "@/lib/hallLighting";
 
 export interface WingDefinition {
   era: Era;
@@ -54,9 +55,15 @@ export function getDetailModelUrl(garment: Garment): string | undefined {
  * A flagship stands on the runway: a curator marked it featured_on_runway in
  * CollectiveAccess, and it has a 3D file the site can load. A flagged record
  * with no usable file stays off the runway rather than leaving an empty spot.
+ * A static garment whose orientation hasn't been approved yet
+ * (orientationReviewed: false) also stays off, so it never faces the wrong way.
  */
 export function isFlagship(garment: Garment): boolean {
-  return garment.featuredOnRunway === true && getPreviewModelUrl(garment) !== undefined;
+  return (
+    garment.featuredOnRunway === true &&
+    garment.orientationReviewed !== false &&
+    getPreviewModelUrl(garment) !== undefined
+  );
 }
 
 function hasPhoto(garment: Garment): boolean {
@@ -65,6 +72,11 @@ function hasPhoto(garment: Garment): boolean {
 
 function getEra(garment: Garment): Era | undefined {
   return getEraFromDecade(garment.decade, garment.yearApprox, garment.date, garment.era);
+}
+
+/** The runway segment a garment belongs to: its era's wing, or New Acquisitions while undated. */
+export function getSegmentKey(garment: Garment): SegmentKey {
+  return getEra(garment) ?? "acquisitions";
 }
 
 /** Best-known year of manufacture, used to order garments within a wing. */

@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Garment } from "@/types/garment";
-import { getGarmentById } from "@/lib/garments";
+import { getPreviewModelUrl } from "@/lib/museum";
 import Link from "next/link";
 import { X, Plus, Download, FileText, FileSpreadsheet, File, GitCompare } from "lucide-react";
 import EmptyState from "./EmptyState";
@@ -24,12 +24,15 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
     return ids ? ids.split(",").filter(Boolean) : [];
   });
 
+  // Resolve from the server-provided list: in the browser, lib/garments only
+  // sees the static JSON, not the CA cache that carries the 3D model files.
   const compareGarments = useMemo(() => {
+    const byId = new Map(allGarments.map((g) => [g.id, g]));
     return compareIds
-      .map((id) => getGarmentById(id))
+      .map((id) => byId.get(id))
       .filter((g): g is Garment => g !== undefined)
       .slice(0, 4); // Max 4 garments
-  }, [compareIds]);
+  }, [allGarments, compareIds]);
 
   // Update URL when compareIds change
   useEffect(() => {
@@ -289,7 +292,11 @@ export default function ComparePageClient({ allGarments }: ComparePageClientProp
                               </div>
                             }
                           >
-                            <Garment3DViewer garment={garment} />
+                            <Garment3DViewer
+                              garment={garment}
+                              garmentId={garment.id}
+                              modelUrl={getPreviewModelUrl(garment)}
+                            />
                           </ErrorBoundary>
                         </div>
                       </td>

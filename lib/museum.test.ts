@@ -5,6 +5,7 @@ import {
   getDetailModelUrl,
   getGarmentYear,
   getPreviewModelUrl,
+  getSegmentKey,
   isFlagship,
 } from "./museum";
 import type { Garment } from "@/types/garment";
@@ -79,12 +80,29 @@ describe("isFlagship", () => {
     expect(isFlagship(makeGarment(MODEL))).toBe(false);
   });
 
+  it("keeps an unreviewed orientation off the runway; garments without the flag are unaffected", () => {
+    expect(isFlagship(makeGarment({ featuredOnRunway: true, orientationReviewed: false, ...MODEL }))).toBe(false);
+    expect(isFlagship(makeGarment({ featuredOnRunway: true, orientationReviewed: true, ...MODEL }))).toBe(true);
+    expect(isFlagship(makeGarment({ featuredOnRunway: true, ...MODEL }))).toBe(true);
+  });
+
   it("does not count an archival master as loadable", () => {
     const g = makeGarment({
       featuredOnRunway: true,
       models: [{ url: "https://x/master.glb", role: "archival_master" }],
     });
     expect(isFlagship(g)).toBe(false);
+  });
+});
+
+describe("getSegmentKey", () => {
+  it("uses the garment's era", () => {
+    expect(getSegmentKey(makeGarment({ era: "1920-1950" }))).toBe("1920-1950");
+    expect(getSegmentKey(makeGarment({ decade: "1890s" }))).toBe("pre-1920");
+  });
+
+  it("puts undated garments on the New Acquisitions stage", () => {
+    expect(getSegmentKey(makeGarment({}))).toBe("acquisitions");
   });
 });
 
@@ -111,6 +129,13 @@ describe("buildMuseumLayout", () => {
     expect(acquisitions.map((x) => x.id)).toEqual(["a"]);
     expect(unplaced).toEqual([]);
     expect(wings.every((w) => w.flagships.length === 0 && w.lightboxes.length === 0)).toBe(true);
+  });
+
+  it("keeps an undated flagship awaiting orientation review off the stage", () => {
+    const g = makeGarment({ id: "u", featuredOnRunway: true, orientationReviewed: false, ...MODEL });
+    const { acquisitions, unplaced } = buildMuseumLayout([g]);
+    expect(acquisitions).toEqual([]);
+    expect(unplaced.map((x) => x.id)).toEqual(["u"]);
   });
 
   it("keeps undated photo-only pieces unplaced", () => {

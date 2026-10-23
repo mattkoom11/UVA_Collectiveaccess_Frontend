@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { getAllGarments } from "@/lib/garments";
 import { getAnalytics } from "@/lib/analytics";
 import { exportToCSV, exportToJSON } from "@/lib/exportUtils";
 import { Garment } from "@/types/garment";
-import { BarChart3, Download, RefreshCw, Database, TrendingUp, Users, Eye } from "lucide-react";
+import { BarChart3, Download, RefreshCw, Database, TrendingUp, Users, Eye, Compass } from "lucide-react";
 import PageLayout from "@/components/layout/PageLayout";
 import AdminAuthGate from "@/components/admin/AdminAuthGate";
 
@@ -159,6 +160,21 @@ function AdminDashboard() {
                   Export JSON
                 </button>
               </div>
+            </div>
+
+            {/* Garment Orientation */}
+            <div className="bg-archive-surface/50 border border-archive-border p-6">
+              <h2 className="text-lg font-light mb-4">Garment Orientation</h2>
+              <p className="text-sm text-archive-muted mb-4">
+                Review each scan&apos;s runway and item-page pose
+              </p>
+              <Link
+                href="/admin/orientation"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-archive-surface-muted hover:bg-archive-border-hover border border-archive-border transition-colors text-sm"
+              >
+                <Compass className="w-4 h-4" />
+                Review orientation
+              </Link>
             </div>
           </div>
 

@@ -42,6 +42,19 @@ You can also reference models from CDNs for quick testing:
 - **Textures:** Embedded in GLB or referenced in GLTF
 - **Scale:** Models should be roughly 1-2 units tall (will be auto-scaled)
 
+## Optimizing Scans (do this for every new model)
+
+Run `npm run optimize-models` after adding a GLB here (or
+`scripts/optimize-models.sh public/models/<file>.glb` for one file). It
+meshopt-compresses the geometry in place, roughly halving each scan, and
+leaves the texture byte-for-byte untouched so no scan detail is lost.
+Already-compressed files are skipped, so it is safe to re-run.
+
+Compressed files need a meshopt decoder: the site viewers get it from drei's
+`useGLTF`, and the AR viewer (`<model-viewer>`) from the self-hosted
+`/vendor/meshopt_decoder-0.22.0.js` (see `lib/loadModelViewer.ts`). Avoid Draco:
+its decoder is fetched from Google's CDN, which the site's CSP blocks.
+
 ## Testing Your Model
 
 1. Add the `model3d_url` to a garment in `garments.json`

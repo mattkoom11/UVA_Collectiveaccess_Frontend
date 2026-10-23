@@ -2,7 +2,7 @@
   {
     "id": "demo-testdress0",
     "slug": "test-dress-0",
-    "label": "Test Dress 0 (3D Scan Demo)",
+    "label": "Test Dress 0",
     "name": "Test Dress 0",
     "type": "dress",
     "work_type": "Dress",
@@ -12,14 +12,15 @@
     "model3d_url": "/models/testdress0-repaired.glb",
     "featuredOnRunway": true,
     "model3d_rotationY": 135,
+    "orientationReviewed": true,
     "collection": "Demo",
     "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py. Previously built by retopologizing in AutoRemesher and re-baking the texture, which smeared fine detail; replaced 2026-09-23."
   },
   {
     "id": "demo-testdress1",
     "slug": "test-dress-1",
-    "label": "Test Dress 1 (3D Scan Demo)",
-    "name": "Test Dress 1",
+    "label": "OTW.2023.780",
+    "name": "OTW.2023.780",
     "type": "dress",
     "work_type": "Dress",
     "colors": [],
@@ -27,7 +28,8 @@
     "images": [],
     "model3d_url": "/models/testdress1.glb",
     "featuredOnRunway": true,
-    "model3d_rotationY": 0,
+    "model3d_rotationY": 5,
+    "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "OTW.2023.780",
     "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py, with a -90 deg rotation about X and a small vertical offset preserved from the earlier build so placement is unchanged. Previously retopologized and re-baked; replaced 2026-09-23."
@@ -35,8 +37,8 @@
   {
     "id": "demo-testdress2",
     "slug": "test-dress-2",
-    "label": "Test Dress 2 (3D Scan Demo)",
-    "name": "Test Dress 2",
+    "label": "ENS.2023.802",
+    "name": "ENS.2023.802",
     "type": "dress",
     "work_type": "Dress",
     "colors": [],
@@ -44,16 +46,17 @@
     "images": [],
     "model3d_url": "/models/testdress2.glb",
     "featuredOnRunway": true,
-    "model3d_rotationY": 225,
+    "model3d_rotationY": -135,
+    "orientationReviewed": true,
     "collection": "Demo",
-    "accessionNumber": "ENS.2023.8029",
+    "accessionNumber": "ENS.2023.802",
     "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py. This scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Previously retopologized and re-baked; replaced 2026-09-23."
   },
   {
     "id": "demo-testdress3",
     "slug": "test-dress-3",
-    "label": "Test Dress 3 (3D Scan Demo)",
-    "name": "Test Dress 3",
+    "label": "OTW.2025.243",
+    "name": "OTW.2025.243",
     "type": "dress",
     "work_type": "Dress",
     "colors": [],
@@ -61,15 +64,16 @@
     "images": [],
     "model3d_url": "/models/testdress3.glb",
     "featuredOnRunway": true,
-    "model3d_rotationY": 270,
+    "model3d_rotationY": -80,
+    "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "OTW.2025.243",
-    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py. Like Test Dress 2, this scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Previously retopologized and re-baked; replaced 2026-09-23."
+    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py. Like ENS.2023.802, this scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Previously retopologized and re-baked; replaced 2026-09-23."
   },
   {
     "id": "bd-2026-125",
     "slug": "bd-2026-125",
-    "label": "BD.2026.125 (3D Scan Demo)",
+    "label": "BD.2026.125",
     "name": "BD.2026.125",
     "type": "dress",
     "work_type": "Dress",
@@ -79,6 +83,7 @@
     "model3d_url": "/models/testdress4.glb",
     "featuredOnRunway": true,
     "model3d_rotationY": 180,
+    "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "BD.2026.125",
     "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, keeping RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py. This scan's own export used a Z-up axis convention (unlike Test Dress 0/1's Y-up), so a -90 deg rotation about X was applied. The retopologize-and-rebake route used for Test Dress 0-3 was tried first and produced smeared texture and black blocks on the center-front placket, so it was replaced for this garment. model3d_rotationY set to 180 (confirmed 2026-09-23 via visual check) to face forward."
@@ -86,7 +91,7 @@
   {
     "id": "dr-2023-17",
     "slug": "dr-2023-17",
-    "label": "DR.2023.17 (3D Scan Demo)",
+    "label": "DR.2023.17",
     "name": "DR.2023.17",
     "type": "dress",
     "work_type": "Dress",
@@ -95,7 +100,8 @@
     "images": [],
     "model3d_url": "/models/dr-2023-17.glb",
     "featuredOnRunway": true,
-    "model3d_rotationY": 0,
+    "model3d_rotationY": -5,
+    "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "DR.2023.17",
     "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied (RealityScan's raw diffuse reads dark/orange/oversaturated otherwise). This scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Sixth garment in the pilot dataset (features.csv/pca_sanity_check.py), the first captured under its real accession number directly rather than a generic testdressN placeholder. model3d_rotationY set to 45 on 2026-09-28 via visual check, then corrected to 0 (45 deg clockwise from a top-down/turntable view, per Matthew's follow-up) the same day."
@@ -103,7 +109,7 @@
   {
     "id": "dr-2023-323",
     "slug": "dr-2023-323",
-    "label": "DR.2023.323 (3D Scan Demo)",
+    "label": "DR.2023.323",
     "name": "DR.2023.323",
     "type": "dress",
     "work_type": "Dress",
@@ -112,7 +118,8 @@
     "images": [],
     "model3d_url": "/models/dr-2023-323.glb",
     "featuredOnRunway": true,
-    "model3d_rotationY": -90,
+    "model3d_rotationY": -105,
+    "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "DR.2023.323",
     "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied (RealityScan's raw diffuse reads dark/orange/oversaturated otherwise). This scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Seventh garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py), captured under its real accession number directly. model3d_rotationY set to -45 on 2026-09-30 via visual check, then turned a further 45 deg clockwise (top-down/turntable convention) to -90 on 2026-10-01 per Matthew's follow-up."
@@ -120,7 +127,7 @@
   {
     "id": "ens-2023-14",
     "slug": "ens-2023-14",
-    "label": "ENS.2023.14 (3D Scan Demo)",
+    "label": "ENS.2023.14",
     "name": "ENS.2023.14",
     "type": "ensemble",
     "work_type": "Ensemble",
@@ -129,7 +136,8 @@
     "images": [],
     "model3d_url": "/models/ens-2023-14.glb",
     "featuredOnRunway": true,
-    "model3d_rotationY": 180,
+    "model3d_rotationY": -155,
+    "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "ENS.2023.14",
     "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (2.7M vertices to 100k faces, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. This scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Eighth garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py), captured under its real accession number directly. model3d_rotationY set to 180 on 2026-10-07 via visual check (the scan's front faces glTF -Z)."
@@ -137,7 +145,7 @@
   {
     "id": "dr-2026-118",
     "slug": "dr-2026-118",
-    "label": "DR.2026.118 (3D Scan Demo)",
+    "label": "DR.2026.118",
     "name": "DR.2026.118",
     "type": "dress",
     "work_type": "Dress",
@@ -146,7 +154,8 @@
     "images": [],
     "model3d_url": "/models/dr-2026-118.glb",
     "featuredOnRunway": true,
-    "model3d_rotationY": 135,
+    "model3d_rotationY": 140,
+    "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "DR.2026.118",
     "description": "RealityScan photogrammetry export (2026-10-12), decimated directly from the dense textured scan to 100k faces with RealityScan's own UVs and 4K texture via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. Z-up export, so a -90 deg rotation about X was applied. Ninth garment in the pilot dataset (features.csv). The skirt fabric is textureless at the pixel level, so its surface is noisier than the bodice; a projected-pattern reshoot is planned. Not yet in the collection spreadsheet, so era is the demo placeholder. model3d_rotationY set to 180 on 2026-10-12 from headless Blender renders at 0/90/180/270 (front visible at 180); then corrected to 135 (45 deg clockwise from a top-down/turntable view, per Matthew) the same day."
@@ -154,7 +163,7 @@
   {
     "id": "dr-2025-432",
     "slug": "dr-2025-432",
-    "label": "DR.2025.432 (3D Scan Demo)",
+    "label": "DR.2025.432",
     "name": "DR.2025.432",
     "type": "dress",
     "work_type": "Dress",
@@ -163,7 +172,8 @@
     "images": [],
     "model3d_url": "/models/dr-2025-432.glb",
     "featuredOnRunway": true,
-    "model3d_rotationY": 0,
+    "model3d_rotationY": 40,
+    "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "DR.2025.432",
     "description": "RealityScan photogrammetry export (2026-10-19), decimated directly from the dense textured scan (2.5M vertices to 100k faces, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. Z-up export, so a -90 deg rotation about X was applied. Tenth garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py). Not yet in the collection spreadsheet, so era is the demo placeholder. model3d_rotationY set to 0 on 2026-10-19 from headless Blender renders at 45 deg steps (front visible at 0)."
@@ -171,7 +181,7 @@
   {
     "id": "dr-2025-433",
     "slug": "dr-2025-433",
-    "label": "DR.2025.433 (3D Scan Demo)",
+    "label": "DR.2025.433",
     "name": "DR.2025.433",
     "type": "dress",
     "work_type": "Dress",
@@ -180,7 +190,8 @@
     "images": [],
     "model3d_url": "/models/dr-2025-433.glb",
     "featuredOnRunway": true,
-    "model3d_rotationY": 0,
+    "model3d_rotationY": -20,
+    "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "DR.2025.433",
     "description": "RealityScan photogrammetry export (2026-10-19), decimated directly from the dense textured scan (2.5M vertices to 100k faces, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. Z-up export, so a -90 deg rotation about X was applied. Eleventh garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py). Not yet in the collection spreadsheet, so era is the demo placeholder. model3d_rotationY set to 0 on 2026-10-19 from headless Blender renders at 45 deg steps (front visible at 0)."
@@ -188,7 +199,7 @@
   {
     "id": "ens-2026-124",
     "slug": "ens-2026-124",
-    "label": "ENS.2026.124 (3D Scan Demo)",
+    "label": "ENS.2026.124",
     "name": "ENS.2026.124",
     "type": "ensemble",
     "work_type": "Ensemble",
@@ -197,9 +208,28 @@
     "images": [],
     "model3d_url": "/models/ens-2026-124.glb",
     "featuredOnRunway": true,
-    "model3d_rotationY": 45,
+    "model3d_rotationY": 35,
+    "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "ENS.2026.124",
     "description": "RealityScan photogrammetry export (2026-10-23), decimated directly from the dense textured scan (2.5M vertices to 100k faces, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. Z-up export, so a -90 deg rotation about X was applied. Twelfth garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py); one component, watertight, no weld needed. Not yet in the collection spreadsheet. model3d_rotationY set to 45 on 2026-10-23 from headless Blender renders at 45 deg steps, calibrated against DR.2026.118's confirmed 135."
+  },
+  {
+    "id": "dr-2025-443",
+    "slug": "dr-2025-443",
+    "label": "DR.2025.443",
+    "name": "DR.2025.443",
+    "type": "dress",
+    "work_type": "Dress",
+    "colors": [],
+    "materials": [],
+    "images": [],
+    "model3d_url": "/models/dr-2025-443.glb",
+    "featuredOnRunway": true,
+    "model3d_rotationY": 145,
+    "orientationReviewed": true,
+    "collection": "Demo",
+    "accessionNumber": "DR.2025.443",
+    "description": "RealityScan photogrammetry export (2026-10-23), decimated directly from the dense textured scan (2.5M vertices to 100k faces, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. Z-up export, so a -90 deg rotation about X was applied (picked by --reference-glb against ENS.2026.124). Thirteenth garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py); one component, watertight, no weld needed. model3d_rotationY starts at 0, pending review in /admin/orientation."
   }
 ]

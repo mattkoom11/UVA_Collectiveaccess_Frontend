@@ -4,6 +4,9 @@
 // A script inserted by our own nonced bundle is allowed by the
 // 'strict-dynamic' CSP set in proxy.ts.
 const MODEL_VIEWER_SRC = "/vendor/model-viewer-4.3.1.min.js";
+// The scans are meshopt-compressed, and model-viewer ships no decoder of its
+// own: it injects whatever script this points at, so it's vendored too.
+const MESHOPT_DECODER_SRC = "/vendor/meshopt_decoder-0.22.0.js";
 // If the bundle downloads but throws while running (an older WebView without
 // the ES features model-viewer 4 needs), onload still fires and the element
 // never registers; without a deadline the sheet would show "Loading…" forever.
@@ -49,7 +52,13 @@ export function loadModelViewer(): Promise<void> {
           customElements.whenDefined("model-viewer"),
           REGISTER_TIMEOUT_MS,
           "model-viewer never registered",
-        ).then(() => resolve(), fail);
+        ).then(() => {
+          const ModelViewer = customElements.get("model-viewer") as
+            | (CustomElementConstructor & { meshoptDecoderLocation?: string })
+            | undefined;
+          if (ModelViewer) ModelViewer.meshoptDecoderLocation = MESHOPT_DECODER_SRC;
+          resolve();
+        }, fail);
       };
       script.onerror = () => fail(new Error("model-viewer failed to load"));
       document.head.appendChild(script);
