@@ -32,7 +32,11 @@
     "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "OTW.2023.780",
-    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py, with a -90 deg rotation about X and a small vertical offset preserved from the earlier build so placement is unchanged. Previously retopologized and re-baked; replaced 2026-09-23."
+    "description": "This dolman is black cut velvet with a beaded chenille fringe around the standing collar, down the center front edges and around the sleeve openings.",
+    "date": "Late 19th c., 1880–1900",
+    "yearApprox": 1890,
+    "era": "pre-1920",
+    "condition": "The condition is fair with some areas of wear. The chenille fringe is damaged at a few points."
   },
   {
     "id": "demo-testdress2",
@@ -50,7 +54,11 @@
     "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "ENS.2023.802",
-    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py. This scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Previously retopologized and re-baked; replaced 2026-09-23."
+    "description": "The ensemble is made of white linen with an openwork embroidery throughout. The skirt has a slightly raised waistline that is mounted on a wide inner petersham waistband. It sets smoothly over the hips before flaring gently at the hem. The jacket is slightly elongated fitting loose with a V-neckline. The collar lapels, center front edge and hem are egded with embroigered scallops.",
+    "date": "Early 20th c., 1910–1920",
+    "yearApprox": 1915,
+    "era": "pre-1920",
+    "condition": "The condition is good with some overall wear and dirt."
   },
   {
     "id": "demo-testdress3",
@@ -68,7 +76,12 @@
     "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "OTW.2025.243",
-    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py. Like ENS.2023.802, this scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Previously retopologized and re-baked; replaced 2026-09-23."
+    "description": "This long, fitted coat is made of a pink silk and velvet jacquard fabric and has a pronounced bustle-shaped silhouette at the back. The coat is fully lined with angora kid fleece, which also trims the cuffs, collar, and center front edges.",
+    "date": "Late 19th c., 1880–1890",
+    "yearApprox": 1885,
+    "era": "pre-1920",
+    "condition": "The condition is good.",
+    "provenance": "Rebecca L’Ecuyer"
   },
   {
     "id": "bd-2026-125",
@@ -86,7 +99,12 @@
     "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "BD.2026.125",
-    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, keeping RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py. This scan's own export used a Z-up axis convention (unlike Test Dress 0/1's Y-up), so a -90 deg rotation about X was applied. The retopologize-and-rebake route used for Test Dress 0-3 was tried first and produced smeared texture and black blocks on the center-front placket, so it was replaced for this garment. model3d_rotationY set to 180 (confirmed 2026-09-23 via visual check) to face forward."
+    "description": "This cuirass bodice is made of sheer gold colored net embellished throughout with iridescent pink and gold beads arranged in a floral pattern, layered over a light blue silk lining. Beaded net ruffles accent the bodice. The silk lining is boned to create a structured, close-fitting silhouette and fastens at the center front with self-fabric-covered buttons and hand-sewn buttonholes. A high-standing collar is finished with a gold lace ruffle that continues along the center front and sleeve hems.",
+    "date": "Late 19th c., 1875–1883",
+    "yearApprox": 1879,
+    "era": "pre-1920",
+    "condition": "The condition is fair with several holes in the net and beads beginning to fall off. There are several buttons missing or uncovered.",
+    "provenance": "Ginny Barber"
   },
   {
     "id": "dr-2023-17",
@@ -104,7 +122,11 @@
     "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "DR.2023.17",
-    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied (RealityScan's raw diffuse reads dark/orange/oversaturated otherwise). This scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Sixth garment in the pilot dataset (features.csv/pca_sanity_check.py), the first captured under its real accession number directly rather than a generic testdressN placeholder. model3d_rotationY set to 45 on 2026-09-28 via visual check, then corrected to 0 (45 deg clockwise from a top-down/turntable view, per Matthew's follow-up) the same day."
+    "description": "This gown combines an ivory silk bodice with a black net skirt embellished with rhinestones. A floral vine of rhinestones sweeps diagonally across the front of the bodice, creating an asymmetrical decorative accent. The skirt has multiple layers of ruffled black net, scattered throughout with rhinestones. A net bow at the left shoulder provides a contrasting detail to the elaborate embellishment.",
+    "date": "Early 20th c., 1910–1920",
+    "yearApprox": 1915,
+    "era": "pre-1920",
+    "condition": "The condition is fair with multiple tears in the net skirt. The rhinestone vine at the front bodice needs cleaning and is out of shape."
   },
   {
     "id": "dr-2023-323",
@@ -122,7 +144,11 @@
     "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "DR.2023.323",
-    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied (RealityScan's raw diffuse reads dark/orange/oversaturated otherwise). This scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Seventh garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py), captured under its real accession number directly. model3d_rotationY set to -45 on 2026-09-30 via visual check, then turned a further 45 deg clockwise (top-down/turntable convention) to -90 on 2026-10-01 per Matthew's follow-up."
+    "description": "This dress is made of black silk crepe de chine printed with a yellow floral pattern. The bodice has short puff sleeves with decorative ruching along the outer sleeve edges and at the base of the neckline. The center-front V-neckline is gathered from the shoulders to just above the bust, creating soft draping across the upper bodice. There is additional ruching along the skirt hem.",
+    "date": "Mid 20th c., 1940–1950",
+    "yearApprox": 1945,
+    "era": "1920-1950",
+    "condition": "The condition is good."
   },
   {
     "id": "ens-2023-14",
@@ -140,7 +166,11 @@
     "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "ENS.2023.14",
-    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (2.7M vertices to 100k faces, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. This scan's own export used a Z-up axis convention, so a -90 deg rotation about X was applied. Eighth garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py), captured under its real accession number directly. model3d_rotationY set to 180 on 2026-10-07 via visual check (the scan's front faces glTF -Z)."
+    "description": "This two-piece suit is made of tan wide-wale corduroy and consists of a fitted jacket and a long skirt. The jacket has decorative frog closures down the upper bodice, made from matching passementerie cord. A wide waistband defines the waist, while a peplum extends over the hips. The long skirt features a wide inner petersham waistband and falls smoothly over the hips, gradually flaring toward the hem.",
+    "date": "Early 20th c., 1905–1920",
+    "yearApprox": 1913,
+    "era": "pre-1920",
+    "condition": "The condition is good with some overall wear and dirt."
   },
   {
     "id": "dr-2026-118",
@@ -158,7 +188,12 @@
     "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "DR.2026.118",
-    "description": "RealityScan photogrammetry export (2026-10-12), decimated directly from the dense textured scan to 100k faces with RealityScan's own UVs and 4K texture via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. Z-up export, so a -90 deg rotation about X was applied. Ninth garment in the pilot dataset (features.csv). The skirt fabric is textureless at the pixel level, so its surface is noisier than the bodice; a projected-pattern reshoot is planned. Not yet in the collection spreadsheet, so era is the demo placeholder. model3d_rotationY set to 180 on 2026-10-12 from headless Blender renders at 0/90/180/270 (front visible at 180); then corrected to 135 (45 deg clockwise from a top-down/turntable view, per Matthew) the same day."
+    "description": "This couture gown by Desse is madeof light pink, green, and yellow silk chiffon. The fitted bodice features narrow shoulder straps and an intricate woven effect created by interlacing the three colors of chiffon. The long, full skirt flares from the waist and is composed of multiple gores in the three colors, creating a flowing silhouette.",
+    "date": "Mid 20th c., 1950–1960",
+    "yearApprox": 1955,
+    "era": "1950-1980",
+    "condition": "The condition is fair with the hem being torn and damaged. The strapes are frayed and torn. The color of dress has faded considerably.",
+    "maker": "Jean Dessé Chicago"
   },
   {
     "id": "dr-2025-432",
@@ -176,7 +211,11 @@
     "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "DR.2025.432",
-    "description": "RealityScan photogrammetry export (2026-10-19), decimated directly from the dense textured scan (2.5M vertices to 100k faces, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. Z-up export, so a -90 deg rotation about X was applied. Tenth garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py). Not yet in the collection spreadsheet, so era is the demo placeholder. model3d_rotationY set to 0 on 2026-10-19 from headless Blender renders at 45 deg steps (front visible at 0)."
+    "description": "This dress is made of pink and blue floral-printed silk crepe and features a relaxed silhouette with a flaring circular skirt. The neckline is accented by a layered, cap-like collar consisting of a solid pink flounce beneath a shorter printed layer. Short puff sleeves are finished with narrow cuffs that tie. The dress has no closures and is secured at the waist with a narrow self-fabric belt featuring a silver clasp.",
+    "date": "Early 20th c., 1910–1930",
+    "yearApprox": 1920,
+    "era": "pre-1920",
+    "condition": "The condition is good with minimal tears in the silk."
   },
   {
     "id": "dr-2025-433",
@@ -194,7 +233,11 @@
     "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "DR.2025.433",
-    "description": "RealityScan photogrammetry export (2026-10-19), decimated directly from the dense textured scan (2.5M vertices to 100k faces, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. Z-up export, so a -90 deg rotation about X was applied. Eleventh garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py). Not yet in the collection spreadsheet, so era is the demo placeholder. model3d_rotationY set to 0 on 2026-10-19 from headless Blender renders at 45 deg steps (front visible at 0)."
+    "description": "This dress is made of ivory rayon printed with a floral pattern in blue, yellow, and grey. The halter-style bodice and fitted midriff emphasize the waist, while the wide circular skirt creates a full silhouette. The skirt is supported by an interior lining incorporating with blue net ruffled layers to provide volume. A coordinating sash, backed with net for additional stiffness, further defines the waist.",
+    "date": "Mid 20th c., 1950–1960",
+    "yearApprox": 1955,
+    "era": "1950-1980",
+    "condition": "The condition is fair with a large tear at the bottom of the side zipper closure, which has been mended."
   },
   {
     "id": "ens-2026-124",
@@ -212,7 +255,12 @@
     "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "ENS.2026.124",
-    "description": "RealityScan photogrammetry export (2026-10-23), decimated directly from the dense textured scan (2.5M vertices to 100k faces, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. Z-up export, so a -90 deg rotation about X was applied. Twelfth garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py); one component, watertight, no weld needed. Not yet in the collection spreadsheet. model3d_rotationY set to 45 on 2026-10-23 from headless Blender renders at 45 deg steps, calibrated against DR.2026.118's confirmed 135."
+    "description": "This two-piece ensemble is made of blue and white floral-patterned silk jacquard and features a slightly raised waistline. The long skirt is gathered throughout the waist and falls in a straight line to the hem, supported by a wide inner petersham waistband. The long-sleeved bodice is finished with a white silk organza collar and cuffs, each edged with decorative silk piping and picot detailing. A delicate lace panel adorns the front of the bodice, accented with horizontal bands of silk ribbon. Matching blue passementerie trim embellishes both the bodice and skirt.",
+    "date": "Early 20th c., 1905–1920",
+    "yearApprox": 1913,
+    "era": "pre-1920",
+    "condition": "The condition is fair. The inside taffeta lining is fractured and disintergrating.",
+    "provenance": "Ginny Barber"
   },
   {
     "id": "dr-2025-443",
@@ -230,6 +278,10 @@
     "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "DR.2025.443",
-    "description": "RealityScan photogrammetry export (2026-10-23), decimated directly from the dense textured scan (2.5M vertices to 100k faces, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/dense_to_glb.py, with --srgb-encode applied. Z-up export, so a -90 deg rotation about X was applied (picked by --reference-glb against ENS.2026.124). Thirteenth garment in the pilot dataset (features.csv/pca_sanity_check.py/clustering_analysis.py); one component, watertight, no weld needed. model3d_rotationY starts at 0, pending review in /admin/orientation."
+    "description": "This dress is constructed of ivory silk crepe de chine and chiffon, featuring a slightly raised waistline and a skirt shaped to extend outward over the hips, creating a silhouette reminiscent of pannier-supported dress. A wide inner petersham waistband provides structural support for the skirt and the bodice lining. Clear and white beads embellish both the bodice and skirt, adding delicate surface decoration. A beaded tassel hangs from the back of the skirt, while a beaded medallion with fringe adorns the center-front waist. The dress closes with multiple snaps and hooks arranged in an asymmetrical configuration tailored to the garment's construction.",
+    "date": "Early 20th c., 1900–1920",
+    "yearApprox": 1910,
+    "era": "pre-1920",
+    "maker": "Elder, New York"
   }
 ]
