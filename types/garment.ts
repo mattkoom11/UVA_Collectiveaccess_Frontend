@@ -52,6 +52,7 @@ export interface Garment {
   age?: string;
   condition?: string;
   description?: string;
+  maker?: string; // Designer/maker attribution from a label sewn into the garment (CollectiveAccess "Label" field); omitted when the garment has no label
   images: string[];
   
   // Editorial/Vogue-style fields (existing)
