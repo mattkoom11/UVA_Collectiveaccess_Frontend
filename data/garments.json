@@ -296,8 +296,8 @@
     "images": [],
     "model3d_url": "/models/ens-2025-566.glb",
     "featuredOnRunway": true,
-    "model3d_rotationY": 0,
-    "orientationReviewed": false,
+    "model3d_rotationY": 45,
+    "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "ENS.2025.566",
     "date": "Early 20th c., 1900–1910",
@@ -316,8 +316,8 @@
     "images": [],
     "model3d_url": "/models/scan-2026-10-26.glb",
     "featuredOnRunway": true,
-    "model3d_rotationY": 0,
-    "orientationReviewed": false,
+    "model3d_rotationY": 45,
+    "orientationReviewed": true,
     "collection": "Demo"
   }
 ]
