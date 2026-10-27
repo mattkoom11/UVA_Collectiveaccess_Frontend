@@ -14,6 +14,7 @@ import {
   weaveStructure,
 } from "@/lib/weave";
 import { scannedInDecade } from "@/lib/collectionWeave";
+import { getDetailModelUrl } from "@/lib/museum";
 import WovenCloth from "./WovenCloth";
 import DecadeScrubber from "./DecadeScrubber";
 import WeaveExport from "./WeaveExport";
@@ -133,7 +134,7 @@ export default function CollectionWeaveView({ weave, garments }: Props) {
           </ul>
           {opened && (
             <div className="mt-6">
-              <Garment3DViewer modelUrl={opened.model3d_url} garment={opened} />
+              <Garment3DViewer modelUrl={getDetailModelUrl(opened) ?? opened.model3d_url} garment={opened} />
             </div>
           )}
         </div>
