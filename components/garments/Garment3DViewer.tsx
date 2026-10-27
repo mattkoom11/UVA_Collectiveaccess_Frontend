@@ -13,7 +13,7 @@ import ConservatorLighting from "./ConservatorLighting";
 import LightDial from "./LightDial";
 import { initialLightState, type ConservatorLightState } from "@/lib/conservatorLight";
 import { ensureSmoothNormals } from "@/lib/meshNormals";
-import { setSurfaceOnly, type MaterialStore } from "@/lib/surfaceMaterial";
+import { applyLook, type GarmentLook, type MaterialStore, type PhotoCache } from "@/lib/surfaceMaterial";
 import { getSegmentKey } from "@/lib/museum";
 import RunwayStage from "@/components/museum/RunwayStage";
 
@@ -48,11 +48,11 @@ const VIEWER_INITIAL_ANGLE_OFFSET_DEGREES = -45;
 function GarmentModel({
   modelUrl,
   rotationY = 0,
-  surfaceOnly = false,
+  look = "photo",
 }: {
   modelUrl: string;
   rotationY?: number;
-  surfaceOnly?: boolean;
+  look?: GarmentLook;
 }) {
   const groupRef = useRef<Group>(null);
 
@@ -68,14 +68,22 @@ function GarmentModel({
     return clone;
   }, [scene]);
 
-  // Conservator "Surface only": neutral clay in place of the photo texture,
-  // whose baked-in capture lighting fights the raking light
+  // Photo look by default (see GarmentLook); conservator mode lights the scan,
+  // and "Surface only" swaps in neutral clay
   const clay = useMemo(() => new MeshStandardMaterial({ color: "#bdb5a6", roughness: 0.85 }), []);
   const originals = useRef<MaterialStore>(new Map());
+  const photos = useRef<PhotoCache>(new Map());
   useEffect(() => {
-    setSurfaceOnly(clonedScene, surfaceOnly, clay, originals.current);
-  }, [clonedScene, surfaceOnly, clay]);
-  useEffect(() => () => clay.dispose(), [clay]);
+    applyLook(clonedScene, look, clay, originals.current, photos.current);
+  }, [clonedScene, look, clay]);
+  useEffect(() => {
+    const cache = photos.current;
+    return () => {
+      clay.dispose();
+      cache.forEach((m) => m.dispose());
+      cache.clear();
+    };
+  }, [clay]);
 
   // Photogrammetry exports vary wildly in export scale/origin (a raw scan
   // may be tens of units across with an arbitrary pivot). Auto-fit every
@@ -194,7 +202,7 @@ export default function Garment3DViewer({ modelUrl, garmentId, garment }: Props)
           {modelUrl ? (
             <GarmentModel
               modelUrl={modelUrl}
-              surfaceOnly={conservator && surfaceOnly}
+              look={conservator ? (surfaceOnly ? "clay" : "lit") : "photo"}
               rotationY={
                 (((garment?.model3d_rotationY ?? 0) + VIEWER_INITIAL_ANGLE_OFFSET_DEGREES) * Math.PI) /
                 180
