@@ -12,6 +12,7 @@ import CompareButton from "./CompareButton";
 import SocialShare from "./SocialShare";
 import { getEducationalContentByEra, getEducationalContentByMaterial } from "@/data/educationalContent";
 import { getAnalytics } from "@/lib/analytics";
+import { getDetailModelUrl } from "@/lib/museum";
 import ErrorBoundary from "./ErrorBoundary";
 
 const Garment3DViewer = dynamic(() => import("./Garment3DViewer"), { ssr: false });
@@ -197,8 +198,9 @@ export default function GarmentDetailClient({ garment, relatedGarments }: Garmen
                       </div>
                     }
                   >
+                    {/* The record page is for close inspection, so it loads the full_detail file when there is one */}
                     <Garment3DViewer
-                      modelUrl={garment.model3d_url}
+                      modelUrl={getDetailModelUrl(garment) ?? garment.model3d_url}
                       garmentId={garment.id}
                       garment={garment}
                     />

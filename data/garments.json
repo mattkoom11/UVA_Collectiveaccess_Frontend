@@ -10,6 +10,18 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/testdress0-repaired.glb",
+    "models": [
+      {
+        "url": "/models/testdress0-repaired.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/testdress0-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
     "featuredOnRunway": true,
     "model3d_rotationY": 135,
     "orientationReviewed": true,
@@ -27,6 +39,18 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/testdress1.glb",
+    "models": [
+      {
+        "url": "/models/testdress1.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/testdress1-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
     "featuredOnRunway": true,
     "model3d_rotationY": 5,
     "orientationReviewed": true,
@@ -49,6 +73,18 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/testdress2.glb",
+    "models": [
+      {
+        "url": "/models/testdress2.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/testdress2-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
     "featuredOnRunway": true,
     "model3d_rotationY": -135,
     "orientationReviewed": true,
@@ -71,6 +107,18 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/testdress3.glb",
+    "models": [
+      {
+        "url": "/models/testdress3.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/testdress3-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
     "featuredOnRunway": true,
     "model3d_rotationY": -80,
     "orientationReviewed": true,
@@ -94,6 +142,18 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/testdress4.glb",
+    "models": [
+      {
+        "url": "/models/testdress4.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/testdress4-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
     "featuredOnRunway": true,
     "model3d_rotationY": 180,
     "orientationReviewed": true,
@@ -117,6 +177,18 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/dr-2023-17.glb",
+    "models": [
+      {
+        "url": "/models/dr-2023-17.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/dr-2023-17-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
     "featuredOnRunway": true,
     "model3d_rotationY": -5,
     "orientationReviewed": true,
@@ -139,6 +211,18 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/dr-2023-323.glb",
+    "models": [
+      {
+        "url": "/models/dr-2023-323.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/dr-2023-323-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
     "featuredOnRunway": true,
     "model3d_rotationY": -105,
     "orientationReviewed": true,
@@ -161,6 +245,18 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/ens-2023-14.glb",
+    "models": [
+      {
+        "url": "/models/ens-2023-14.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/ens-2023-14-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
     "featuredOnRunway": true,
     "model3d_rotationY": -155,
     "orientationReviewed": true,
@@ -183,6 +279,18 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/dr-2026-118.glb",
+    "models": [
+      {
+        "url": "/models/dr-2026-118.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/dr-2026-118-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
     "featuredOnRunway": true,
     "model3d_rotationY": 140,
     "orientationReviewed": true,
@@ -206,6 +314,18 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/dr-2025-432.glb",
+    "models": [
+      {
+        "url": "/models/dr-2025-432.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/dr-2025-432-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
     "featuredOnRunway": true,
     "model3d_rotationY": 40,
     "orientationReviewed": true,
@@ -228,6 +348,18 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/dr-2025-433.glb",
+    "models": [
+      {
+        "url": "/models/dr-2025-433.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/dr-2025-433-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
     "featuredOnRunway": true,
     "model3d_rotationY": -20,
     "orientationReviewed": true,
@@ -250,6 +382,18 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/ens-2026-124.glb",
+    "models": [
+      {
+        "url": "/models/ens-2026-124.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/ens-2026-124-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
     "featuredOnRunway": true,
     "model3d_rotationY": 35,
     "orientationReviewed": true,
@@ -273,6 +417,18 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/dr-2025-443.glb",
+    "models": [
+      {
+        "url": "/models/dr-2025-443.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/dr-2025-443-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
     "featuredOnRunway": true,
     "model3d_rotationY": 145,
     "orientationReviewed": true,
@@ -295,6 +451,18 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/ens-2025-566.glb",
+    "models": [
+      {
+        "url": "/models/ens-2025-566.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/ens-2025-566-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
     "featuredOnRunway": true,
     "model3d_rotationY": 45,
     "orientationReviewed": true,
@@ -315,6 +483,18 @@
     "materials": [],
     "images": [],
     "model3d_url": "/models/scan-2026-10-26.glb",
+    "models": [
+      {
+        "url": "/models/scan-2026-10-26.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/scan-2026-10-26-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
     "featuredOnRunway": true,
     "model3d_rotationY": 45,
     "orientationReviewed": true,
