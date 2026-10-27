@@ -283,5 +283,41 @@
     "yearApprox": 1910,
     "era": "pre-1920",
     "maker": "Elder, New York"
+  },
+  {
+    "id": "ens-2025-566",
+    "slug": "ens-2025-566",
+    "label": "ENS.2025.566",
+    "name": "ENS.2025.566",
+    "type": "ensemble",
+    "work_type": "Ensemble",
+    "colors": [],
+    "materials": [],
+    "images": [],
+    "model3d_url": "/models/ens-2025-566.glb",
+    "featuredOnRunway": true,
+    "model3d_rotationY": 0,
+    "orientationReviewed": false,
+    "collection": "Demo",
+    "accessionNumber": "ENS.2025.566",
+    "date": "Early 20th c., 1900–1910",
+    "yearApprox": 1905,
+    "era": "pre-1920"
+  },
+  {
+    "id": "demo-scan-2026-10-26",
+    "slug": "scan-2026-10-26",
+    "label": "Unnumbered scan (2026-10-26)",
+    "name": "Unnumbered scan (2026-10-26)",
+    "type": "dress",
+    "work_type": "Dress",
+    "colors": [],
+    "materials": [],
+    "images": [],
+    "model3d_url": "/models/scan-2026-10-26.glb",
+    "featuredOnRunway": true,
+    "model3d_rotationY": 0,
+    "orientationReviewed": false,
+    "collection": "Demo"
   }
 ]
