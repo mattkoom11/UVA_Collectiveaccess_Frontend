@@ -500,5 +500,69 @@
     "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "ENS.2025.510"
+  },
+  {
+    "id": "dr-2024-121",
+    "slug": "dr-2024-121",
+    "label": "DR.2024.121",
+    "name": "DR.2024.121",
+    "type": "dress",
+    "work_type": "Dress",
+    "colors": [],
+    "materials": [],
+    "images": [],
+    "model3d_url": "/models/dr-2024-121.glb",
+    "models": [
+      {
+        "url": "/models/dr-2024-121.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/dr-2024-121-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
+    "featuredOnRunway": true,
+    "model3d_rotationY": 0,
+    "orientationReviewed": false,
+    "collection": "Demo",
+    "accessionNumber": "DR.2024.121",
+    "date": "Early 20th c., 1920–1940",
+    "yearApprox": 1930,
+    "era": "1920-1950"
+  },
+  {
+    "id": "rb-2025-528",
+    "slug": "rb-2025-528",
+    "label": "RB.2025.528",
+    "name": "RB.2025.528",
+    "type": "outerwear",
+    "work_type": "Robe",
+    "colors": [],
+    "materials": [],
+    "images": [],
+    "model3d_url": "/models/rb-2025-528.glb",
+    "models": [
+      {
+        "url": "/models/rb-2025-528.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/rb-2025-528-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
+    "featuredOnRunway": true,
+    "model3d_rotationY": 0,
+    "orientationReviewed": false,
+    "collection": "Demo",
+    "accessionNumber": "RB.2025.528",
+    "date": "Early 20th c., 1900–1920",
+    "yearApprox": 1910,
+    "era": "pre-1920"
   }
 ]
