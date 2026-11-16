@@ -44,3 +44,14 @@ export function prefersARSheet(env: { maxTouchPoints: number; coarsePointer: boo
 // would show a raw scan (24–46 units tall) tens of metres high, unresizable
 // under ar-scale="fixed". Add it back once the GLBs are exported in metres.
 export const AR_MODES = "webxr quick-look";
+
+// Mirrors model-viewer's own iOS checks (IS_IOS + its non-Safari regex). In
+// these browsers it refuses Quick Look for a USDZ generated on the fly, and in
+// the Google app (GSA) for any USDZ at all, so canActivateAR is false on an
+// AR-capable iPhone. Those visitors are told to open the page in Safari,
+// rather than that their device can't do AR.
+export function needsSafariForAR(env: { userAgent: string; platform: string; maxTouchPoints: number }): boolean {
+  const isIOS =
+    /iPad|iPhone|iPod/.test(env.userAgent) || (env.platform === "MacIntel" && env.maxTouchPoints > 1);
+  return isIOS && /CriOS\/|EdgiOS\/|FxiOS\/|GSA\/|DuckDuckGo\//.test(env.userAgent);
+}

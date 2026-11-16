@@ -4,7 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { Box, X } from "lucide-react";
 import type { Garment } from "@/types/garment";
 import type { ModelViewerElement } from "@/types/model-viewer";
-import { AR_MODES, arScaleFactor, modelViewerOrientation, prefersARSheet, targetHeightCm } from "@/lib/arScale";
+import {
+  AR_MODES,
+  arScaleFactor,
+  modelViewerOrientation,
+  needsSafariForAR,
+  prefersARSheet,
+  targetHeightCm,
+} from "@/lib/arScale";
 import { loadModelViewer } from "@/lib/loadModelViewer";
 import { trapFocusIndex } from "@/lib/focusTrap";
 import ARQRCode from "./ARQRCode";
@@ -24,6 +31,7 @@ export default function ARViewButton({ garment }: Props) {
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [attempt, setAttempt] = useState(0);
   const [arUnavailable, setArUnavailable] = useState(false);
+  const [safariNeeded, setSafariNeeded] = useState(false);
   const [pageUrl, setPageUrl] = useState("");
   const viewerRef = useRef<ModelViewerElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -114,6 +122,13 @@ export default function ARViewButton({ garment }: Props) {
     });
     setPageUrl(window.location.origin + window.location.pathname);
     setArUnavailable(false);
+    setSafariNeeded(
+      needsSafariForAR({
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        maxTouchPoints: navigator.maxTouchPoints,
+      }),
+    );
     setLoadState("loading");
     setMode(touch ? "sheet" : "qr");
   };
@@ -215,7 +230,9 @@ export default function ARViewButton({ garment }: Props) {
 
             {arUnavailable && (
               <p className="absolute bottom-6 inset-x-4 text-center text-xs text-archive-muted">
-                AR isn&apos;t supported on this device. You can still turn the garment in 3D.
+                {safariNeeded
+                  ? "To place it in your room, open this page in Safari. You can still turn the garment in 3D here."
+                  : "AR isn\u2019t supported on this device. You can still turn the garment in 3D."}
               </p>
             )}
           </div>
