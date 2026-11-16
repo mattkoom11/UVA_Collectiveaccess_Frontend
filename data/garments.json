@@ -26,7 +26,8 @@
     "model3d_rotationY": 135,
     "orientationReviewed": true,
     "collection": "Demo",
-    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py. Previously built by retopologizing in AutoRemesher and re-baking the texture, which smeared fine detail; replaced 2026-09-23."
+    "description": "RealityScan photogrammetry export, decimated directly from the dense textured scan (5.0M faces to 100k, RealityScan's own UVs and texture at 4K) via garment-capture-pipeline/decimate_dense_textured.py. Previously built by retopologizing in AutoRemesher and re-baking the texture, which smeared fine detail; replaced 2026-09-23.",
+    "thumbnailUrl": "/thumbnails/demo-testdress0.webp"
   },
   {
     "id": "demo-testdress1",
@@ -60,7 +61,8 @@
     "date": "Late 19th c., 1880–1900",
     "yearApprox": 1890,
     "era": "pre-1920",
-    "condition": "The condition is fair with some areas of wear. The chenille fringe is damaged at a few points."
+    "condition": "The condition is fair with some areas of wear. The chenille fringe is damaged at a few points.",
+    "thumbnailUrl": "/thumbnails/demo-testdress1.webp"
   },
   {
     "id": "demo-testdress2",
@@ -94,7 +96,8 @@
     "date": "Early 20th c., 1910–1920",
     "yearApprox": 1915,
     "era": "pre-1920",
-    "condition": "The condition is good with some overall wear and dirt."
+    "condition": "The condition is good with some overall wear and dirt.",
+    "thumbnailUrl": "/thumbnails/demo-testdress2.webp"
   },
   {
     "id": "demo-testdress3",
@@ -129,7 +132,8 @@
     "yearApprox": 1885,
     "era": "pre-1920",
     "condition": "The condition is good.",
-    "provenance": "Rebecca L’Ecuyer"
+    "provenance": "Rebecca L’Ecuyer",
+    "thumbnailUrl": "/thumbnails/demo-testdress3.webp"
   },
   {
     "id": "bd-2026-125",
@@ -164,7 +168,8 @@
     "yearApprox": 1879,
     "era": "pre-1920",
     "condition": "The condition is fair with several holes in the net and beads beginning to fall off. There are several buttons missing or uncovered.",
-    "provenance": "Ginny Barber"
+    "provenance": "Ginny Barber",
+    "thumbnailUrl": "/thumbnails/bd-2026-125.webp"
   },
   {
     "id": "dr-2023-17",
@@ -198,7 +203,8 @@
     "date": "Early 20th c., 1910–1920",
     "yearApprox": 1915,
     "era": "pre-1920",
-    "condition": "The condition is fair with multiple tears in the net skirt. The rhinestone vine at the front bodice needs cleaning and is out of shape."
+    "condition": "The condition is fair with multiple tears in the net skirt. The rhinestone vine at the front bodice needs cleaning and is out of shape.",
+    "thumbnailUrl": "/thumbnails/dr-2023-17.webp"
   },
   {
     "id": "dr-2023-323",
@@ -232,7 +238,8 @@
     "date": "Mid 20th c., 1940–1950",
     "yearApprox": 1945,
     "era": "1920-1950",
-    "condition": "The condition is good."
+    "condition": "The condition is good.",
+    "thumbnailUrl": "/thumbnails/dr-2023-323.webp"
   },
   {
     "id": "ens-2023-14",
@@ -266,7 +273,8 @@
     "date": "Early 20th c., 1905–1920",
     "yearApprox": 1913,
     "era": "pre-1920",
-    "condition": "The condition is good with some overall wear and dirt."
+    "condition": "The condition is good with some overall wear and dirt.",
+    "thumbnailUrl": "/thumbnails/ens-2023-14.webp"
   },
   {
     "id": "dr-2026-118",
@@ -301,7 +309,8 @@
     "yearApprox": 1955,
     "era": "1950-1980",
     "condition": "The condition is fair with the hem being torn and damaged. The strapes are frayed and torn. The color of dress has faded considerably.",
-    "maker": "Jean Dessé Chicago"
+    "maker": "Jean Dessé Chicago",
+    "thumbnailUrl": "/thumbnails/dr-2026-118.webp"
   },
   {
     "id": "dr-2025-432",
@@ -335,7 +344,8 @@
     "date": "Early 20th c., 1910–1930",
     "yearApprox": 1920,
     "era": "pre-1920",
-    "condition": "The condition is good with minimal tears in the silk."
+    "condition": "The condition is good with minimal tears in the silk.",
+    "thumbnailUrl": "/thumbnails/dr-2025-432.webp"
   },
   {
     "id": "dr-2025-433",
@@ -369,7 +379,8 @@
     "date": "Mid 20th c., 1950–1960",
     "yearApprox": 1955,
     "era": "1950-1980",
-    "condition": "The condition is fair with a large tear at the bottom of the side zipper closure, which has been mended."
+    "condition": "The condition is fair with a large tear at the bottom of the side zipper closure, which has been mended.",
+    "thumbnailUrl": "/thumbnails/dr-2025-433.webp"
   },
   {
     "id": "ens-2026-124",
@@ -404,7 +415,8 @@
     "yearApprox": 1913,
     "era": "pre-1920",
     "condition": "The condition is fair. The inside taffeta lining is fractured and disintergrating.",
-    "provenance": "Ginny Barber"
+    "provenance": "Ginny Barber",
+    "thumbnailUrl": "/thumbnails/ens-2026-124.webp"
   },
   {
     "id": "dr-2025-443",
@@ -438,7 +450,8 @@
     "date": "Early 20th c., 1900–1920",
     "yearApprox": 1910,
     "era": "pre-1920",
-    "maker": "Elder, New York"
+    "maker": "Elder, New York",
+    "thumbnailUrl": "/thumbnails/dr-2025-443.webp"
   },
   {
     "id": "ens-2025-566",
@@ -470,7 +483,8 @@
     "accessionNumber": "ENS.2025.566",
     "date": "Early 20th c., 1900–1910",
     "yearApprox": 1905,
-    "era": "pre-1920"
+    "era": "pre-1920",
+    "thumbnailUrl": "/thumbnails/ens-2025-566.webp"
   },
   {
     "id": "ens-2025-510",
@@ -499,7 +513,8 @@
     "model3d_rotationY": 45,
     "orientationReviewed": true,
     "collection": "Demo",
-    "accessionNumber": "ENS.2025.510"
+    "accessionNumber": "ENS.2025.510",
+    "thumbnailUrl": "/thumbnails/ens-2025-510.webp"
   },
   {
     "id": "dr-2024-121",
@@ -525,13 +540,14 @@
       }
     ],
     "featuredOnRunway": true,
-    "model3d_rotationY": 0,
+    "model3d_rotationY": -90,
     "orientationReviewed": false,
     "collection": "Demo",
     "accessionNumber": "DR.2024.121",
     "date": "Early 20th c., 1920–1940",
     "yearApprox": 1930,
-    "era": "1920-1950"
+    "era": "1920-1950",
+    "thumbnailUrl": "/thumbnails/dr-2024-121.webp"
   },
   {
     "id": "rb-2025-528",
@@ -563,6 +579,7 @@
     "accessionNumber": "RB.2025.528",
     "date": "Early 20th c., 1900–1920",
     "yearApprox": 1910,
-    "era": "pre-1920"
+    "era": "pre-1920",
+    "thumbnailUrl": "/thumbnails/rb-2025-528.webp"
   }
 ]
