@@ -65,7 +65,6 @@ export default function CollectionPage({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [bulkMessage, setBulkMessage] = useState<string | null>(null);
-  const [selectedDecade, setSelectedDecade] = useState<string>(sp.decade || "all");
   const [currentPage, setCurrentPage] = useState(1);
 
   // Active filter chips — derived from current filter state
@@ -83,9 +82,6 @@ export default function CollectionPage({
     if (selectedMaterial !== "all") {
       chips.push({ id: "material", label: `Material: ${selectedMaterial}`, clear: () => setSelectedMaterial("all") });
     }
-    if (selectedDecade !== "all") {
-      chips.push({ id: "decade", label: `Decade: ${selectedDecade}`, clear: () => setSelectedDecade("all") });
-    }
     if (dateRange.start !== undefined) {
       chips.push({ id: "dateStart", label: `From: ${dateRange.start}`, clear: () => setDateRange({ ...dateRange, start: undefined }) });
     }
@@ -93,7 +89,7 @@ export default function CollectionPage({
       chips.push({ id: "dateEnd", label: `To: ${dateRange.end}`, clear: () => setDateRange({ ...dateRange, end: undefined }) });
     }
     return chips;
-  }, [selectedEra, selectedType, selectedColor, selectedMaterial, selectedDecade, dateRange]);
+  }, [selectedEra, selectedType, selectedColor, selectedMaterial, dateRange]);
 
   const { addFavorite } = useFavorites();
 
@@ -109,11 +105,10 @@ export default function CollectionPage({
     if (searchQuery) params.set("q", searchQuery);
     if (sortBy !== "relevance") params.set("sort", sortBy);
     if (viewMode !== "grid") params.set("view", viewMode);
-    if (selectedDecade !== "all") params.set("decade", selectedDecade);
 
     const newUrl = params.toString() ? `/collection?${params.toString()}` : "/collection";
     router.replace(newUrl, { scroll: false });
-  }, [selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy, viewMode, selectedDecade, router]);
+  }, [selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy, viewMode, router]);
 
   // Escape exits select mode / closes dropdowns
   useEffect(() => {
@@ -173,14 +168,6 @@ export default function CollectionPage({
       });
     }
 
-    // Apply decade filter
-    if (selectedDecade !== "all") {
-      results = results.filter(g => {
-        const dec = g.decade ? String(g.decade) : undefined;
-        return dec === selectedDecade || dec === selectedDecade.replace("s", "");
-      });
-    }
-
     // Apply sorting
     results = [...results].sort((a, b) => {
       switch (sortBy) {
@@ -214,14 +201,14 @@ export default function CollectionPage({
     });
 
     return results;
-  }, [allGarments, selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy, selectedDecade]);
+  }, [allGarments, selectedEra, selectedType, selectedColor, selectedMaterial, dateRange, searchQuery, sortBy]);
 
   // Reset to page 1 when the filter set changes. Adjusting during render
   // (the documented alternative to an effect) keeps the paginated slice and
   // the filter state consistent within a single pass instead of rendering one
   // frame of a stale page.
   const filterSignature = [
-    selectedEra, selectedType, selectedColor, selectedMaterial, selectedDecade,
+    selectedEra, selectedType, selectedColor, selectedMaterial,
     dateRange.start ?? "", dateRange.end ?? "", searchQuery, sortBy,
   ].join("|");
   const [lastFilterSignature, setLastFilterSignature] = useState(filterSignature);
@@ -392,7 +379,6 @@ export default function CollectionPage({
                     setSelectedColor("all");
                     setSelectedMaterial("all");
                     setDateRange({});
-                    setSelectedDecade("all");
                   }}
                   className="text-xs text-archive-muted hover:text-archive-fg transition-colors mb-4 underline underline-offset-2"
                 >
@@ -507,21 +493,6 @@ export default function CollectionPage({
                 />
               </div>
             </div>
-
-            {/* Decade */}
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-archive-muted mb-2">Decade</p>
-              <select
-                value={selectedDecade}
-                onChange={(e) => setSelectedDecade(e.target.value)}
-                className="w-full bg-archive-surface border border-archive-border px-2 py-1.5 text-xs text-archive-fg focus:outline-none focus:border-archive-border-hover"
-              >
-                <option value="all">All decades</option>
-                {["1900s","1910s","1920s","1930s","1940s","1950s","1960s","1970s","1980s","1990s","2000s"].map(d => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
-            </div>
           </aside>
 
           {/* Main content area */}
@@ -557,7 +528,6 @@ export default function CollectionPage({
                     setSelectedType("all");
                     setSelectedColor("all");
                     setSelectedMaterial("all");
-                    setSelectedDecade("all");
                     setDateRange({});
                   }}
                   aria-label="Clear all active filters"
@@ -835,14 +805,13 @@ export default function CollectionPage({
             )}
 
             {/* Clear Filters */}
-            {(selectedEra !== "all" || selectedType !== "all" || selectedColor !== "all" || selectedMaterial !== "all" || selectedDecade !== "all" || dateRange.start || dateRange.end) && (
+            {(selectedEra !== "all" || selectedType !== "all" || selectedColor !== "all" || selectedMaterial !== "all" || dateRange.start || dateRange.end) && (
               <button
                 onClick={() => {
                   setSelectedEra("all");
                   setSelectedType("all");
                   setSelectedColor("all");
                   setSelectedMaterial("all");
-                  setSelectedDecade("all");
                   setDateRange({});
                 }}
                 className="bg-archive-surface/50 border border-archive-border px-4 py-2 text-sm text-archive-muted hover:text-archive-fg uppercase tracking-[0.1em] font-light hover:border-archive-border-hover transition-colors flex items-center gap-2"
@@ -1244,7 +1213,6 @@ export default function CollectionPage({
               setSelectedType("all");
               setSelectedColor("all");
               setSelectedMaterial("all");
-              setSelectedDecade("all");
               setDateRange({});
             }}
           />

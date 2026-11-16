@@ -7,8 +7,6 @@ import { Box3, Group, MeshStandardMaterial, Vector3 } from "three";
 import DemoGarment from "./DemoGarment";
 import { Garment } from "@/types/garment";
 import { getPrimaryColor } from "@/lib/colorUtils";
-import ModelAnnotations from "./ModelAnnotations";
-import { generateGarmentAnnotations } from "@/lib/annotations";
 import ConservatorLighting from "./ConservatorLighting";
 import LightDial from "./LightDial";
 import { initialLightState, type ConservatorLightState } from "@/lib/conservatorLight";
@@ -212,13 +210,6 @@ export default function Garment3DViewer({ modelUrl, garmentId, garment }: Props)
             <PlaceholderModel garment={garment} />
           )}
         </Suspense>
-
-        {/* Annotations */}
-        {garment && (
-          <ModelAnnotations
-            annotations={generateGarmentAnnotations(garment)}
-          />
-        )}
       </Canvas>
 
       {/* Conservator toggles — only for real scans */}
