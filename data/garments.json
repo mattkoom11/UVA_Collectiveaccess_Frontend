@@ -606,8 +606,8 @@
       }
     ],
     "featuredOnRunway": true,
-    "model3d_rotationY": -90,
-    "orientationReviewed": false,
+    "model3d_rotationY": 120,
+    "orientationReviewed": true,
     "collection": "Demo",
     "accessionNumber": "DR.2025.549",
     "date": "Early 20th c., 1910–1920",
