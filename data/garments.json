@@ -581,5 +581,38 @@
     "yearApprox": 1910,
     "era": "pre-1920",
     "thumbnailUrl": "/thumbnails/rb-2025-528.webp"
+  },
+  {
+    "id": "dr-2025-549",
+    "slug": "dr-2025-549",
+    "label": "DR.2025.549",
+    "name": "DR.2025.549",
+    "type": "dress",
+    "work_type": "Dress",
+    "colors": [],
+    "materials": [],
+    "images": [],
+    "model3d_url": "/models/dr-2025-549.glb",
+    "models": [
+      {
+        "url": "/models/dr-2025-549.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/dr-2025-549-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
+    "featuredOnRunway": true,
+    "model3d_rotationY": -90,
+    "orientationReviewed": false,
+    "collection": "Demo",
+    "accessionNumber": "DR.2025.549",
+    "date": "Early 20th c., 1910–1920",
+    "yearApprox": 1915,
+    "era": "pre-1920",
+    "thumbnailUrl": "/thumbnails/dr-2025-549.webp"
   }
 ]
