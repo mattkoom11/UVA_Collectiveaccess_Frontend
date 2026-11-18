@@ -614,5 +614,38 @@
     "yearApprox": 1915,
     "era": "pre-1920",
     "thumbnailUrl": "/thumbnails/dr-2025-549.webp"
+  },
+  {
+    "id": "dr-2025-550",
+    "slug": "dr-2025-550",
+    "label": "DR.2025.550",
+    "name": "DR.2025.550",
+    "type": "dress",
+    "work_type": "Dressing Gown",
+    "colors": [],
+    "materials": [],
+    "images": [],
+    "model3d_url": "/models/dr-2025-550.glb",
+    "models": [
+      {
+        "url": "/models/dr-2025-550.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/dr-2025-550-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
+    "featuredOnRunway": true,
+    "model3d_rotationY": 180,
+    "orientationReviewed": false,
+    "collection": "Demo",
+    "accessionNumber": "DR.2025.550",
+    "date": "Late 19th c., 1890–1900",
+    "yearApprox": 1895,
+    "era": "pre-1920",
+    "thumbnailUrl": "/thumbnails/dr-2025-550.webp"
   }
 ]
