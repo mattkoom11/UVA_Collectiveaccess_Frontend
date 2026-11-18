@@ -647,5 +647,74 @@
     "yearApprox": 1895,
     "era": "pre-1920",
     "thumbnailUrl": "/thumbnails/dr-2025-550.webp"
+  },
+  {
+    "id": "dr-2023-28",
+    "slug": "dr-2023-28",
+    "label": "DR.2023.28",
+    "name": "DR.2023.28",
+    "type": "dress",
+    "work_type": "Dress",
+    "colors": [],
+    "materials": [],
+    "images": [],
+    "model3d_url": "/models/dr-2023-28.glb",
+    "models": [
+      {
+        "url": "/models/dr-2023-28.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/dr-2023-28-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
+    "featuredOnRunway": true,
+    "model3d_rotationY": -175,
+    "orientationReviewed": true,
+    "collection": "Demo",
+    "accessionNumber": "DR.2023.28",
+    "description": "Blue silk chiffon and velvet sleeveless dress with long lappets that hang off the shoulders to the back.",
+    "date": "Early 20th c., 1910–1930",
+    "yearApprox": 1920,
+    "era": "1920-1950",
+    "condition": "The condition is fair.",
+    "thumbnailUrl": "/thumbnails/dr-2023-28.webp"
+  },
+  {
+    "id": "dr-2025-486",
+    "slug": "dr-2025-486",
+    "label": "DR.2025.486",
+    "name": "DR.2025.486",
+    "type": "dress",
+    "work_type": "Dress",
+    "colors": [],
+    "materials": [],
+    "images": [],
+    "model3d_url": "/models/dr-2025-486.glb",
+    "models": [
+      {
+        "url": "/models/dr-2025-486.glb",
+        "role": "web_preview",
+        "format": "glb"
+      },
+      {
+        "url": "/models/dr-2025-486-detail.glb",
+        "role": "full_detail",
+        "format": "glb"
+      }
+    ],
+    "featuredOnRunway": true,
+    "model3d_rotationY": 25,
+    "orientationReviewed": true,
+    "collection": "Demo",
+    "accessionNumber": "DR.2025.486",
+    "date": "Early 20th c., 1910–1920",
+    "yearApprox": 1915,
+    "era": "pre-1920",
+    "condition": "The condition is poor.",
+    "thumbnailUrl": "/thumbnails/dr-2025-486.webp"
   }
 ]
