@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Canvas, type ThreeEvent } from "@react-three/fiber";
 import { Vector3 } from "three";
-import { buildMuseumLayout } from "@/lib/museum";
+import { buildMuseumLayout, getPreviewModelUrl } from "@/lib/museum";
 import {
   EYE_HEIGHT,
   LOBBY_INDEX,
@@ -46,6 +46,69 @@ function markArrivalSeen() {
   } catch {
     // Nothing to remember it in.
   }
+}
+
+// After this long, the loading screen offers a way in without waiting for
+// every scan (a slow connection, or a host that never answers).
+const SLOW_LOAD_MS = 15_000;
+
+/**
+ * Covers the hall until every runway scan is in, so visitors never see
+ * placeholders pop into garments. Fades out rather than vanishing.
+ */
+function LoadingScreen({
+  done,
+  loaded,
+  total,
+  onEnterNow,
+}: {
+  done: boolean;
+  loaded: number;
+  total: number;
+  onEnterNow: () => void;
+}) {
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSlow(true), SLOW_LOAD_MS);
+    return () => window.clearTimeout(timer);
+  }, []);
+  const fraction = total === 0 ? 1 : loaded / total;
+
+  return (
+    <div
+      className={`absolute inset-0 z-20 flex flex-col items-center justify-center gap-5 bg-archive-bg px-6 text-center transition-opacity duration-700 motion-reduce:transition-none ${done ? "opacity-0 pointer-events-none" : ""}`}
+      aria-hidden={done}
+    >
+      <p className="eyebrow">Opening the galleries</p>
+      <div
+        role="progressbar"
+        aria-label="Loading the garments"
+        aria-valuemin={0}
+        aria-valuemax={total}
+        aria-valuenow={loaded}
+        className="w-48 h-px bg-archive-border overflow-hidden"
+      >
+        <div
+          className="h-full bg-archive-fg origin-left transition-transform duration-500 ease-out motion-reduce:transition-none"
+          style={{ transform: `scaleX(${fraction})` }}
+        />
+      </div>
+      {total > 0 && (
+        <p className="text-xs text-archive-muted tabular-nums">
+          {loaded} of {total} garments
+        </p>
+      )}
+      {slow && !done && (
+        <button
+          type="button"
+          onClick={onEnterNow}
+          className="text-xs uppercase tracking-[0.16em] text-archive-fg border-b border-archive-signal pb-1"
+        >
+          Enter now — the rest will follow
+        </button>
+      )}
+    </div>
+  );
 }
 
 interface Inspection {
@@ -102,6 +165,9 @@ export default function MuseumHall({ garments, intro = false }: { garments: Garm
   const [inspection, setInspection] = useState<Inspection | null>(null);
   const [photo, setPhoto] = useState<Garment | null>(null);
   const [ready, setReady] = useState(false);
+  // Every runway preview that has loaded, or failed to.
+  const [settled, setSettled] = useState<ReadonlySet<string>>(() => new Set());
+  const [hallReady, setHallReady] = useState(false);
   const [introDismissed, setIntroDismissed] = useState(false);
   // The first homepage visit of a session opens with a glide into the hall.
   const [arriving, setArriving] = useState(() => intro && !arrivalSeen());
@@ -122,6 +188,43 @@ export default function MuseumHall({ garments, intro = false }: { garments: Garm
     setArriving(false);
     markArrivalSeen();
   }, []);
+
+  const expectedIds = useMemo(
+    () =>
+      segments.flatMap((s) =>
+        s.flagshipSlots.filter((slot) => getPreviewModelUrl(slot.garment)).map((slot) => slot.garment.id),
+      ),
+    [segments],
+  );
+  // One stable callback per flagship, so FittedModel's effect fires once.
+  const settleCallbacks = useMemo(
+    () =>
+      new Map(
+        expectedIds.map((id) => [
+          id,
+          () => setSettled((prev) => (prev.has(id) ? prev : new Set(prev).add(id))),
+        ]),
+      ),
+    [expectedIds],
+  );
+  const settledCount = expectedIds.filter((id) => settled.has(id)).length;
+  const allSettled = ready && settledCount === expectedIds.length;
+
+  // A loaded scan still has its texture uploaded on its first rendered frame;
+  // wait two frames so that hitch happens behind the loading screen.
+  useEffect(() => {
+    if (!allSettled || hallReady) return;
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => setHallReady(true));
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
+  }, [allSettled, hallReady]);
+
+  const enterNow = useCallback(() => setHallReady(true), []);
 
   const walking = inspection === null && photo === null;
   const inspecting = inspection?.phase === "enter" ? inspection.slot : null;
@@ -161,7 +264,7 @@ export default function MuseumHall({ garments, intro = false }: { garments: Garm
   };
 
   // The welcome panel closes once the visitor enters, or sets off walking.
-  const showIntro = intro && ready && !introDismissed && wingIndex === LOBBY_INDEX && walking;
+  const showIntro = intro && hallReady && !introDismissed && wingIndex === LOBBY_INDEX && walking;
 
   const dismissIntro = useCallback(() => setIntroDismissed(true), []);
 
@@ -211,6 +314,7 @@ export default function MuseumHall({ garments, intro = false }: { garments: Garm
               slot={slot}
               inspecting={inspecting?.garment.id === slot.garment.id}
               onSelect={handleSelectFlagship}
+              onPreviewSettled={settleCallbacks.get(slot.garment.id)}
             />
           )),
         )}
@@ -222,7 +326,7 @@ export default function MuseumHall({ garments, intro = false }: { garments: Garm
 
         <HallControls
           layout={layout}
-          enabled={walking && !arriving}
+          enabled={walking && !arriving && hallReady}
           walkTargetRef={walkTargetRef}
           onWingChange={setWingIndex}
           onStepIn={dismissIntro}
@@ -236,7 +340,7 @@ export default function MuseumHall({ garments, intro = false }: { garments: Garm
             onExited={() => setInspection(null)}
           />
         )}
-        {arriving && <ArrivalShot start={layout.start} onDone={finishArrival} />}
+        {arriving && hallReady && <ArrivalShot start={layout.start} onDone={finishArrival} />}
       </Canvas>
 
       {/* Where you are: the one place the accent color marks "you are here". */}
@@ -285,7 +389,7 @@ export default function MuseumHall({ garments, intro = false }: { garments: Garm
         </div>
       )}
 
-      {walking && ready && (
+      {walking && hallReady && (
         <p
           className={`pointer-events-none absolute bottom-5 inset-x-0 text-center eyebrow px-4 transition-opacity duration-500 motion-reduce:transition-none ${showIntro || arriving ? "opacity-0" : "delay-100"}`}
         >
@@ -351,12 +455,7 @@ export default function MuseumHall({ garments, intro = false }: { garments: Garm
         </div>
       )}
 
-      {!ready && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-archive-bg">
-          <div className="w-8 h-8 border border-archive-border border-t-archive-fg rounded-full animate-spin mb-4" />
-          <p className="eyebrow">Opening the galleries</p>
-        </div>
-      )}
+      <LoadingScreen done={hallReady} loaded={settledCount} total={expectedIds.length} onEnterNow={enterNow} />
 
       {/* The hall as a plain list, for screen readers and keyboard users. */}
       <nav aria-label="Garments in the hall" className="sr-only">

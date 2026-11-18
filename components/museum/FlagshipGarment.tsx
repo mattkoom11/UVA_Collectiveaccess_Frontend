@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useEffect, useMemo } from "react";
 import type { ThreeEvent } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import { Box3 } from "three";
@@ -11,11 +11,19 @@ import { getDetailModelUrl, getPreviewModelUrl } from "@/lib/museum";
 // Clicks that moved more than this many pixels were drags (looking around).
 const CLICK_TOLERANCE_PX = 6;
 
-function FittedModel({ url }: { url: string }) {
+function FittedModel({ url, onSettled }: { url: string; onSettled?: () => void }) {
   const { scene } = useGLTF(url);
   const model = useMemo(() => scene.clone(true), [scene]);
   const { scale, offset } = useMemo(() => fitToHeight(new Box3().setFromObject(model), FLAGSHIP_HEIGHT), [model]);
+  // Mounting means Suspense let go: the file is downloaded and parsed.
+  useEffect(() => onSettled?.(), [onSettled]);
   return <primitive object={model} scale={scale} position={offset} />;
+}
+
+// A scan that failed to load is settled too: the hall shouldn't wait on it forever.
+function FailedModel({ onSettled }: { onSettled?: () => void }) {
+  useEffect(() => onSettled?.(), [onSettled]);
+  return <Placeholder />;
 }
 
 // Stands in while the scan loads, or if it fails to load.
@@ -32,10 +40,13 @@ export default function FlagshipGarment({
   slot,
   inspecting,
   onSelect,
+  onPreviewSettled,
 }: {
   slot: FlagshipSlot;
   inspecting: boolean;
   onSelect: (slot: FlagshipSlot) => void;
+  /** Called once the runway preview has loaded, or has failed to. */
+  onPreviewSettled?: () => void;
 }) {
   const previewUrl = getPreviewModelUrl(slot.garment);
   const detailUrl = getDetailModelUrl(slot.garment);
@@ -43,7 +54,7 @@ export default function FlagshipGarment({
 
   if (!previewUrl) return null;
 
-  const preview = <FittedModel url={previewUrl} />;
+  const preview = <FittedModel url={previewUrl} onSettled={onPreviewSettled} />;
   const detail = inspecting && detailUrl && detailUrl !== previewUrl ? detailUrl : undefined;
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
@@ -65,7 +76,7 @@ export default function FlagshipGarment({
           document.body.style.cursor = "";
         }}
       >
-        <ErrorBoundary fallback={<Placeholder />}>
+        <ErrorBoundary fallback={<FailedModel onSettled={onPreviewSettled} />}>
           <Suspense fallback={<Placeholder />}>
             {/* The preview stays on screen until the detail file has loaded. */}
             {detail ? <Suspense fallback={preview}><FittedModel url={detail} /></Suspense> : preview}

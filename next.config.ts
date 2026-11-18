@@ -44,6 +44,17 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react'],
   },
+  // 3D scans are multi-megabyte and rarely change, but their names aren't
+  // content-hashed, so no `immutable`: a day fresh, then a week of serving
+  // the cached copy while revalidating in the background.
+  async headers() {
+    return [
+      {
+        source: "/models/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+      },
+    ];
+  },
   // The runway and the hall preview were folded into the homepage, which is
   // now the museum's entrance.
   async redirects() {

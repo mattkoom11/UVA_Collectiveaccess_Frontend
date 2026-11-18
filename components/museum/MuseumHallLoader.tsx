@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useSyncExternalStore, type ReactNode } from "react";
+import { preload } from "react-dom";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ErrorBoundary from "@/components/garments/ErrorBoundary";
+import { getPreviewModelUrl, isFlagship } from "@/lib/museum";
 import type { Garment } from "@/types/garment";
 
 function HallMessage({ children }: { children: ReactNode }) {
@@ -49,6 +51,19 @@ export default function MuseumHallLoader({ garments, intro = false }: { garments
   useEffect(() => {
     if (supported === false) router.replace("/collection");
   }, [supported, router]);
+
+  // Start the runway scans downloading now, alongside the Three.js chunk,
+  // instead of after it has loaded and the hall has mounted. Only once the
+  // hall is sure to show: a visitor bound for /collection shouldn't pay for
+  // them. crossOrigin "anonymous" matches three's fetch (mode cors,
+  // same-origin credentials), so useGLTF reuses the preloaded response.
+  useEffect(() => {
+    if (supported !== true) return;
+    for (const garment of garments) {
+      const url = isFlagship(garment) ? getPreviewModelUrl(garment) : undefined;
+      if (url) preload(url, { as: "fetch", crossOrigin: "anonymous" });
+    }
+  }, [supported, garments]);
 
   if (supported !== true) return <Opening />;
 

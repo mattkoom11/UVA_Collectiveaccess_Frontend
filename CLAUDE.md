@@ -156,6 +156,8 @@ interface Garment {
 - Lighting: a dark room, a light pool under every flagship, and a fill light, light color and hanging banner per segment (`lib/hallLighting.ts` palettes). A fixed pool of real spotlights follows the nearest garments, so lighting cost doesn't grow with the collection
 - Quality tier, decided once on mount: phones, viewports under 768 px or ≤ 4 CPU cores get 2 spotlights, DPR ≤ 1.25 and a matte runway; everything else gets 4 spotlights, DPR ≤ 1.75 and glossy reflections
 - Arrival shot: the first homepage visit of a browser session cranes the camera down from the back of the lobby (~4 s; `sessionStorage` key `hall-arrival-seen`). Any pointer, key, wheel or touch input skips it to the same end pose
+- Loading screen: covers the hall with an "n of N garments" bar until every runway preview has loaded (or failed), then waits two frames for texture upload. Arrival shot, walking and the welcome panel wait for it; after 15 s it offers "Enter now". `MuseumHallLoader` `preload()`s the preview GLBs as soon as WebGL is confirmed, so they download alongside the Three.js chunk (crossOrigin `anonymous` matches three's fetch, so there is no double download)
+- `/models/*` is served with a 1-day `Cache-Control` + 7-day `stale-while-revalidate` (`next.config.ts`); not `immutable`, since filenames aren't content-hashed
 - Drag to look, click the floor to walk, WASD/arrows to move
 - No WebGL, or `prefers-reduced-motion`, redirects to `/collection`
 - `/runway` and `/hall` redirect to `/` (`next.config.ts`); `/backstage/:id` redirects to the garment's record
